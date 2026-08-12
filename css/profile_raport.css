@@ -1126,7 +1126,39 @@ body {
     flex-shrink: 0;
 }
 
-.stats-footer-badge i { width: 12px; height: 12px; }
+/* =========================================
+   FIX: Ukuran Icon Footer (Kecil & Proporsional)
+   ========================================= */
+
+/* ✅ Badge RESMI - icon sangat kecil */
+.stats-footer-badge i,
+.stats-footer-badge svg {
+    width: 10px !important;
+    height: 10px !important;
+    stroke-width: 2.5px !important;
+}
+
+/* ✅ Info text - icon kecil */
+.stats-footer .info-text i,
+.stats-footer .info-text svg {
+    width: 12px !important;
+    height: 12px !important;
+    stroke-width: 2px !important;
+    flex-shrink: 0;
+}
+
+/* ✅ Pastikan badge tidak terlalu besar */
+.stats-footer-badge {
+    padding: 3px 8px;
+    font-size: 0.55rem;
+    gap: 4px;
+}
+
+/* ✅ Info text lebih compact */
+.stats-footer .info-text {
+    font-size: 0.7rem;
+    gap: 6px;
+}
 
 .stats-footer-divider {
     height: 1px;
@@ -1479,7 +1511,28 @@ body {
     .stat-card[data-tooltip]:hover::after,
     .stat-card[data-tooltip]:hover::before { display: none; }
 }
-
+/* ✅ Icon footer lebih kecil di mobile */
+    .stats-footer-badge i,
+    .stats-footer-badge svg {
+        width: 8px !important;
+        height: 8px !important;
+    }
+    
+    .stats-footer .info-text i,
+    .stats-footer .info-text svg {
+        width: 10px !important;
+        height: 10px !important;
+    }
+    
+    .stats-footer-badge {
+        padding: 2px 6px;
+        font-size: 0.5rem;
+    }
+    
+    .stats-footer .info-text {
+        font-size: 0.62rem;
+    }
+}
 @media (max-width: 480px) {
     .today-status-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .today-status-grid .status-card { padding: 10px; gap: 8px; }
@@ -1534,7 +1587,30 @@ body {
     .stats-footer .stats-total b { padding: 2px 6px; font-size: 0.7rem; }
     .stats-footer-brand-name { font-size: 0.72rem; }
 }
-
+/* ✅ Icon footer paling kecil di HP kecil */
+    .stats-footer-badge i,
+    .stats-footer-badge svg {
+        width: 7px !important;
+        height: 7px !important;
+    }
+    
+    .stats-footer .info-text i,
+    .stats-footer .info-text svg {
+        width: 9px !important;
+        height: 9px !important;
+    }
+    
+    .stats-footer-badge {
+        padding: 2px 5px;
+        font-size: 0.45rem;
+        letter-spacing: 0.5px;
+    }
+    
+    .stats-footer .info-text {
+        font-size: 0.58rem;
+        gap: 4px;
+    }
+}
 /* =========================================
    21. PRINT STYLES
    ========================================= */
