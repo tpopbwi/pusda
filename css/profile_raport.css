@@ -1,7 +1,6 @@
 /* ============================================================
-   PROFILE_RAPORT.CSS - v6.0 (LOW-END DEVICE OPTIMIZED)
-   Kombinasi: Dark Navy + Blue Gradient + White Body
-   Fitur: Adaptive Performance untuk HP Spek Rendah
+   PROFILE_RAPORT.CSS - v6.0 (FINAL CLEAN & ORGANIZED)
+   Logo UPT PUSDA + Footer Stats Resmi + Low-End Optimized
    ============================================================ */
 
 /* =========================================
@@ -36,7 +35,92 @@
 }
 
 /* =========================================
-   2. BASE & RESET
+   2. LOW-END DEVICE OVERRIDES
+   ========================================= */
+@media (max-width: 768px) {
+    .sidebar,
+    .profile-stats-badge,
+    .raport-card.glass-card,
+    .raport-card:has(.today-status-grid),
+    #loadingOverlay,
+    #notificationModal,
+    .bottom-nav,
+    .btn-back {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+    }
+    
+    .raport-card.glass-card,
+    .raport-card:has(.today-status-grid) {
+        background: rgba(15, 32, 77, 0.95) !important;
+    }
+    
+    .profile-stats-badge {
+        background: rgba(30, 58, 138, 0.95) !important;
+    }
+    
+    .bottom-nav {
+        background: rgba(15, 23, 42, 0.99) !important;
+    }
+    
+    .btn-back {
+        background: rgba(15, 32, 77, 0.95) !important;
+    }
+}
+
+.low-end-device * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+}
+
+.low-end-device .raport-card,
+.low-end-device .profile-header,
+.low-end-device .success-toast,
+.low-end-device .status-card,
+.low-end-device .stat-card,
+.low-end-device .profile-avatar-popout img {
+    animation: none !important;
+    transition: none !important;
+}
+
+.low-end-device .stat-bar .bar-fill {
+    transition: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+@media (hover: none) {
+    .raport-card:hover,
+    .status-card:hover,
+    .stat-card:hover,
+    .btn-back:hover,
+    .btn-presensi-header:hover,
+    .btn-filter:hover,
+    .btn-load-more:hover,
+    .nav-link:hover {
+        transform: none !important;
+    }
+    
+    .raport-card:hover .card-header h3 i {
+        transform: none !important;
+    }
+    
+    .profile-header:hover .profile-avatar-popout img {
+        transform: translateY(2px) scale(1.1) !important;
+    }
+}
+
+/* =========================================
+   3. BASE & RESET
    ========================================= */
 * {
     margin: 0;
@@ -67,109 +151,6 @@ body {
 }
 
 /* =========================================
-   3. LOW-END DEVICE OVERRIDES (PALING ATAS!)
-   ========================================= */
-
-/* ✅ Hapus backdrop-filter di semua mobile */
-@media (max-width: 768px) {
-    .sidebar,
-    .profile-stats-badge,
-    .raport-card.glass-card,
-    .raport-card:has(.today-status-grid),
-    #loadingOverlay,
-    #notificationModal,
-    .bottom-nav,
-    .btn-back {
-        backdrop-filter: none !important;
-        -webkit-backdrop-filter: none !important;
-    }
-
-    .raport-card.glass-card,
-    .raport-card:has(.today-status-grid) {
-        background: rgba(15, 32, 77, 0.95) !important;
-    }
-
-    .profile-stats-badge {
-        background: rgba(30, 58, 138, 0.95) !important;
-    }
-
-    .bottom-nav {
-        background: rgba(15, 23, 42, 0.99) !important;
-    }
-
-    .btn-back {
-        background: rgba(15, 32, 77, 0.95) !important;
-    }
-}
-
-/* ✅ Class untuk HP low-end (ditambah oleh JS) */
-.low-end-device * {
-    backdrop-filter: none !important;
-    -webkit-backdrop-filter: none !important;
-}
-
-.low-end-device .raport-card,
-.low-end-device .profile-header,
-.low-end-device .success-toast,
-.low-end-device .status-card,
-.low-end-device .stat-card {
-    animation: none !important;
-    transition: none !important;
-}
-
-.low-end-device .stat-bar .bar-fill {
-    transition: none !important;
-}
-
-.low-end-device .lazy-img {
-    animation: none !important;
-}
-
-.low-end-device .profile-avatar-popout img {
-    transition: none !important;
-}
-
-.low-end-device .raport-card:hover,
-.low-end-device .status-card:hover,
-.low-end-device .stat-card:hover {
-    transform: none !important;
-}
-
-/* ✅ Respect user's reduced motion preference */
-@media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-        scroll-behavior: auto !important;
-    }
-}
-
-/* ✅ Disable hover effects di touch devices (hemat CPU) */
-@media (hover: none) {
-    .raport-card:hover,
-    .status-card:hover,
-    .stat-card:hover,
-    .btn-back:hover,
-    .btn-presensi-header:hover,
-    .btn-filter:hover,
-    .btn-load-more:hover,
-    .nav-link:hover {
-        transform: none !important;
-    }
-
-    .raport-card:hover .card-header h3 i {
-        transform: none !important;
-    }
-
-    .profile-header:hover .profile-avatar-popout img {
-        transform: translateY(2px) scale(1.1) !important;
-    }
-}
-
-/* =========================================
    4. LOADING OVERLAY
    ========================================= */
 #loadingOverlay {
@@ -177,13 +158,20 @@ body {
     inset: 0;
     z-index: 110000;
     background: rgba(13, 27, 62, 0.95);
-    backdrop-filter: blur(10px);
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     color: #fff;
     transition: opacity 0.3s ease;
+}
+
+#loadingOverlay p {
+    font-weight: 800;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-size: 0.7rem;
+    text-align: center;
 }
 
 .sending-loader {
@@ -221,7 +209,7 @@ body {
 }
 
 /* =========================================
-   5. SIDEBAR
+   5. SIDEBAR (DESKTOP)
    ========================================= */
 .sidebar {
     width: var(--sidebar-width);
@@ -237,7 +225,7 @@ body {
     display: flex;
     flex-direction: column;
     z-index: 100;
-    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
 }
 
 .brand {
@@ -249,11 +237,17 @@ body {
     border-bottom: 1px solid var(--glass-border);
 }
 
-.brand img { height: 45px; border-radius: 8px; }
-.brand h1 { font-weight: 800; font-size: 1.1rem; margin: 0; }
-.brand p { font-size: 0.55rem; opacity: 0.6; font-weight: 800; margin: 2px 0 0 0; }
+.brand img {
+    height: 45px;
+    border-radius: 8px;
+}
 
-.nav-items { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+.nav-items {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    flex: 1;
+}
 
 .nav-link {
     padding: 14px 18px;
@@ -263,18 +257,21 @@ body {
     gap: 14px;
     color: rgba(255, 255, 255, 0.6);
     text-decoration: none;
-    transition: 0.3s;
+    transition: 0.2s;
     cursor: pointer;
     font-weight: 600;
     font-size: 0.9rem;
 }
 
-.nav-link:hover { background: rgba(255, 255, 255, 0.05); color: white; }
+.nav-link:hover {
+    background: rgba(255, 255, 255, 0.05);
+    color: white;
+}
 
 .nav-link.active {
     background: linear-gradient(135deg, var(--pu-blue), var(--primary));
     color: white;
-    box-shadow: 0 10px 20px rgba(30, 64, 175, 0.4);
+    box-shadow: 0 6px 15px rgba(30, 64, 175, 0.3);
 }
 
 .sidebar-clock {
@@ -284,7 +281,6 @@ body {
     border: 1px solid var(--glass-border);
     border-radius: 22px;
     text-align: center;
-    backdrop-filter: blur(10px);
 }
 
 .sidebar-clock p {
@@ -347,11 +343,13 @@ body {
     align-items: center;
     gap: 10px;
     font-size: 0.85rem;
-    transition: 0.3s;
-    backdrop-filter: blur(20px);
+    transition: 0.2s;
 }
 
-.btn-back:hover { background: rgba(255, 255, 255, 0.1); transform: translateX(-3px); }
+.btn-back:hover {
+    background: rgba(255, 255, 255, 0.1);
+    transform: translateX(-3px);
+}
 
 .btn-presensi-header {
     background: var(--accent);
@@ -367,7 +365,7 @@ body {
     align-items: center;
     gap: 10px;
     box-shadow: 0 6px 15px rgba(249, 115, 22, 0.3);
-    transition: 0.3s;
+    transition: 0.2s;
     flex-shrink: 0;
 }
 
@@ -402,7 +400,7 @@ body {
     color: var(--text-muted);
     cursor: pointer;
     padding: 4px;
-    transition: color 0.3s ease;
+    transition: color 0.2s;
     flex-shrink: 0;
 }
 
@@ -419,7 +417,7 @@ body {
 }
 
 /* =========================================
-   9. PROFILE HEADER (CARD-TOP BIRU)
+   9. PROFILE HEADER
    ========================================= */
 .profile-header {
     display: grid;
@@ -456,9 +454,9 @@ body {
     height: auto;
     max-height: 150px;
     object-fit: contain;
-    filter: drop-shadow(0 8px 6px rgba(0, 0, 0, 0.3));
+    filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.5));
     transform: translateY(2px) scale(1.1);
-    transition: 0.3s ease;
+    transition: 0.2s ease;
 }
 
 .profile-header:hover .profile-avatar-popout img {
@@ -523,7 +521,6 @@ body {
     gap: 16px;
     background: rgba(255, 255, 255, 0.14);
     backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
     border: 1px solid rgba(255, 255, 255, 0.25);
     border-radius: 18px;
     padding: 14px 20px;
@@ -567,22 +564,14 @@ body {
     border: 1px solid var(--glass-border);
     padding: 24px 26px;
     margin-bottom: 20px;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     animation: fadeInUp 0.3s ease-out;
 }
 
 .raport-card:hover {
     transform: translateY(-4px);
-    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-}
-
-.raport-card.glass-card,
-.raport-card:has(.today-status-grid) {
-    background: rgba(15, 32, 77, 0.55);
-    backdrop-filter: blur(25px);
-    -webkit-backdrop-filter: blur(25px);
-    border: 1px solid rgba(255, 255, 255, 0.16);
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.3);
 }
 
 .raport-card .card-header {
@@ -615,8 +604,6 @@ body {
     background: linear-gradient(180deg, var(--pu-blue), var(--primary), var(--sda-toska));
 }
 
-.raport-card:has(.today-status-grid) .card-header { border-bottom-color: rgba(255, 255, 255, 0.15); }
-
 .raport-card .card-header h3 {
     font-size: 1.05rem;
     font-weight: 800;
@@ -629,22 +616,17 @@ body {
     letter-spacing: 0.5px;
 }
 
-.raport-card:has(.today-status-grid) .card-header h3 { color: #fff; }
-
 .raport-card .card-header h3 i {
     background: linear-gradient(135deg, var(--pu-blue), var(--primary));
     color: #ffffff;
     padding: 10px;
     border-radius: 12px;
     box-shadow: 0 3px 8px rgba(30, 64, 175, 0.2);
-    transition: transform 0.3s ease;
+    transition: transform 0.2s ease;
 }
 
-.raport-card:hover .card-header h3 i { transform: rotate(-5deg) scale(1.05); }
-
-.raport-card:has(.today-status-grid) .card-header h3 i {
-    color: var(--sda-toska);
-    background: rgba(45, 212, 191, 0.15);
+.raport-card:hover .card-header h3 i {
+    transform: rotate(-5deg) scale(1.05);
 }
 
 .date-badge, .month-badge {
@@ -657,19 +639,6 @@ body {
     color: var(--primary);
     font-family: 'JetBrains Mono', monospace;
     white-space: nowrap;
-}
-
-.raport-card:has(.today-status-grid) .date-badge {
-    background: rgba(45, 212, 191, 0.15);
-    color: var(--sda-toska);
-    border-color: rgba(45, 212, 191, 0.4);
-}
-
-#todayDate {
-    color: #ffffff !important;
-    background: rgba(45, 212, 191, 0.25) !important;
-    border-color: rgba(45, 212, 191, 0.4) !important;
-    font-weight: 800;
 }
 
 /* =========================================
@@ -693,8 +662,6 @@ body {
 }
 
 .status-card:hover { transform: translateY(-2px); }
-
-.raport-card:has(.today-status-grid) .status-card { background: rgba(255, 255, 255, 0.07); }
 
 .status-icon {
     width: 42px;
@@ -734,40 +701,17 @@ body {
     color: var(--text-muted);
 }
 
-.raport-card:has(.today-status-grid) .status-label { color: rgba(255, 255, 255, 0.6); }
-.raport-card:has(.today-status-grid) .status-point { color: rgba(255, 255, 255, 0.7) !important; }
-.raport-card:has(.today-status-grid) .status-time { color: #ffffff !important; }
-.raport-card:has(.today-status-grid) .status-empty .status-time { color: rgba(255, 255, 255, 0.35); }
-
 .status-hadir { border-color: var(--stat-hadir); background: rgba(16, 185, 129, 0.08); }
 .status-hadir .status-icon, .status-hadir .status-time { color: var(--stat-hadir); }
-.raport-card:has(.today-status-grid) .status-hadir {
-    border-color: rgba(16, 185, 129, 0.55);
-    background: rgba(16, 185, 129, 0.12);
-}
 
 .status-pulang { border-color: var(--pu-blue); background: rgba(59, 130, 246, 0.08); }
 .status-pulang .status-icon, .status-pulang .status-time { color: var(--pu-blue); }
-.raport-card:has(.today-status-grid) .status-pulang {
-    border-color: rgba(59, 130, 246, 0.55);
-    background: rgba(59, 130, 246, 0.12);
-}
 
 .status-khusus { border-color: var(--stat-izin); background: rgba(168, 85, 247, 0.08); }
 .status-khusus .status-icon, .status-khusus .status-time { color: var(--stat-izin); }
-.raport-card:has(.today-status-grid) .status-khusus {
-    border-color: rgba(168, 85, 247, 0.55);
-    background: rgba(168, 85, 247, 0.12);
-}
 
 .status-total { border-color: var(--sda-toska); background: rgba(45, 212, 191, 0.08); }
 .status-total .status-icon, .status-total .status-time { color: #0d9488; }
-.raport-card:has(.today-status-grid) .status-total {
-    border-color: rgba(45, 212, 191, 0.55);
-    background: rgba(45, 212, 191, 0.12);
-}
-
-.status-empty .status-time { color: var(--text-muted); }
 
 /* =========================================
    12. FILTER CONTROLS
@@ -875,7 +819,6 @@ body {
 .history-table tbody tr.row-past { opacity: 0.65; }
 .history-table tbody tr.row-past td { color: var(--text-muted); }
 .history-table tbody tr.row-past:hover { opacity: 1; }
-.history-table tbody tr.row-past .status-badge-table { filter: grayscale(0.35); }
 
 .status-badge-table {
     padding: 4px 12px;
@@ -941,7 +884,31 @@ body {
 }
 
 /* =========================================
-   14. STATS GRID
+   14. WORKING DAYS INFO
+   ========================================= */
+.working-days-info {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.75rem;
+    color: var(--text-mid);
+    padding: 8px 14px;
+    background: var(--card-soft);
+    border-radius: 12px;
+    border: 1px solid var(--card-border);
+    margin-bottom: 16px;
+}
+
+.working-days-info i { color: var(--pu-blue); flex-shrink: 0; }
+
+.working-days-info strong {
+    color: var(--text-dark);
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+/* =========================================
+   15. STATS GRID
    ========================================= */
 .stats-grid {
     display: grid;
@@ -1002,6 +969,8 @@ body {
     display: inline-block;
 }
 
+.stat-card:hover .stat-percentage .pct-value { transform: scale(1.05); }
+
 .stat-bar {
     width: 100%;
     height: 6px;
@@ -1047,23 +1016,124 @@ body {
 .stat-alpha .bar-fill { background: var(--stat-alpha); }
 .stat-alpha .stat-percentage .pct-value { color: var(--stat-alpha); background: rgba(239, 68, 68, 0.12); }
 
+/* Tooltip */
+.stat-card[data-tooltip]:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1e293b;
+    color: white;
+    padding: 8px 14px;
+    border-radius: 8px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+    z-index: 1000;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.stat-card[data-tooltip]:hover::before {
+    content: '';
+    position: absolute;
+    bottom: calc(100% + 2px);
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: #1e293b;
+    z-index: 1000;
+    pointer-events: none;
+}
+
 /* =========================================
-   15. STATS FOOTER (Total Kehadiran + Efektif Kerja)
-   FIXED: Warna teks untuk card PUTIH
+   16. STATS FOOTER (Dengan Logo Resmi)
    ========================================= */
 .stats-footer {
     margin-top: 20px;
-    padding: 16px 20px;
+    padding: 18px 20px;
     background: var(--card-soft);
     border-radius: 14px;
     border: 1px solid var(--card-border);
     border-left: 4px solid var(--pu-blue);
     display: flex;
     flex-direction: column;
-    gap: 10px;
+    gap: 12px;
 }
 
-/* ✅ Info text - warna GELAP untuk card putih */
+.stats-footer-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.stats-footer-logo {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: var(--card-white);
+    border: 1.5px solid var(--card-border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.stats-footer-logo img {
+    width: 32px;
+    height: 32px;
+    object-fit: contain;
+}
+
+.stats-footer-brand {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.stats-footer-brand-name {
+    font-size: 0.95rem;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+    line-height: 1.2;
+}
+
+.stats-footer-brand-sub {
+    font-size: 0.6rem;
+    font-weight: 800;
+    color: var(--text-muted);
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.stats-footer-badge {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 5px 10px;
+    border-radius: 20px;
+    background: rgba(16, 185, 129, 0.1);
+    border: 1px solid rgba(16, 185, 129, 0.3);
+    color: #059669;
+    font-size: 0.6rem;
+    font-weight: 800;
+    letter-spacing: 1px;
+    flex-shrink: 0;
+}
+
+.stats-footer-badge i { width: 12px; height: 12px; }
+
+.stats-footer-divider {
+    height: 1px;
+    background: var(--card-border);
+    margin: 2px 0;
+}
+
 .stats-footer .info-text {
     display: flex;
     align-items: center;
@@ -1079,7 +1149,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ✅ Stats total - warna GELAP untuk card putih */
 .stats-footer .stats-total {
     font-size: 0.85rem;
     color: var(--text-dark);
@@ -1090,7 +1159,6 @@ body {
     font-weight: 600;
 }
 
-/* ✅ Badge angka dengan style yang jelas */
 .stats-footer .stats-total b {
     font-weight: 800;
     font-family: 'JetBrains Mono', monospace;
@@ -1099,25 +1167,25 @@ body {
     font-size: 0.9rem;
     line-height: 1.2;
 }
-/* ✅ Total Kehadiran - Hijau */
+
 .stats-footer .hadir-count {
     background: rgba(16, 185, 129, 0.12);
     color: #059669;
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
-/* ✅ Efektif Kerja - Biru */
+
 .stats-footer .alpha-count {
     background: rgba(59, 130, 246, 0.12);
     color: #2563eb;
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
-/* ✅ Label "Efektif Kerja Agt:" */
+
 .stats-footer .efektif-label {
     font-weight: 700;
     color: var(--text-mid);
     font-size: 0.8rem;
 }
-/* ✅ Divider titik tengah */
+
 .stats-footer .stats-divider {
     color: var(--text-muted);
     font-weight: 300;
@@ -1126,126 +1194,14 @@ body {
 }
 
 /* =========================================
-   DARK/GLASS CARD VARIANT (Jika pakai glass)
-   ========================================= */
-.raport-card.glass-card .stats-footer {
-    background: rgba(255, 255, 255, 0.06);
-    border-color: rgba(255, 255, 255, 0.1);
-    border-left-color: var(--sda-toska);
-}
-.raport-card.glass-card .stats-footer .info-text {
-    color: rgba(255, 255, 255, 0.6);
-}
-.raport-card.glass-card .stats-footer .stats-total {
-    color: rgba(255, 255, 255, 0.9);
-}
-.raport-card.glass-card .stats-footer .efektif-label {
-    color: rgba(255, 255, 255, 0.7);
-}
-.raport-card.glass-card .stats-footer .stats-divider {
-    color: rgba(255, 255, 255, 0.3);
-}
-.raport-card.glass-card .stats-footer .hadir-count {
-    background: rgba(16, 185, 129, 0.2);
-    color: #34d399;
-    border-color: rgba(16, 185, 129, 0.4);
-}
-.raport-card.glass-card .stats-footer .alpha-count {
-    background: rgba(59, 130, 246, 0.2);
-    color: #60a5fa;
-    border-color: rgba(59, 130, 246, 0.4);
-}
-
-/* =========================================
-   RESPONSIVE - STATS FOOTER
-   ========================================= */
-@media (max-width: 768px) {
-    .stats-footer {
-        padding: 14px 16px;
-        gap: 8px;
-    }
-    .stats-footer .info-text {
-        font-size: 0.68rem;
-    }
-    .stats-footer .stats-total {
-        font-size: 0.78rem;
-        gap: 6px;
-    }
-    .stats-footer .stats-total b {
-        padding: 3px 10px;
-        font-size: 0.82rem;
-    }
-    .stats-footer .efektif-label {
-        font-size: 0.72rem;
-    }
-}
-
-@media (max-width: 480px) {
-    .stats-footer {
-        padding: 12px 14px;
-        border-radius: 12px;
-    }
-    .stats-footer .info-text {
-        font-size: 0.62rem;
-    }
-    .stats-footer .stats-total {
-        font-size: 0.72rem;
-        gap: 5px;
-    }
-    .stats-footer .stats-total b {
-        padding: 2px 8px;
-        font-size: 0.75rem;
-    }
-    .stats-footer .efektif-label {
-        font-size: 0.68rem;
-    }
-    .stats-footer .stats-divider {
-        font-size: 0.9rem;
-    }
-}
-@media (max-width: 380px) {
-    .stats-footer .stats-total {
-        font-size: 0.68rem;
-    }
-    .stats-footer .stats-total b {
-        padding: 2px 6px;
-        font-size: 0.7rem;
-    }
-}
-
-/* =========================================
-   16. DETAIL CONTENT
+   17. DETAIL CONTENT
    ========================================= */
 #detailContent { padding: 8px 0; }
-
-#detailContent > h4 {
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.12), rgba(45, 212, 191, 0.08));
-    padding: 14px 18px;
-    border-radius: 14px;
-    border-left: 4px solid var(--sda-toska);
-    color: var(--primary) !important;
-    font-weight: 800;
-    margin-bottom: 20px !important;
-}
-
-#detailContent > div {
-    background: linear-gradient(135deg, rgba(30, 64, 175, 0.92) 0%, rgba(15, 23, 42, 0.95) 100%) !important;
-    backdrop-filter: blur(20px) saturate(180%);
-    -webkit-backdrop-filter: blur(20px) saturate(180%);
-    border: 1px solid rgba(96, 165, 250, 0.35) !important;
-    border-left: 4px solid var(--pu-blue) !important;
-    box-shadow: 0 6px 18px rgba(30, 64, 175, 0.3);
-    position: relative;
-    overflow: hidden;
-}
-
-#detailContent > div h5 { color: #ffffff !important; font-weight: 800; }
-#detailContent > div h5 + div span { color: var(--sda-toska) !important; }
 
 .detail-row {
     display: flex;
     padding: 10px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.08) !important;
+    border-bottom: 1px solid var(--card-border);
     gap: 12px;
 }
 
@@ -1254,10 +1210,10 @@ body {
 .detail-label {
     width: 120px;
     font-weight: 800;
-    color: rgba(255, 255, 255, 0.65) !important;
+    color: var(--text-muted);
     font-size: 0.75rem;
     text-transform: uppercase;
-    letter-spacing: 0.8px;
+    letter-spacing: 0.5px;
     flex-shrink: 0;
 }
 
@@ -1265,21 +1221,21 @@ body {
     flex: 1;
     font-weight: 600;
     font-size: 0.85rem;
-    color: #ffffff !important;
+    color: var(--text-dark);
     word-break: break-word;
 }
 
-#detailContent img {
+.detail-value img {
     max-width: 100%;
     max-height: 200px;
     border-radius: 12px;
     margin-top: 8px;
     cursor: pointer;
-    border: 2px solid rgba(96, 165, 250, 0.4) !important;
     transition: transform 0.2s ease;
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-#detailContent img:hover { transform: scale(1.02); }
+.detail-value img:hover { transform: scale(1.02); }
 
 .btn-close-detail {
     background: rgba(239, 68, 68, 0.08);
@@ -1298,30 +1254,6 @@ body {
 .btn-close-detail:hover { background: var(--danger); color: #fff; }
 
 /* =========================================
-   17. LAZY LOADING IMAGES
-   ========================================= */
-.lazy-img {
-    background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-    background-size: 200% 100%;
-    animation: shimmer 1.5s infinite;
-    min-height: 100px;
-    object-fit: cover;
-}
-
-@keyframes shimmer {
-    0% { background-position: 200% 0; }
-    100% { background-position: -200% 0; }
-}
-
-/* ✅ Disable shimmer di HP kecil */
-@media (max-width: 480px) {
-    .lazy-img {
-        animation: none;
-        background: #f0f0f0;
-    }
-}
-
-/* =========================================
    18. NOTIFICATION MODAL
    ========================================= */
 #notificationModal {
@@ -1330,7 +1262,6 @@ body {
     inset: 0;
     z-index: 200000;
     background: rgba(13, 27, 62, 0.7);
-    backdrop-filter: blur(8px);
     align-items: center;
     justify-content: center;
     padding: 20px;
@@ -1407,7 +1338,6 @@ body {
     z-index: 1000;
     justify-content: space-around;
     align-items: center;
-    backdrop-filter: blur(25px);
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
 }
 
@@ -1435,7 +1365,7 @@ body {
     justify-content: center;
     margin-top: -50px;
     border: 4px solid #050a18;
-    color: white;
+    color: #fff;
     box-shadow: 0 8px 20px rgba(249, 115, 22, 0.5);
 }
 
@@ -1455,7 +1385,6 @@ body {
     .profile-info h2 { font-size: 1.2rem; }
     .stat-value { font-size: 1.3rem; }
     .stat-number { font-size: 1.4rem; }
-    .stat-percentage { font-size: 0.65rem; }
     .stats-grid { grid-template-columns: repeat(3, 1fr); }
     .today-status-grid { grid-template-columns: repeat(2, 1fr); }
 }
@@ -1468,6 +1397,7 @@ body {
         padding: 12px 8px 110px 8px;
     }
     .bottom-nav { display: flex; }
+    
     .page-header {
         flex-direction: row !important;
         align-items: center !important;
@@ -1475,6 +1405,7 @@ body {
         flex-wrap: nowrap;
         gap: 10px;
     }
+    
     .btn-back {
         width: 46px;
         height: 46px;
@@ -1485,8 +1416,10 @@ body {
         border-left: 1px solid var(--glass-border);
         font-size: 0.75rem;
     }
+    
     .btn-back .btn-back-label { display: none; }
     .btn-presensi-header { flex: 1; justify-content: center; font-size: 0.75rem; padding: 10px 18px; }
+    
     .profile-header { padding: 16px; gap: 12px 18px; border-radius: 24px; }
     .profile-avatar-popout { width: 75px; height: 100px; }
     .profile-avatar-popout img { max-height: 125px; }
@@ -1498,17 +1431,14 @@ body {
     .stat-value { font-size: 1.1rem; }
     .stat-label { font-size: 0.5rem; }
     .stat-divider { height: 32px; }
+    
     .today-status-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .status-card { flex-direction: row; padding: 12px; gap: 10px; }
     .status-icon { width: 36px; height: 36px; }
     .status-time { font-size: 0.9rem; }
     .status-label { font-size: 0.55rem; }
     .status-point { font-size: 0.6rem; }
-    .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-    .stat-card { padding: 12px 6px; }
-    .stat-number { font-size: 1.2rem; }
-    .stat-name { font-size: 0.55rem; }
-    .stat-percentage { font-size: 0.6rem; }
+    
     .raport-card { padding: 16px 14px; border-radius: 24px; }
     .raport-card .card-header {
         margin: -16px -14px 16px -14px;
@@ -1517,17 +1447,37 @@ body {
     }
     .raport-card .card-header h3 { font-size: 0.9rem; }
     .raport-card .card-header h3 i { padding: 8px; border-radius: 10px; }
+    
     .filter-controls { width: 100%; justify-content: flex-start; }
     .filter-controls .btn-filter { padding: 6px 10px; font-size: 0.65rem; }
+    
+    .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 12px 6px; }
+    .stat-number { font-size: 1.2rem; }
+    .stat-name { font-size: 0.55rem; }
+    .stat-percentage { font-size: 0.6rem; }
+    
+    .working-days-info { font-size: 0.68rem; padding: 6px 10px; }
+    
+    .stats-footer { padding: 14px 16px; gap: 10px; }
+    .stats-footer-header { gap: 10px; }
+    .stats-footer-logo { width: 38px; height: 38px; border-radius: 10px; }
+    .stats-footer-logo img { width: 28px; height: 28px; }
+    .stats-footer-brand-name { font-size: 0.85rem; }
+    .stats-footer-brand-sub { font-size: 0.55rem; }
+    .stats-footer-badge { padding: 4px 8px; font-size: 0.55rem; }
+    .stats-footer .info-text { font-size: 0.68rem; }
+    .stats-footer .stats-total { font-size: 0.78rem; gap: 6px; }
+    .stats-footer .stats-total b { padding: 3px 10px; font-size: 0.82rem; }
+    .stats-footer .efektif-label { font-size: 0.72rem; }
+    
     .table-footer { flex-direction: column; align-items: stretch; gap: 10px; }
+    
     .detail-row { flex-direction: column; gap: 4px; }
     .detail-label { width: 100%; font-size: 0.68rem; }
-    .stats-footer { flex-direction: column; align-items: stretch; gap: 6px; text-align: center; }
-    .stats-footer .stats-total { justify-content: center; }
-    #detailContent > div { padding: 14px !important; }
-    #detailContent > div h5 { font-size: 0.85rem !important; }
-    #detailContent .detail-label { font-size: 0.68rem !important; }
-    #detailContent .detail-value { font-size: 0.82rem !important; }
+    
+    .stat-card[data-tooltip]:hover::after,
+    .stat-card[data-tooltip]:hover::before { display: none; }
 }
 
 @media (max-width: 480px) {
@@ -1536,10 +1486,12 @@ body {
     .today-status-grid .status-icon { width: 32px; height: 32px; }
     .today-status-grid .status-time { font-size: 0.85rem; }
     .today-status-grid .status-label { font-size: 0.52rem; }
+    
     .stats-grid { grid-template-columns: repeat(3, 1fr); gap: 6px; }
     .stat-number { font-size: 1rem; }
     .stat-name { font-size: 0.5rem; }
     .stat-percentage { font-size: 0.55rem; }
+    
     .profile-header { padding: 14px; }
     .profile-avatar-popout { width: 68px; height: 92px; }
     .profile-avatar-popout img { max-height: 112px; }
@@ -1548,15 +1500,27 @@ body {
     .profile-stats-badge { gap: 6px; padding: 8px; }
     .stat-value { font-size: 0.95rem; }
     .stat-divider { height: 28px; }
+    
     .history-table { font-size: 0.75rem; }
     .history-table th, .history-table td { padding: 8px 10px; }
     .status-badge-table { font-size: 0.6rem; padding: 3px 8px; max-width: 120px; }
-    .stats-footer { padding: 10px 12px; }
-    .stats-footer .info-text { font-size: 0.6rem; }
-    .stats-footer .stats-total { font-size: 0.6rem; gap: 8px; }
+    
+    .stats-footer { padding: 12px 14px; border-radius: 12px; }
+    .stats-footer-header { gap: 8px; }
+    .stats-footer-logo { width: 34px; height: 34px; }
+    .stats-footer-logo img { width: 24px; height: 24px; }
+    .stats-footer-brand-name { font-size: 0.78rem; }
+    .stats-footer-brand-sub { font-size: 0.5rem; letter-spacing: 1px; }
+    .stats-footer-badge { padding: 3px 7px; font-size: 0.5rem; }
+    .stats-footer-badge i { width: 10px; height: 10px; }
+    .stats-footer .info-text { font-size: 0.62rem; }
+    .stats-footer .stats-total { font-size: 0.72rem; gap: 5px; }
+    .stats-footer .stats-total b { padding: 2px 8px; font-size: 0.75rem; }
+    .stats-footer .efektif-label { font-size: 0.68rem; }
+    .stats-footer .stats-divider { font-size: 0.9rem; }
+    
     .raport-card .card-header .date-badge,
     .raport-card .card-header .month-badge { font-size: 0.65rem; padding: 4px 10px; }
-    #detailContent > div > div:last-child { grid-template-columns: 1fr !important; }
 }
 
 @media (max-width: 380px) {
@@ -1566,6 +1530,9 @@ body {
     .stats-grid { gap: 4px; }
     .stat-number { font-size: 1rem; }
     .status-badge-table { font-size: 0.55rem; padding: 2px 6px; max-width: 100px; }
+    .stats-footer .stats-total { font-size: 0.68rem; }
+    .stats-footer .stats-total b { padding: 2px 6px; font-size: 0.7rem; }
+    .stats-footer-brand-name { font-size: 0.72rem; }
 }
 
 /* =========================================
@@ -1574,21 +1541,21 @@ body {
 @media print {
     .sidebar, .bottom-nav, .page-header, .success-toast,
     .btn-load-more, .filter-controls, #notificationModal { display: none !important; }
-
+    
     .main-content {
         margin-left: 0 !important;
         width: 100% !important;
         padding: 0 !important;
     }
-
+    
     body { background: white !important; }
-
+    
     .raport-card {
         break-inside: avoid;
         box-shadow: none !important;
         border: 1.5pt solid #000 !important;
     }
-
+    
     .profile-header {
         background: #f1f5f9 !important;
         color: black !important;
@@ -1597,7 +1564,7 @@ body {
         -webkit-print-color-adjust: exact;
         print-color-adjust: exact;
     }
-
+    
     .profile-info h2, .profile-info p { color: black !important; }
     .profile-stats-badge { box-shadow: none !important; border: 1pt solid #ccc !important; }
 }
