@@ -226,6 +226,31 @@ async function showNotification(type, data = {}) {
             requireInteraction: true,
             data: { url: './presensi.html', action: 'pulang' }
         },
+        
+        // ✅ NEW: LAPKIN Reminder 1 (16:30)
+        lapkin1: {
+            title: '📊 Waktunya Kirim LAPKIN!',
+            body: 'Jangan lupa kirim Laporan Kinerja (LAPKIN) hari ini sebelum pukul 18:00.',
+            icon: './assets/logo.png',
+            badge: './assets/logo.png',
+            tag: 'lapkin-reminder-1',
+            vibrate: [200, 100, 200],
+            requireInteraction: false,
+            data: { url: './raport.html', action: 'lapkin' }
+        },
+        
+        // ✅ NEW: LAPKIN Reminder 2 - FINAL WARNING (18:00)
+        lapkin2: {
+            title: '⚠️ LAPKIN Belum Dikirim!',
+            body: 'Segera kirim LAPKIN sekarang! Batas waktu sudah dekat. Jangan sampai terlewat!',
+            icon: './assets/logo.png',
+            badge: './assets/logo.png',
+            tag: 'lapkin-reminder-2',
+            vibrate: [300, 100, 300, 100, 300],
+            requireInteraction: true,
+            data: { url: './raport.html', action: 'lapkin' }
+        },
+        
         success: {
             title: '✅ Presensi Berhasil',
             body: data.message || 'Presensi Anda telah tercatat.',
@@ -248,7 +273,6 @@ async function showNotification(type, data = {}) {
         console.warn('⚠️ SW: Failed to show notification:', err);
     }
 }
-
 // ============================================================
 // BADGE API
 // ============================================================
