@@ -2,15 +2,17 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="description" content="E-PUSDA - Profile Raport Kinerja Pegawai">
     <meta name="theme-color" content="#1e40af">
+    
+    <!-- PWA META TAGS -->
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="E-PUSDA Raport">
     
-    <!-- ✅ PERFORMANCE: Preconnect ke API & Resources (Kurangi Latency) -->
+    <!-- ✅ PERFORMANCE: Preconnect -->
     <link rel="preconnect" href="https://script.google.com">
     <link rel="preconnect" href="https://script.googleusercontent.com">
     <link rel="preconnect" href="https://drive.google.com">
@@ -18,27 +20,27 @@
     <link rel="dns-prefetch" href="https://script.google.com">
     <link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
     
-    <!-- ✅ PWA Manifest -->
-    <link rel="manifest" href="manifest.json">
+    <!-- APP ICONS -->
+    <link rel="apple-touch-icon" sizes="180x180" href="assets/logo.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="assets/logo.png">
     
-    <!-- Icons -->
-    <link rel="icon" type="image/png" href="assets/logo.png">
-    <link rel="apple-touch-icon" href="assets/logo.png">
+    <!-- MANIFEST -->
+    <link rel="manifest" id="pwaManifest">
     
-    <!-- Fonts -->
+    <!-- FONTS -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
     
-    <!-- Lucide Icons -->
+    <!-- LUCIDE ICONS -->
     <script src="https://unpkg.com/lucide@latest"></script>
     
-    <!-- CSS -->
+    <!-- CUSTOM CSS -->
     <link rel="stylesheet" href="css/profile_raport.css">
     
     <title>Profile Raport - E-PUSDA</title>
     
-    <!-- ✅ DETEKSI HP RENDAH SEBELUM CSS LOAD (Hindari Flash Efek Berat) -->
+    <!-- ✅ DETEKSI HP RENDAH SEBELUM CSS LOAD -->
     <script>
         (function() {
             try {
@@ -54,15 +56,11 @@
     </script>
 </head>
 <body>
-    
-    <!-- ============================================================
-         BACKGROUND GRADIENT (FIXED)
-         ============================================================ -->
+
+    <!-- ========== BACKGROUND ========== -->
     <div class="fixed-bg"></div>
     
-    <!-- ============================================================
-         LOADING OVERLAY
-         ============================================================ -->
+    <!-- ========== LOADING OVERLAY ========== -->
     <div id="loadingOverlay">
         <div class="sending-loader">
             <div class="ring-layer ring-1"></div>
@@ -70,37 +68,46 @@
             <div class="ring-layer ring-3"></div>
             <div class="pulse-logo"></div>
         </div>
-        <p id="loadStatus" style="font-weight:600;font-size:0.85rem;opacity:0.8;">Memuat Profile Raport...</p>
+        <p id="loadStatus">Memuat Profile Raport...</p>
     </div>
     
-    <!-- ============================================================
-         SIDEBAR (DESKTOP ONLY)
-         ============================================================ -->
+    <!-- ========== SIDEBAR (DESKTOP) ========== -->
     <aside class="sidebar">
+        <!-- ✅ Logo Brand (SAMA dengan presensi.html) -->
         <div class="brand">
-            <img id="sidebarLogo" src="assets/logo.png" alt="Logo">
+            <img src="" 
+                 id="sidebarLogo" 
+                 alt="Logo UPT PUSDA"
+                 onerror="this.onerror=null;this.src='assets/logo.png';">
             <div>
-                <h1>E-PUSDA</h1>
-                <p>UPT MANAGEMENT</p>
+                <h1 style="font-weight:800;font-size:1.1rem">
+                    <span style="color:var(--pu-blue)">PU</span> 
+                    <span style="color:var(--sda-toska)">SDA</span>
+                </h1>
+                <p style="font-size:.55rem;opacity:.6;font-weight:800">WS BONDOYUDO BARU</p>
             </div>
         </div>
         
         <nav class="nav-items">
+            <a href="index.html" class="nav-link">
+                <i data-lucide="layout-grid" size="20"></i>
+                <span>Dashboard</span>
+            </a>
+            <a href="raport.html" class="nav-link">
+                <i data-lucide="file-bar-chart" size="20"></i>
+                <span>E-Raport</span>
+            </a>
             <a href="presensi.html" class="nav-link">
                 <i data-lucide="fingerprint" size="20"></i>
-                <span>Presensi</span>
+                <span>E-Presensi</span>
             </a>
             <a href="profile_raport.html" class="nav-link active">
-                <i data-lucide="bar-chart-3" size="20"></i>
+                <i data-lucide="user" size="20"></i>
                 <span>Raport Saya</span>
             </a>
-            <a href="agenda.html" class="nav-link">
-                <i data-lucide="calendar-days" size="20"></i>
-                <span>Agenda</span>
-            </a>
-            <a href="tools.html" class="nav-link">
-                <i data-lucide="layout-grid" size="20"></i>
-                <span>Tools</span>
+            <a href="admin.html" class="nav-link">
+                <i data-lucide="shield-check" size="20"></i>
+                <span>Admin</span>
             </a>
         </nav>
         
@@ -110,12 +117,10 @@
         </div>
     </aside>
     
-    <!-- ============================================================
-         MAIN CONTENT
-         ============================================================ -->
+    <!-- ========== MAIN CONTENT ========== -->
     <main class="main-content">
         
-        <!-- ========== PAGE HEADER ========== -->
+        <!-- ===== PAGE HEADER ===== -->
         <header class="page-header">
             <button class="btn-back" onclick="goBack()">
                 <i data-lucide="arrow-left" size="18"></i>
@@ -127,7 +132,7 @@
             </button>
         </header>
         
-        <!-- ========== SUCCESS TOAST (Hidden by Default) ========== -->
+        <!-- ===== SUCCESS TOAST (Hidden) ===== -->
         <div class="success-toast" id="successToast" style="display:none;">
             <div class="toast-icon">
                 <i data-lucide="check-circle" size="24"></i>
@@ -141,7 +146,7 @@
             </button>
         </div>
         
-        <!-- ========== PROFILE HEADER (CARD-TOP BIRU) ========== -->
+        <!-- ===== PROFILE HEADER ===== -->
         <section class="profile-header">
             <div class="profile-avatar-popout">
                 <img id="profileAvatar" src="" alt="Foto Profil">
@@ -162,7 +167,6 @@
                 </p>
             </div>
             
-            <!-- Stats Badge (Glass Effect) -->
             <div class="profile-stats-badge">
                 <div class="stat-item">
                     <span class="stat-value" id="totalKehadiran">0</span>
@@ -181,7 +185,7 @@
             </div>
         </section>
         
-        <!-- ========== RAPORT HARI INI (GLASS CARD) ========== -->
+        <!-- ===== RAPORT HARI INI ===== -->
         <section class="raport-card">
             <div class="card-header">
                 <h3>
@@ -192,7 +196,6 @@
             </div>
             
             <div class="today-status-grid">
-                <!-- Hadir -->
                 <div class="status-card status-hadir">
                     <div class="status-icon">
                         <i data-lucide="sunrise" size="20"></i>
@@ -204,7 +207,6 @@
                     </div>
                 </div>
                 
-                <!-- Pulang -->
                 <div class="status-card status-pulang">
                     <div class="status-icon">
                         <i data-lucide="sunset" size="20"></i>
@@ -216,7 +218,6 @@
                     </div>
                 </div>
                 
-                <!-- Status Khusus -->
                 <div class="status-card status-khusus">
                     <div class="status-icon">
                         <i data-lucide="file-text" size="20"></i>
@@ -228,7 +229,6 @@
                     </div>
                 </div>
                 
-                <!-- Total -->
                 <div class="status-card status-total">
                     <div class="status-icon">
                         <i data-lucide="sigma" size="20"></i>
@@ -242,7 +242,7 @@
             </div>
         </section>
         
-        <!-- ========== RIWAYAT PRESENSI (TABLE) ========== -->
+        <!-- ===== RIWAYAT PRESENSI ===== -->
         <section class="raport-card">
             <div class="card-header">
                 <h3>
@@ -250,7 +250,6 @@
                     <span>Riwayat Presensi</span>
                 </h3>
                 
-                <!-- Filter Controls -->
                 <div class="filter-controls">
                     <button class="btn-filter" id="filter7" onclick="setFilter('7')">7 Hari</button>
                     <button class="btn-filter" id="filter30" onclick="setFilter('30')">30 Hari</button>
@@ -272,7 +271,7 @@
                         </tr>
                     </thead>
                     <tbody id="historyBody">
-                        <!-- Rows akan di-generate oleh JavaScript -->
+                        <!-- Rows di-generate oleh JS -->
                     </tbody>
                 </table>
             </div>
@@ -286,7 +285,7 @@
             </div>
         </section>
         
-        <!-- ========== STATISTIK KINERJA ========== -->
+        <!-- ===== STATISTIK KINERJA ===== -->
         <section class="raport-card">
             <div class="card-header">
                 <h3>
@@ -294,21 +293,18 @@
                     <span id="statsTitleText">Statistik Bulan Ini</span>
                 </h3>
                 
-                <!-- Month Selector -->
                 <select id="statsMonthSelect" class="month-select" onchange="onStatsMonthChange(this.value)">
-                    <!-- Options akan di-generate oleh JavaScript -->
+                    <!-- Options di-generate oleh JS -->
                 </select>
             </div>
             
-            <!-- Working Days Info -->
-            <div class="working-days-info" style="margin-bottom:16px;">
+            <div class="working-days-info">
                 <i data-lucide="calendar-check" size="14"></i>
                 <span>Hari Kerja Efektif (s/d hari ini): <strong id="totalWorkingDays">0</strong></span>
             </div>
             
             <!-- Stats Grid -->
             <div class="stats-grid">
-                <!-- Hadir -->
                 <div class="stat-card stat-hadir" data-tooltip="Total hari hadir tepat waktu">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statHadir">0</span>
@@ -320,7 +316,6 @@
                     <div class="stat-bar"><div class="bar-fill" id="barHadir" style="width:0%"></div></div>
                 </div>
                 
-                <!-- Terlambat -->
                 <div class="stat-card stat-terlambat" data-tooltip="Total hari terlambat">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statTerlambat">0</span>
@@ -332,7 +327,6 @@
                     <div class="stat-bar"><div class="bar-fill" id="barTerlambat" style="width:0%"></div></div>
                 </div>
                 
-                <!-- Izin -->
                 <div class="stat-card stat-izin" data-tooltip="Total hari izin">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statIzin">0</span>
@@ -344,7 +338,6 @@
                     <div class="stat-bar"><div class="bar-fill" id="barIzin" style="width:0%"></div></div>
                 </div>
                 
-                <!-- Sakit -->
                 <div class="stat-card stat-sakit" data-tooltip="Total hari sakit">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statSakit">0</span>
@@ -356,7 +349,6 @@
                     <div class="stat-bar"><div class="bar-fill" id="barSakit" style="width:0%"></div></div>
                 </div>
                 
-                <!-- Dinas -->
                 <div class="stat-card stat-dinas" data-tooltip="Total hari dinas luar">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statDinas">0</span>
@@ -368,8 +360,7 @@
                     <div class="stat-bar"><div class="bar-fill" id="barDinas" style="width:0%"></div></div>
                 </div>
                 
-                <!-- Alpha -->
-                <div class="stat-card stat-alpha" data-tooltip="Total hari tanpa keterangan (Alpha)">
+                <div class="stat-card stat-alpha" data-tooltip="Total hari tanpa keterangan">
                     <div class="stat-number-wrapper">
                         <span class="stat-number" id="statAlpha">0</span>
                         <span class="stat-percentage">
@@ -381,27 +372,50 @@
                 </div>
             </div>
             
-            <!-- ✅ STATS FOOTER - Total Kehadiran + Efektif Kerja Bulanan -->
+            <!-- ✅ STATS FOOTER (Dengan Logo Resmi) -->
             <div class="stats-footer">
+                <!-- Header dengan Logo -->
+                <div class="stats-footer-header">
+                    <div class="stats-footer-logo">
+                        <img src="assets/logo.png" alt="Logo UPT PUSDA" 
+                             onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/tpopbwi/presensi-pusda/main/assets/logo.png';">
+                    </div>
+                    <div class="stats-footer-brand">
+                        <span class="stats-footer-brand-name">
+                            <span style="color:var(--pu-blue)">UPT</span> 
+                            <span style="color:var(--sda-toska)">PUSDA</span>
+                        </span>
+                        <span class="stats-footer-brand-sub">WS BONDOYUDO BARU</span>
+                    </div>
+                    <div class="stats-footer-badge">
+                        <i data-lucide="shield-check" size="14"></i>
+                        <span>RESMI</span>
+                    </div>
+                </div>
+                
+                <!-- Divider -->
+                <div class="stats-footer-divider"></div>
+                
+                <!-- Info Text -->
                 <span class="info-text">
                     <i data-lucide="info" size="14"></i>
                     <span>Persentase dihitung dari total hari kerja efektif</span>
                 </span>
                 
+                <!-- Stats Total -->
                 <span class="stats-total">
                     Total Kehadiran: 
                     <b class="hadir-count" id="totalKehadiranStats">0</b>
                     
                     <span class="stats-divider">·</span>
                     
-                    <!-- ✅ LABEL DINAMIS (Diubah oleh JS: Agt, Sep, Okt, dst) -->
                     <span class="efektif-label" id="labelEfektifKerja">Efektif Kerja Agt:</span>
                     <b class="alpha-count" id="totalAlphaStats">0</b>
                 </span>
             </div>
         </section>
         
-        <!-- ========== DETAIL PRESENSI (Hidden by Default) ========== -->
+        <!-- ===== DETAIL PRESENSI (Hidden) ===== -->
         <section class="raport-card" id="detailCard" style="display:none;">
             <div class="card-header">
                 <h3>
@@ -410,19 +424,17 @@
                 </h3>
             </div>
             <div id="detailContent">
-                <!-- Content akan di-generate oleh JavaScript -->
+                <!-- Content di-generate oleh JS -->
             </div>
         </section>
         
     </main>
     
-    <!-- ============================================================
-         NOTIFICATION MODAL (Hidden by Default)
-         ============================================================ -->
+    <!-- ========== NOTIFICATION MODAL ========== -->
     <div id="notificationModal">
         <div class="notif-modal-content" id="notifModalContent">
             <div class="notif-icon-wrap">
-                <i data-lucide="info" size="32" id="notifIcon"></i>
+                <i id="notifIcon" data-lucide="info" size="32"></i>
             </div>
             <h3 class="notif-title" id="notifTitle">Notifikasi</h3>
             <p class="notif-message" id="notifMessage">Pesan notifikasi akan muncul di sini.</p>
@@ -433,44 +445,33 @@
         </div>
     </div>
     
-    <!-- ============================================================
-         BOTTOM NAVIGATION (MOBILE ONLY)
-         ============================================================ -->
+    <!-- ========== BOTTOM NAV (MOBILE) ========== -->
     <nav class="bottom-nav">
+        <a href="index.html" class="b-nav-item">
+            <i data-lucide="layout-grid" size="22"></i>
+            <span>Home</span>
+        </a>
+        <a href="raport.html" class="b-nav-item">
+            <i data-lucide="file-bar-chart" size="22"></i>
+            <span>Raport</span>
+        </a>
+        <a href="presensi.html" class="b-nav-fab">
+            <i data-lucide="qr-code" size="28"></i>
+        </a>
         <a href="presensi.html" class="b-nav-item">
             <i data-lucide="fingerprint" size="22"></i>
             <span>Presensi</span>
         </a>
         <a href="profile_raport.html" class="b-nav-item active">
-            <i data-lucide="bar-chart-3" size="22"></i>
-            <span>Raport</span>
-        </a>
-        <a href="presensi.html" class="b-nav-item">
-            <div class="b-nav-fab">
-                <i data-lucide="qr-code" size="26"></i>
-            </div>
-        </a>
-        <a href="agenda.html" class="b-nav-item">
-            <i data-lucide="calendar-days" size="22"></i>
-            <span>Agenda</span>
-        </a>
-        <a href="tools.html" class="b-nav-item">
-            <i data-lucide="layout-grid" size="22"></i>
-            <span>Tools</span>
+            <i data-lucide="user" size="22"></i>
+            <span>Profile</span>
         </a>
     </nav>
     
-    <!-- ============================================================
-         SCRIPTS
-         ============================================================ -->
-    
-    <!-- ✅ Initialize Lucide Icons -->
+    <!-- ========== SCRIPTS ========== -->
     <script>
         lucide.createIcons();
     </script>
-    
-    <!-- ✅ Main JavaScript -->
     <script src="js/profile_raport.js"></script>
-    
 </body>
 </html>
