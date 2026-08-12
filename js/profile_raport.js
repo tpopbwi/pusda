@@ -1,15 +1,14 @@
 // ============================================================
-// PROFILE_RAPORT.JS - v5.0 (LOW-END DEVICE OPTIMIZED)
+// PROFILE_RAPORT.JS - v5.1 (BUG FIX + PERFORMANCE)
 // ============================================================
-// CHANGELOG v5.0:
-// ✅ Added: DeviceProfile detection (adaptive performance)
-// ✅ Added: Debounce untuk search & filter
-// ✅ Added: Optimized image loading (ukuran kecil di HP rendah)
-// ✅ Fixed: Alpha hanya dihitung s/d hari ini
-// ✅ Added: totalMonthWorkingDays untuk footer
-// ✅ Added: Label bulan dinamis di footer
-// ✅ Fixed: Race condition pada showDetail (AbortController)
-// ✅ Synced: Full compatibility dengan RAPORT.GS v3.4.0
+// CHANGELOG v5.1:
+// ✅ FIXED: showDetail function ditambahkan (sebelumnya hilang!)
+// ✅ FIXED: Race condition dengan AbortController
+// ✅ FIXED: Event delegation di tabel history (bukan onclick inline)
+// ✅ FIXED: Foto di detail dioptimasi untuk HP rendah
+// ✅ FIXED: formatDateIndo handle invalid date
+// ✅ ADDED: Retry mechanism untuk API gagal
+// ✅ ADDED: Error handling yang lebih robust
 // ============================================================
 
 const API_BASE = "https://script.google.com/macros/s/AKfycbwg8LoyLRWaqpOpmXj6GGdwVksNWEUOKijD3vpllMSfeHVQY5XaeXcd7ygoyFFL-JIv/exec";
@@ -25,35 +24,24 @@ const GITHUB_LOGO_URL = "https://raw.githubusercontent.com/tpopbwi/presensi-pusd
 // ============================================================
 const DeviceProfile = (() => {
     const isLowEnd = () => {
-        // Cek RAM (jika tersedia)
         if (navigator.deviceMemory && navigator.deviceMemory < 4) return true;
-        
-        // Cek jumlah core CPU
         if (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) return true;
-        
-        // Cek connection speed
         if (navigator.connection && navigator.connection.effectiveType) {
             const conn = navigator.connection.effectiveType;
             if (conn === 'slow-2g' || conn === '2g' || conn === '3g') return true;
         }
-        
-        // Fallback: screen width kecil = kemungkinan HP low-end
         if (window.innerWidth < 480) return true;
-        
         return false;
     };
     
     const isLow = isLowEnd();
-    
-    // Tambahkan class ke html untuk CSS targeting
-    if (isLow) {
-        document.documentElement.classList.add('low-end-device');
-    }
+    if (isLow) document.documentElement.classList.add('low-end-device');
     
     return {
         isLowEnd: isLow,
         config: {
             imageSize: isLow ? 200 : 400,
+            detailImageSize: isLow ? 300 : 500,
             pageSize: isLow ? 10 : 20,
             cacheTTL: isLow ? 10 * 60 * 1000 : 5 * 60 * 1000,
             detailCacheTTL: isLow ? 15 * 60 * 1000 : 10 * 60 * 1000,
@@ -66,7 +54,7 @@ const DeviceProfile = (() => {
 })();
 
 // ============================================================
-// 1. CACHE & CONFIGURATION (ADAPTIVE)
+// 1. CACHE & CONFIGURATION
 // ============================================================
 const CACHE_CONFIG = {
     TTL: DeviceProfile.config.cacheTTL,
@@ -76,6 +64,9 @@ const CACHE_CONFIG = {
 
 const cache = new Map();
 const detailCache = new Map();
+
+// ✅ NEW: AbortController untuk detail request
+let currentDetailController = null;
 
 // ============================================================
 // 2. GLOBAL VARIABLES
@@ -95,53 +86,74 @@ const placeholderImg = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/
 // ============================================================
 // 3. UTILITY FUNCTIONS
 // ============================================================
-
-/**
- * Debounce utility untuk mengurangi frekuensi pemanggilan fungsi
- */
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
-        const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-        };
         clearTimeout(timeout);
-        timeout = setTimeout(later, wait);
+        timeout = setTimeout(() => func(...args), wait);
     };
 }
 
 /**
- * Optimized image URL based on device capability
+ * ✅ IMPROVED: Optimized image URL dengan fallback handling
  */
 function getOptimizedImageUrl(url, size = null) {
-    if (!url || url === '-') return placeholderImg;
+    if (!url || url === '-' || url === 'null' || url === 'undefined') return placeholderImg;
     
     const imgSize = size || DeviceProfile.config.imageSize;
     
-    if (url.includes("googleusercontent") || url.includes("lh3.googleusercontent.com")) {
-        const baseUrl = url.split("=")[0];
-        return `${baseUrl}=w${imgSize}-h${imgSize}`;
-    }
-    
-    if (url.includes("drive.google.com")) {
-        let fileId = "";
-        const match = url.match(/\/d\/([^\/\?]+)/);
-        if (match && match[1]) fileId = match[1];
-        if (!fileId) {
-            const idMatch = url.match(/[?&]id=([^&]+)/);
-            if (idMatch && idMatch[1]) fileId = idMatch[1];
+    try {
+        // Google Drive / Google User Content
+        if (url.includes("googleusercontent") || url.includes("lh3.googleusercontent.com")) {
+            const baseUrl = url.split("=")[0];
+            return `${baseUrl}=w${imgSize}-h${imgSize}`;
         }
-        if (fileId) {
-            return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${imgSize}`;
+        
+        // Drive dengan format /d/FILE_ID/
+        if (url.includes("drive.google.com")) {
+            let fileId = "";
+            let match = url.match(/\/d\/([^\/\?]+)/);
+            if (match && match[1]) fileId = match[1];
+            if (!fileId) {
+                match = url.match(/[?&]id=([^&]+)/);
+                if (match && match[1]) fileId = match[1];
+            }
+            if (fileId) {
+                return `https://drive.google.com/thumbnail?id=${fileId}&sz=w${imgSize}`;
+            }
         }
+        
+        // Jika URL valid, return as-is
+        if (url.startsWith('http')) return url;
+        
+        return placeholderImg;
+    } catch (e) {
+        console.warn('⚠️ Image URL optimization failed:', e);
+        return placeholderImg;
     }
-    
-    return url;
+}
+
+/**
+ * ✅ IMPROVED: formatDateIndo dengan invalid date handling
+ */
+function formatDateIndo(dateStr) {
+    try {
+        if (!dateStr) return 'Tanggal tidak valid';
+        const date = new Date(dateStr);
+        if (isNaN(date.getTime())) return 'Tanggal tidak valid';
+        return date.toLocaleDateString('id-ID', {
+            weekday: 'long',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric'
+        });
+    } catch (e) {
+        return 'Tanggal tidak valid';
+    }
 }
 
 // ============================================================
-// 4. FETCH WITH TIMEOUT (Support AbortController)
+// 4. FETCH WITH TIMEOUT + RETRY
 // ============================================================
 async function fetchWithTimeout(url, options = {}, timeout = DeviceProfile.config.fetchTimeout) {
     const localController = new AbortController();
@@ -172,10 +184,30 @@ async function fetchWithTimeout(url, options = {}, timeout = DeviceProfile.confi
                 err.name = 'AbortError';
                 throw err;
             }
-            throw new Error('Request timeout after ' + timeout + 'ms');
+            throw new Error('Request timeout setelah ' + timeout + 'ms');
         }
         throw error;
     }
+}
+
+/**
+ * ✅ NEW: Fetch dengan retry mechanism
+ */
+async function fetchWithRetry(url, options = {}, retries = 2, delay = 1500) {
+    let lastError;
+    for (let i = 0; i <= retries; i++) {
+        try {
+            const res = await fetchWithTimeout(url, options);
+            if (res.ok) return res;
+            throw new Error(`HTTP ${res.status}`);
+        } catch (e) {
+            lastError = e;
+            if (i === retries) break;
+            if (DEBUG_MODE) console.warn(`⚠️ Fetch attempt ${i + 1} failed, retrying in ${delay * (i + 1)}ms...`);
+            await new Promise(r => setTimeout(r, delay * (i + 1)));
+        }
+    }
+    throw lastError;
 }
 
 // ============================================================
@@ -218,7 +250,8 @@ async function loadData() {
         const url = `${API}?action=getPegawaiStats&id=${encodeURIComponent(pid)}&period=${currentFilter}&cb=${Date.now()}`;
         if (DEBUG_MODE) console.log('📡 Fetching:', url);
         
-        const r = await fetchWithTimeout(url, {}, DeviceProfile.config.fetchTimeout);
+        // ✅ Gunakan retry untuk reliability
+        const r = await fetchWithRetry(url, {}, 2, 1500);
         if (!r.ok) throw new Error('HTTP ' + r.status);
         
         const data = await r.json();
@@ -234,9 +267,7 @@ async function loadData() {
             
             if (DEBUG_MODE) {
                 console.log('✅ Data loaded');
-                console.log('📊 Working days (s/d today):', statsData.totalHariKerja);
-                console.log('📊 Total Month Working Days:', statsData.totalMonthWorkingDays);
-                console.log('📊 Alpha:', statsData.alpha);
+                console.log('📊 Working days:', statsData.totalHariKerja);
                 console.log('📱 Device Profile:', DeviceProfile.isLowEnd ? 'LOW-END' : 'STANDARD');
             }
             
@@ -391,7 +422,7 @@ function renderTodayStatus() {
 }
 
 // ============================================================
-// 9. RENDER HISTORY
+// 9. RENDER HISTORY (✅ FIXED: Pakai Event Delegation)
 // ============================================================
 function renderHistory() {
     const tbody = document.getElementById('historyBody');
@@ -471,10 +502,27 @@ function renderHistory() {
             statusDisplay = statuses[0];
         }
         
-        html += `<tr class="${rowClass}" onclick="showDetail('${date}')"><td>${dateStr}</td><td>${dayName}</td><td>${masukTime}</td><td>${pulangTime}</td><td style="font-weight:800;color:var(--sda-toska)">${totalNilai}</td><td><span class="status-badge-table ${statusClass}">${statusDisplay}</span></td></tr>`;
+        // ✅ FIXED: Pakai data-attribute, BUKAN onclick inline
+        html += `<tr class="${rowClass}" data-date="${date}" style="cursor:pointer">
+                    <td>${dateStr}</td>
+                    <td>${dayName}</td>
+                    <td>${masukTime}</td>
+                    <td>${pulangTime}</td>
+                    <td style="font-weight:800;color:var(--sda-toska)">${totalNilai}</td>
+                    <td><span class="status-badge-table ${statusClass}">${statusDisplay}</span></td>
+                 </tr>`;
     });
     
     tbody.innerHTML = html;
+    
+    // ✅ NEW: Event delegation untuk semua row (lebih aman & efisien)
+    tbody.querySelectorAll('tr[data-date]').forEach(row => {
+        row.addEventListener('click', function() {
+            const date = this.getAttribute('data-date');
+            if (date) showDetail(date);
+        });
+    });
+    
     lucide.createIcons();
     updateHistoryCount(sortedDates.length);
 }
@@ -503,9 +551,21 @@ function loadMoreHistory() {
     if (isLoadingMore || !hasMoreData) return;
     isLoadingMore = true;
     const btn = document.getElementById('btnLoadMore');
-    if (btn) { btn.innerHTML = '<i data-lucide="loader" size="16" style="animation:spin 0.8s linear infinite"></i> Loading...'; btn.disabled = true; lucide.createIcons(); }
+    if (btn) { 
+        btn.innerHTML = '<i data-lucide="loader" size="16" style="animation:spin 0.8s linear infinite"></i> Loading...'; 
+        btn.disabled = true; 
+        lucide.createIcons(); 
+    }
     currentPage++;
-    setTimeout(() => { renderHistory(); isLoadingMore = false; if (btn) { btn.disabled = false; btn.innerHTML = '<i data-lucide="chevron-down" size="16"></i> Load More'; lucide.createIcons(); } }, 200);
+    setTimeout(() => { 
+        renderHistory(); 
+        isLoadingMore = false; 
+        if (btn) { 
+            btn.disabled = false; 
+            btn.innerHTML = '<i data-lucide="chevron-down" size="16"></i> Load More'; 
+            lucide.createIcons(); 
+        } 
+    }, 200);
 }
 
 // ============================================================
@@ -544,7 +604,7 @@ function renderStats() {
 }
 
 // ============================================================
-// 12. UPDATE HERO STATS (FOOTER)
+// 12. UPDATE HERO STATS
 // ============================================================
 function updateHeroStats(s) {
     const totalKehadiran = (s.hadir || 0) + (s.terlambat || 0) + (s.izin || 0) + (s.sakit || 0) + (s.dinas || 0);
@@ -576,7 +636,100 @@ function renderSummaryStats() {
 }
 
 // ============================================================
-// 14. RENDER DETAIL CONTENT (REFFACTORED - Pakai CSS Classes)
+// 14. ✅ NEW: SHOW DETAIL (Dengan AbortController)
+// ============================================================
+async function showDetail(date) {
+    const card = document.getElementById('detailCard');
+    const content = document.getElementById('detailContent');
+    if (!card || !content) {
+        console.error('❌ Detail card or content not found');
+        return;
+    }
+    
+    // Cancel previous request jika ada
+    if (currentDetailController) {
+        currentDetailController.abort();
+    }
+    
+    // Check cache first
+    const cacheKey = `detail_${currentPegawai.ID}_${date}`;
+    if (detailCache.has(cacheKey)) {
+        const cached = detailCache.get(cacheKey);
+        if (Date.now() - cached.timestamp < CACHE_CONFIG.DETAIL_TTL) {
+            renderDetailContent(cached.data);
+            card.style.display = 'block';
+            card.scrollIntoView({ 
+                behavior: DeviceProfile.config.enableAnimations ? 'smooth' : 'auto', 
+                block: 'center' 
+            });
+            return;
+        }
+        detailCache.delete(cacheKey);
+    }
+    
+    // Show loading state
+    content.innerHTML = `
+        <div class="detail-loading">
+            <i data-lucide="loader" size="32" style="animation:spin 0.8s linear infinite"></i>
+            <p>Memuat detail presensi...</p>
+        </div>
+    `;
+    card.style.display = 'block';
+    card.scrollIntoView({ 
+        behavior: DeviceProfile.config.enableAnimations ? 'smooth' : 'auto', 
+        block: 'center' 
+    });
+    lucide.createIcons();
+    
+    // Create new AbortController
+    currentDetailController = new AbortController();
+    
+    try {
+        const pid = currentPegawai.ID || currentPegawai.id;
+        const url = `${API}?action=getPresensiDetail&id=${encodeURIComponent(pid)}&date=${date}&cb=${Date.now()}`;
+        
+        if (DEBUG_MODE) console.log('📡 Fetching detail:', url);
+        
+        const r = await fetchWithTimeout(
+            url, 
+            { signal: currentDetailController.signal }, 
+            DeviceProfile.config.detailTimeout
+        );
+        
+        const data = await r.json();
+        
+        // Check jika request sudah di-cancel
+        if (currentDetailController.signal.aborted) return;
+        
+        if (data.status === 'success') {
+            detailCache.set(cacheKey, { data, timestamp: Date.now() });
+            renderDetailContent(data);
+        } else {
+            content.innerHTML = `
+                <div class="detail-error">
+                    <i data-lucide="alert-circle" size="32" style="color:var(--danger)"></i>
+                    <p>${data.message || 'Gagal memuat detail'}</p>
+                </div>
+            `;
+            lucide.createIcons();
+        }
+    } catch (e) {
+        if (e.name === 'AbortError' || e.message.includes('cancelled')) {
+            return; // Request di-cancel, abaikan
+        }
+        console.error('❌ Detail error:', e);
+        content.innerHTML = `
+            <div class="detail-error">
+                <i data-lucide="alert-circle" size="32" style="color:var(--danger)"></i>
+                <p>Gagal memuat detail: ${e.message}</p>
+            </div>
+        `;
+        lucide.createIcons();
+    }
+}
+
+// ============================================================
+// 15. RENDER DETAIL CONTENT (✅ FIXED: Foto Dioptimasi)
 // ============================================================
 function renderDetailContent(data) {
     const content = document.getElementById('detailContent');
@@ -623,7 +776,7 @@ function renderDetailContent(data) {
     content.innerHTML = html;
     lucide.createIcons();
     
-    // ✅ Event delegation untuk foto (lebih aman dari onclick inline)
+    // ✅ Event delegation untuk foto
     content.querySelectorAll('.detail-photo-img').forEach(img => {
         img.addEventListener('click', function() {
             openImageModal(this.dataset.full || this.src);
@@ -632,7 +785,7 @@ function renderDetailContent(data) {
 }
 
 // ============================================================
-// 15. RENDER DETAIL SECTION (REFFACTORED - CSS Classes)
+// 16. RENDER DETAIL SECTION (✅ FIXED: Foto Dioptimasi)
 // ============================================================
 function renderDetailSection(title, icon, record, type) {
     const escapeHtml = (str) => {
@@ -644,7 +797,12 @@ function renderDetailSection(title, icon, record, type) {
     
     const escapeAttr = (str) => {
         if (!str) return '';
-        return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;');
     };
     
     const status = escapeHtml(record.status);
@@ -653,6 +811,15 @@ function renderDetailSection(title, icon, record, type) {
     const nilai = record.nilai || 0;
     const time = record.time || '--:--';
     const wilayah = escapeHtml(record.wilayah || '-');
+    
+    // ✅ OPTIMASI FOTO untuk HP rendah
+    const detailImgSize = DeviceProfile.config.detailImageSize;
+    const optimizedSelfie = record.foto_selfie && record.foto_selfie !== '-' 
+        ? getOptimizedImageUrl(record.foto_selfie, detailImgSize) 
+        : null;
+    const optimizedKerja = record.foto_kerja && record.foto_kerja !== '-' 
+        ? getOptimizedImageUrl(record.foto_kerja, detailImgSize) 
+        : null;
     
     let html = `
     <div class="detail-section detail-section-${type}">
@@ -696,30 +863,30 @@ function renderDetailSection(title, icon, record, type) {
             </div>` : ''}
         </div>
         
-        ${(record.foto_selfie && record.foto_selfie !== '-') || (record.foto_kerja && record.foto_kerja !== '-') ? `
+        ${optimizedSelfie || optimizedKerja ? `
         <div class="detail-photos">
-            ${record.foto_selfie && record.foto_selfie !== '-' ? `
+            ${optimizedSelfie ? `
             <div class="detail-photo-item">
                 <div class="detail-photo-caption">
                     <i data-lucide="camera" size="11"></i>
                     Foto Selfie
                 </div>
                 <img class="detail-photo-img" 
-                     src="${escapeAttr(record.foto_selfie)}" 
+                     src="${escapeAttr(optimizedSelfie)}" 
                      data-full="${escapeAttr(record.foto_selfie)}"
                      alt="Foto Selfie" 
                      loading="lazy"
                      onerror="this.parentElement.style.display='none'">
             </div>` : ''}
             
-            ${record.foto_kerja && record.foto_kerja !== '-' ? `
+            ${optimizedKerja ? `
             <div class="detail-photo-item">
                 <div class="detail-photo-caption">
                     <i data-lucide="image" size="11"></i>
                     Foto Lokasi
                 </div>
                 <img class="detail-photo-img" 
-                     src="${escapeAttr(record.foto_kerja)}" 
+                     src="${escapeAttr(optimizedKerja)}" 
                      data-full="${escapeAttr(record.foto_kerja)}"
                      alt="Foto Lokasi" 
                      loading="lazy"
@@ -732,7 +899,7 @@ function renderDetailSection(title, icon, record, type) {
 }
 
 // ============================================================
-// 16. OPEN IMAGE MODAL (Pakai CSS Class)
+// 17. MODALS & UTILITIES
 // ============================================================
 function openImageModal(url) {
     if (!url || url === '-') return;
@@ -752,23 +919,28 @@ function openImageModal(url) {
     document.body.appendChild(modal);
 }
 
-function formatDateIndo(dateStr) { return new Date(dateStr).toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }); }
-function closeDetail() { const card = document.getElementById('detailCard'); if (card) card.style.display = 'none'; }
+function closeDetail() {
+    const card = document.getElementById('detailCard');
+    if (card) card.style.display = 'none';
+}
 
 // ============================================================
-// 17. FILTER
+// 18. FILTER
 // ============================================================
 function setFilter(period) {
-    currentFilter = period; currentPage = 0;
+    currentFilter = period;
+    currentPage = 0;
     document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
     let filterId = period === 'all' ? 'filterAll' : period === '7' ? 'filter7' : period === '30' ? 'filter30' : 'filterMonth';
     const filterBtn = document.getElementById(filterId);
     if (filterBtn) filterBtn.classList.add('active');
-    cache.clear(); detailCache.clear(); loadData();
+    cache.clear(); 
+    detailCache.clear(); 
+    loadData();
 }
 
 // ============================================================
-// 18. MONTH SELECTOR
+// 19. MONTH SELECTOR
 // ============================================================
 function initStatsMonthSelect() {
     const sel = document.getElementById('statsMonthSelect');
@@ -785,9 +957,11 @@ function initStatsMonthSelect() {
 }
 
 // ============================================================
-// 19. LOAD STATS FOR MONTH
+// 20. LOAD STATS FOR MONTH
 // ============================================================
-async function onStatsMonthChange(monthStr) { if (currentPegawai) await loadStatsForMonth(monthStr); }
+async function onStatsMonthChange(monthStr) { 
+    if (currentPegawai) await loadStatsForMonth(monthStr); 
+}
 
 async function loadStatsForMonth(monthStr) {
     if (!currentPegawai) return;
@@ -797,7 +971,9 @@ async function loadStatsForMonth(monthStr) {
     if (cache.has(cacheKey)) {
         const cached = cache.get(cacheKey);
         if (Date.now() - cached.timestamp < CACHE_CONFIG.TTL) {
-            updateStatsUI(cached.data); updateHeroStats(cached.data); updateFooterLabel(monthStr);
+            updateStatsUI(cached.data); 
+            updateHeroStats(cached.data); 
+            updateFooterLabel(monthStr);
             return;
         }
         cache.delete(cacheKey);
@@ -805,7 +981,7 @@ async function loadStatsForMonth(monthStr) {
     
     try {
         const url = API + '?action=getPegawaiStats&id=' + encodeURIComponent(pid) + '&month=' + monthStr + '&cb=' + Date.now();
-        const r = await fetchWithTimeout(url, {}, DeviceProfile.config.fetchTimeout);
+        const r = await fetchWithRetry(url, {}, 2, 1500);
         const d = await r.json();
         if (d.status !== 'success') return;
         
@@ -816,17 +992,21 @@ async function loadStatsForMonth(monthStr) {
         s.totalMonthWorkingDays = d.totalMonthWorkingDays || 0;
         
         cache.set(cacheKey, { data: s, timestamp: Date.now() });
-        updateStatsUI(s); updateHeroStats(s); updateFooterLabel(monthStr);
+        updateStatsUI(s); 
+        updateHeroStats(s); 
+        updateFooterLabel(monthStr);
         
         const [y, m] = monthStr.split('-').map(Number);
         const label = new Date(y, m - 1, 1).toLocaleDateString('id-ID', { month: 'long', year: 'numeric' });
         const title = document.getElementById('statsTitleText');
         if (title) title.textContent = 'Statistik ' + label;
-    } catch (e) { console.warn('⚠️ Gagal load statistik bulan:', e); }
+    } catch (e) { 
+        console.warn('⚠️ Gagal load statistik bulan:', e); 
+    }
 }
 
 // ============================================================
-// 20. UPDATE STATS UI
+// 21. UPDATE STATS UI
 // ============================================================
 function updateStatsUI(s) {
     const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
@@ -849,7 +1029,7 @@ function updateStatsUI(s) {
 }
 
 // ============================================================
-// 21. UPDATE FOOTER LABEL (DYNAMIC BULAN)
+// 22. UPDATE FOOTER LABEL
 // ============================================================
 function updateFooterLabel(monthStr) {
     const labelEl = document.getElementById('labelEfektifKerja');
@@ -876,15 +1056,18 @@ function updateFooterLabel(monthStr) {
 }
 
 // ============================================================
-// 22. NAVIGATION & UTILITIES
+// 23. NAVIGATION & UTILITIES
 // ============================================================
 function getPegawaiFromURL() {
     const params = new URLSearchParams(window.location.search);
     const id = params.get('id');
     if (id) {
         currentPegawai = {
-            ID: id, Nama: params.get('nama') || 'Pegawai', Jabatan: params.get('jabatan') || 'PPA',
-            Wilayah: params.get('wilayah') || 'UPT', Link_Foto_Profile: params.get('foto') || ''
+            ID: id, 
+            Nama: params.get('nama') || 'Pegawai', 
+            Jabatan: params.get('jabatan') || 'PPA',
+            Wilayah: params.get('wilayah') || 'UPT', 
+            Link_Foto_Profile: params.get('foto') || ''
         };
         const status = params.get('status'), msg = params.get('msg');
         if (status === 'success' && msg) showSuccessToast(msg);
@@ -893,27 +1076,49 @@ function getPegawaiFromURL() {
     return false;
 }
 
-function goBack() { sessionStorage.setItem('return_from_profile', 'true'); window.location.href = 'presensi.html'; }
-function goToPresensi() { sessionStorage.setItem('return_from_profile', 'true'); window.location.href = 'presensi.html'; }
+function goBack() { 
+    sessionStorage.setItem('return_from_profile', 'true'); 
+    window.location.href = 'presensi.html'; 
+}
+
+function goToPresensi() { 
+    sessionStorage.setItem('return_from_profile', 'true'); 
+    window.location.href = 'presensi.html'; 
+}
 
 function showSuccessToast(message) {
     const toast = document.getElementById('successToast'), msgEl = document.getElementById('toastMessage');
-    if (toast && msgEl) { msgEl.innerText = message; toast.style.display = 'flex'; setTimeout(() => closeToast(), 5000); }
+    if (toast && msgEl) { 
+        msgEl.innerText = message; 
+        toast.style.display = 'flex'; 
+        setTimeout(() => closeToast(), 5000); 
+    }
 }
-function closeToast() { const toast = document.getElementById('successToast'); if (toast) toast.style.display = 'none'; }
+
+function closeToast() { 
+    const toast = document.getElementById('successToast'); 
+    if (toast) toast.style.display = 'none'; 
+}
 
 function showToast(title, message, type = "info") {
     const modal = document.getElementById('notificationModal'), content = document.getElementById('notifModalContent');
     const iconEl = document.getElementById('notifIcon'), titleEl = document.getElementById('notifTitle');
     const msgEl = document.getElementById('notifMessage'), btnOk = document.getElementById('btnNotifOk');
     if (!modal || !content) return;
-    content.className = 'notif-modal-content'; content.classList.add(`notif-${type}`);
-    titleEl.innerText = title; msgEl.innerText = message;
+    content.className = 'notif-modal-content'; 
+    content.classList.add(`notif-${type}`);
+    titleEl.innerText = title; 
+    msgEl.innerText = message;
     btnOk.innerHTML = '<i data-lucide="check" size="18"></i> Mengerti';
     const icons = { success: 'check-circle', error: 'x-circle', warning: 'alert-triangle', info: 'info' };
-    iconEl.setAttribute('data-lucide', icons[type] || 'info'); lucide.createIcons();
-    modal.style.display = 'flex'; requestAnimationFrame(() => { modal.classList.add('show'); });
-    btnOk.onclick = () => { modal.classList.remove('show'); setTimeout(() => { modal.style.display = 'none'; }, 300); };
+    iconEl.setAttribute('data-lucide', icons[type] || 'info'); 
+    lucide.createIcons();
+    modal.style.display = 'flex'; 
+    requestAnimationFrame(() => { modal.classList.add('show'); });
+    btnOk.onclick = () => { 
+        modal.classList.remove('show'); 
+        setTimeout(() => { modal.style.display = 'none'; }, 300); 
+    };
 }
 
 function updateClock() {
@@ -926,7 +1131,7 @@ function updateClock() {
 }
 
 // ============================================================
-// 23. INITIALIZATION
+// 24. INITIALIZATION
 // ============================================================
 window.onload = async () => {
     lucide.createIcons();
@@ -939,9 +1144,18 @@ window.onload = async () => {
     const hasParam = getPegawaiFromURL();
     if (!hasParam) {
         const saved = sessionStorage.getItem('profile_pegawai');
-        if (saved) { try { currentPegawai = JSON.parse(saved); } catch(e) {} }
+        if (saved) { 
+            try { 
+                currentPegawai = JSON.parse(saved); 
+            } catch(e) {} 
+        }
     }
-    if (!currentPegawai) { showToast('Peringatan', 'Data pegawai tidak ditemukan.', 'warning'); setTimeout(() => goToPresensi(), 2000); return; }
+    
+    if (!currentPegawai) { 
+        showToast('Peringatan', 'Data pegawai tidak ditemukan.', 'warning'); 
+        setTimeout(() => goToPresensi(), 2000); 
+        return; 
+    }
     
     sessionStorage.setItem('profile_pegawai', JSON.stringify(currentPegawai));
     initStatsMonthSelect();
@@ -952,16 +1166,24 @@ window.onload = async () => {
     const currentMonth = now.getFullYear() + '-' + String(now.getMonth() + 1).padStart(2, '0');
     await loadStatsForMonth(currentMonth);
     
-    setInterval(updateClock, 1000); updateClock();
+    setInterval(updateClock, 1000); 
+    updateClock();
+    
     try {
         if ('serviceWorker' in navigator) {
-            const isSecure = window.location.protocol === 'https:' || (window.location.protocol === 'http:' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
+            const isSecure = window.location.protocol === 'https:' || 
+                (window.location.protocol === 'http:' && 
+                 (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
             if (isSecure) navigator.serviceWorker.register('sw.js').catch(() => {});
         }
     } catch (e) {}
-    window.addEventListener('beforeunload', () => { cache.clear(); detailCache.clear(); });
+    
+    window.addEventListener('beforeunload', () => { 
+        cache.clear(); 
+        detailCache.clear(); 
+    });
 };
 
 // ============================================================
-// END OF PROFILE_RAPORT.JS v5.0 (LOW-END OPTIMIZED)
+// END OF PROFILE_RAPORT.JS v5.1
 // ============================================================
