@@ -3644,7 +3644,468 @@ function onNotesInput() {
     updateWorkflow();
     saveAutoRecovery();
 }
+// ============================================================
+// 37. PUSH NOTIFICATION SYSTEM
+// ============================================================
+const NotificationManager = (() => {
+    const STORAGE_KEY = 'pusda_notif_state';
+    
+    // Schedule times (24h format)
+    const SCHEDULE = {
+        morning: { hour: 7, minute: 30 },
+        afternoon: { hour: 15, minute: 30 },
+        warning: { hour: 16, minute: 30 }
+    };
+    
+    let permissionGranted = false;
+    let scheduledIds = [];
+    
+    // ============================================================
+    // Initialize
+    // ============================================================
+    async function init() {
+        // Check if notifications are supported
+        if (!('Notification' in window)) {
+            console.warn('⚠️ Notifications not supported in this browser');
+            return false;
+        }
+        
+        // Check current permission
+        if (Notification.permission === 'granted') {
+            permissionGranted = true;
+            console.log('✅ Notification permission granted');
+            await setupScheduledNotifications();
+            return true;
+        } else if (Notification.permission === 'denied') {
+            console.warn('⚠️ Notification permission denied');
+            return false;
+        }
+        
+        return false; // Default/ask
+    }
+    
+    // ============================================================
+    // Request Permission
+    // ============================================================
+    async function requestPermission() {
+        if (!('Notification' in window)) {
+            showToast('Tidak Support', 'Browser Anda tidak mendukung notifikasi.', 'warning');
+            return false;
+        }
+        
+        try {
+            const permission = await Notification.requestPermission();
+            permissionGranted = permission === 'granted';
+            
+            if (permissionGranted) {
+                showToast('Berhasil', 'Notifikasi diaktifkan! Anda akan diingatkan untuk absen.', 'success');
+                await setupScheduledNotifications();
+                
+                // Test notification
+                setTimeout(() => {
+                    sendNotification('success', { message: 'Notifikasi berhasil diaktifkan! 🎉' });
+                }, 1000);
+                
+                return true;
+            } else {
+                showToast('Ditolak', 'Notifikasi tidak diaktifkan. Anda bisa mengaktifkannya nanti di pengaturan browser.', 'warning');
+                return false;
+            }
+        } catch (err) {
+            console.error('❌ Notification permission error:', err);
+            return false;
+        }
+    }
+    
+    // ============================================================
+    // Setup Scheduled Notifications
+    // ============================================================
+    async function setupScheduledNotifications() {
+        if (!permissionGranted) return;
+        
+        // Clear old schedules
+        clearScheduledNotifications();
+        
+        // Schedule periodic check every 30 minutes
+        const checkInterval = setInterval(() => {
+            checkAndScheduleToday();
+        }, 30 * 60 * 1000); // 30 minutes
+        
+        // Run initial check
+        await checkAndScheduleToday();
+        
+        console.log('✅ Scheduled notifications setup complete');
+    }
+    
+    // ============================================================
+    // Check and Schedule for Today
+    // ============================================================
+    async function checkAndScheduleToday() {
+        if (!permissionGranted) return;
+        
+        const p = activePegawai || (dbF.length > 0 ? dbF[uIdx] : null);
+        if (!p) return;
+        
+        const pid = p.ID || p.id;
+        const status = getCachedStatus(pid);
+        
+        const now = new Date();
+        const today = now.toDateString();
+        
+        // Load state
+        const state = loadState();
+        if (state.lastDate !== today) {
+            state.lastDate = today;
+            state.notifiedMorning = false;
+            state.notifiedAfternoon = false;
+            state.notifiedWarning = false;
+            saveState(state);
+        }
+        
+        // Check morning reminder
+        if (!status.hasAnyHadir && !state.notifiedMorning) {
+            const morningTime = getNextTime(SCHEDULE.morning);
+            if (morningTime && morningTime.getTime() > now.getTime()) {
+                scheduleNotification('morning', morningTime);
+                state.notifiedMorning = true;
+                saveState(state);
+            } else if (isTimePassed(SCHEDULE.morning) && !isTimePassed(SCHEDULE.afternoon)) {
+                // Morning passed but still not absen - send immediately
+                sendNotification('morning');
+                state.notifiedMorning = true;
+                saveState(state);
+            }
+        }
+        
+        // Check afternoon reminder
+        if (status.hasHadirBiasa && !status.hasPulangBiasa && !state.notifiedAfternoon) {
+            const afternoonTime = getNextTime(SCHEDULE.afternoon);
+            if (afternoonTime && afternoonTime.getTime() > now.getTime()) {
+                scheduleNotification('afternoon', afternoonTime);
+                state.notifiedAfternoon = true;
+                saveState(state);
+            } else if (isTimePassed(SCHEDULE.afternoon) && !isTimePassed(SCHEDULE.warning)) {
+                sendNotification('afternoon');
+                state.notifiedAfternoon = true;
+                saveState(state);
+            }
+        }
+        
+        // Check late warning
+        if (status.hasHadirBiasa && !status.hasPulangBiasa && !state.notifiedWarning) {
+            const warningTime = getNextTime(SCHEDULE.warning);
+            if (warningTime && warningTime.getTime() > now.getTime()) {
+                scheduleNotification('warning', warningTime);
+                state.notifiedWarning = true;
+                saveState(state);
+            } else if (isTimePassed(SCHEDULE.warning)) {
+                sendNotification('warning');
+                state.notifiedWarning = true;
+                saveState(state);
+            }
+        }
+        
+        // Update badge
+        updatePWABadge(status, state);
+    }
+    
+    // ============================================================
+    // Helper: Get Next Time
+    // ============================================================
+    function getNextTime(schedule) {
+        const now = new Date();
+        const target = new Date();
+        target.setHours(schedule.hour, schedule.minute, 0, 0);
+        
+        // If time already passed today, schedule for tomorrow
+        if (target.getTime() <= now.getTime()) {
+            target.setDate(target.getDate() + 1);
+        }
+        
+        return target;
+    }
+    
+    function isTimePassed(schedule) {
+        const now = new Date();
+        const target = new Date();
+        target.setHours(schedule.hour, schedule.minute, 0, 0);
+        return now.getTime() > target.getTime();
+    }
+    
+    // ============================================================
+    // Schedule Notification via Service Worker
+    // ============================================================
+    function scheduleNotification(type, time) {
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) {
+            console.warn('⚠️ SW not ready for scheduling');
+            return;
+        }
+        
+        try {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SCHEDULE_NOTIFICATION',
+                payload: { type, time: time.toISOString() }
+            });
+            console.log(`📅 Scheduled ${type} for ${time.toLocaleString('id-ID')}`);
+        } catch (err) {
+            console.warn('⚠️ Failed to schedule notification:', err);
+        }
+    }
+    
+    // ============================================================
+    // Send Immediate Notification
+    // ============================================================
+    function sendNotification(type, data = {}) {
+        if (!permissionGranted) return;
+        
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'SCHEDULE_NOTIFICATION',
+                payload: { type, time: 'now', data }
+            });
+        }
+    }
+    
+    // ============================================================
+    // Clear Scheduled Notifications
+    // ============================================================
+    function clearScheduledNotifications() {
+        if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+            navigator.serviceWorker.controller.postMessage({
+                type: 'CANCEL_NOTIFICATIONS'
+            });
+        }
+    }
+    
+    // ============================================================
+    // Update PWA Badge
+    // ============================================================
+    function updatePWABadge(status, state) {
+        if (!('serviceWorker' in navigator) || !navigator.serviceWorker.controller) return;
+        
+        let count = 0;
+        
+        // Badge jika ada yang belum dikerjakan
+        if (!status.hasAnyHadir) count++;
+        if (status.hasHadirBiasa && !status.hasPulangBiasa && isTimePassed(SCHEDULE.afternoon)) count++;
+        
+        navigator.serviceWorker.controller.postMessage({
+            type: 'UPDATE_BADGE',
+            payload: { count }
+        });
+    }
+    
+    // ============================================================
+    // State Management
+    // ============================================================
+    function loadState() {
+        try {
+            const saved = sessionStorage.getItem(STORAGE_KEY);
+            return saved ? JSON.parse(saved) : { lastDate: null };
+        } catch (e) {
+            return { lastDate: null };
+        }
+    }
+    
+    function saveState(state) {
+        try {
+            sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (e) {
+            console.warn('⚠️ Failed to save notification state');
+        }
+    }
+    
+    // ============================================================
+    // Public API
+    // ============================================================
+    return {
+        init,
+        requestPermission,
+        sendNotification,
+        clearScheduledNotifications,
+        isGranted: () => permissionGranted
+    };
+})();
 
+// ============================================================
+// 38. PWA INSTALL PROMPT
+// ============================================================
+const PWAInstaller = (() => {
+    let deferredPrompt = null;
+    let installButton = null;
+    
+    function init() {
+        // Listen for beforeinstallprompt event
+        window.addEventListener('beforeinstallprompt', (e) => {
+            console.log('✅ PWA: Install prompt captured');
+            e.preventDefault();
+            deferredPrompt = e;
+            showInstallButton();
+        });
+        
+        // Listen for app installed event
+        window.addEventListener('appinstalled', () => {
+            console.log('✅ PWA: App installed');
+            deferredPrompt = null;
+            hideInstallButton();
+            showToast('Terinstall!', 'Aplikasi berhasil diinstall. Akses cepat dari Home Screen.', 'success');
+            
+            // Clear badge after install
+            if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+                navigator.serviceWorker.controller.postMessage({
+                    type: 'CLEAR_BADGE'
+                });
+            }
+        });
+        
+        // Check if already installed
+        if (window.matchMedia('(display-mode: standalone)').matches) {
+            console.log('✅ PWA: Already installed');
+        }
+    }
+    
+    function showInstallButton() {
+        if (!deferredPrompt) return;
+        
+        // Create install button if not exists
+        installButton = document.getElementById('pwaInstallBtn');
+        if (!installButton) {
+            installButton = document.createElement('button');
+            installButton.id = 'pwaInstallBtn';
+            installButton.className = 'pwa-install-btn';
+            installButton.innerHTML = `
+                <i data-lucide="download" size="18"></i>
+                <span>Install Aplikasi</span>
+            `;
+            installButton.onclick = handleInstallClick;
+            
+            // Append to main content header
+            const header = document.querySelector('.page-header, .form-header-actions');
+            if (header) {
+                header.appendChild(installButton);
+            } else {
+                document.body.appendChild(installButton);
+            }
+            
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+        }
+        
+        installButton.style.display = 'flex';
+    }
+    
+    function hideInstallButton() {
+        if (installButton) {
+            installButton.style.display = 'none';
+        }
+    }
+    
+    async function handleInstallClick() {
+        if (!deferredPrompt) {
+            showToast('Info', 'Aplikasi sudah terinstall atau tidak tersedia.', 'info');
+            return;
+        }
+        
+        try {
+            deferredPrompt.prompt();
+            const { outcome } = await deferredPrompt.userChoice;
+            
+            if (outcome === 'accepted') {
+                console.log('✅ User accepted install');
+            } else {
+                console.log('❌ User dismissed install');
+            }
+            
+            deferredPrompt = null;
+            hideInstallButton();
+        } catch (err) {
+            console.error('❌ Install error:', err);
+            showToast('Error', 'Gagal menginstall aplikasi.', 'error');
+        }
+    }
+    
+    return { init };
+})();
+
+// ============================================================
+// 39. INTEGRATE INTO INITIALIZATION
+// ============================================================
+// Panggil ini di window.onload (tambahkan setelah kode yang sudah ada)
+function initNotificationsAndPWA() {
+    // Initialize PWA installer
+    PWAInstaller.init();
+    
+    // Initialize notifications (request permission on first interaction)
+    const initNotifOnInteraction = () => {
+        NotificationManager.init().then(granted => {
+            if (!granted && Notification.permission === 'default') {
+                // Show subtle prompt after 5 seconds
+                setTimeout(() => {
+                    if (Notification.permission === 'default') {
+                        showNotificationPrompt();
+                    }
+                }, 5000);
+            }
+        });
+        
+        // Remove listeners after first init
+        document.removeEventListener('click', initNotifOnInteraction);
+        document.removeEventListener('touchstart', initNotifOnInteraction);
+    };
+    
+    // Wait for first user interaction
+    document.addEventListener('click', initNotifOnInteraction, { once: true });
+    document.addEventListener('touchstart', initNotifOnInteraction, { once: true });
+}
+
+function showNotificationPrompt() {
+    // Show a custom modal to ask for notification permission
+    const existingModal = document.getElementById('notifPromptModal');
+    if (existingModal) return;
+    
+    const modal = document.createElement('div');
+    modal.id = 'notifPromptModal';
+    modal.className = 'notif-prompt-modal';
+    modal.innerHTML = `
+        <div class="notif-prompt-content">
+            <div class="notif-prompt-icon">
+                <i data-lucide="bell-ring" size="32"></i>
+            </div>
+            <h3>Aktifkan Notifikasi?</h3>
+            <p>Dapatkan pengingat otomatis untuk absen pagi dan sore. Tidak akan melewatkan jadwal!</p>
+            <div class="notif-prompt-actions">
+                <button class="btn-notif-primary" id="btnEnableNotif">
+                    <i data-lucide="bell" size="16"></i>
+                    Ya, Aktifkan
+                </button>
+                <button class="btn-notif-secondary" id="btnSkipNotif">
+                    Nanti Saja
+                </button>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    if (typeof lucide !== 'undefined') lucide.createIcons();
+    
+    // Show with animation
+    setTimeout(() => modal.classList.add('show'), 10);
+    
+    const cleanup = () => {
+        modal.classList.remove('show');
+        setTimeout(() => modal.remove(), 300);
+    };
+    
+    document.getElementById('btnEnableNotif').onclick = async () => {
+        cleanup();
+        await NotificationManager.requestPermission();
+    };
+    
+    document.getElementById('btnSkipNotif').onclick = () => {
+        cleanup();
+        sessionStorage.setItem('pusda_notif_dismissed', 'true');
+    };
+}
 // ============================================================
 // 36. INITIALIZATION (LOW-END OPTIMIZED)
 // ============================================================
