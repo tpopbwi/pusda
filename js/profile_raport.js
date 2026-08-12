@@ -576,107 +576,178 @@ function renderSummaryStats() {
 }
 
 // ============================================================
-// 14. SHOW DETAIL (ANTI-TIMEOUT / RACE CONDITION)
-// ============================================================
-let currentDetailController = null;
-
-async function showDetail(date) {
-    const card = document.getElementById('detailCard');
-    const content = document.getElementById('detailContent');
-    if (!card || !content) return;
-    
-    if (currentDetailController) currentDetailController.abort();
-    
-    const cacheKey = `detail_${currentPegawai.ID}_${date}`;
-    if (detailCache.has(cacheKey)) {
-        const cached = detailCache.get(cacheKey);
-        if (Date.now() - cached.timestamp < CACHE_CONFIG.DETAIL_TTL) {
-            renderDetailContent(cached.data);
-            card.style.display = 'block';
-            card.scrollIntoView({ behavior: DeviceProfile.config.enableAnimations ? 'smooth' : 'auto', block: 'center' });
-            return;
-        }
-        detailCache.delete(cacheKey);
-    }
-    
-    content.innerHTML = '<p style="text-align:center;opacity:0.5">Memuat detail...</p>';
-    card.style.display = 'block';
-    card.scrollIntoView({ behavior: DeviceProfile.config.enableAnimations ? 'smooth' : 'auto', block: 'center' });
-    currentDetailController = new AbortController();
-    
-    try {
-        const url = `${API}?action=getPresensiDetail&id=${encodeURIComponent(currentPegawai.ID)}&date=${date}&cb=${Date.now()}`;
-        const r = await fetchWithTimeout(url, { signal: currentDetailController.signal }, DeviceProfile.config.detailTimeout);
-        const data = await r.json();
-        
-        if (currentDetailController.signal.aborted) return;
-        if (data.status === 'success') {
-            detailCache.set(cacheKey, { data, timestamp: Date.now() });
-            renderDetailContent(data);
-        } else {
-            content.innerHTML = `<p style="color:var(--danger)">${data.message}</p>`;
-        }
-    } catch (e) {
-        if (e.name === 'AbortError' || e.message.includes('cancelled')) return;
-        console.error('❌ Detail error:', e);
-        content.innerHTML = `<p style="color:var(--danger)">Gagal memuat detail: ${e.message}</p>`;
-    }
-}
-
-// ============================================================
-// 15. DETAIL CONTENT & SECTIONS
+// 14. RENDER DETAIL CONTENT (REFFACTORED - Pakai CSS Classes)
 // ============================================================
 function renderDetailContent(data) {
     const content = document.getElementById('detailContent');
     const records = data.records || [];
-    const hadirRecord = records.find(r => (r.status || '').toLowerCase().match(/hadir|terlambat|qr hadir/));
-    const pulangRecord = records.find(r => (r.status || '').toLowerCase().match(/pulang|qr pulang/));
-    const specialRecord = records.find(r => (r.status || '').toLowerCase().match(/izin|sakit|dinas/));
     
-    let html = `<h4 style="margin-bottom:16px;color:var(--sda-toska)">📅 ${formatDateIndo(data.date)}</h4>`;
-    if (hadirRecord) html += renderDetailSection('☀️ Absen Hadir', hadirRecord, 'hadir');
-    if (pulangRecord) html += renderDetailSection('🌙 Absen Pulang', pulangRecord, 'pulang');
-    if (specialRecord) html += renderDetailSection('📋 Status Khusus', specialRecord, 'special');
-    if (!hadirRecord && !pulangRecord && !specialRecord) html += '<p style="text-align:center;opacity:0.5">Tidak ada data presensi</p>';
-    html += `<div style="text-align:center;margin-top:20px"><button class="btn-close-detail" onclick="closeDetail()"><i data-lucide="x" size="20"></i></button></div>`;
+    const hadirRecord = records.find(r => {
+        const s = (r.status || '').toLowerCase();
+        return s.includes('hadir') || s.includes('terlambat') || s.includes('qr hadir');
+    });
+    
+    const pulangRecord = records.find(r => {
+        const s = (r.status || '').toLowerCase();
+        return s.includes('pulang') || s.includes('qr pulang');
+    });
+    
+    const specialRecord = records.find(r => {
+        const s = (r.status || '').toLowerCase();
+        return s.includes('izin') || s.includes('sakit') || s.includes('dinas');
+    });
+    
+    let html = `<div class="detail-date-title">
+                    <i data-lucide="calendar-days" size="16"></i>
+                    <span>${formatDateIndo(data.date)}</span>
+                </div>`;
+    
+    if (hadirRecord) html += renderDetailSection('Absen Hadir', 'sunrise', hadirRecord, 'hadir');
+    if (pulangRecord) html += renderDetailSection('Absen Pulang', 'sunset', pulangRecord, 'pulang');
+    if (specialRecord) html += renderDetailSection('Status Khusus', 'file-text', specialRecord, 'special');
+    
+    if (!hadirRecord && !pulangRecord && !specialRecord) {
+        html += `<div class="detail-empty">
+                    <i data-lucide="inbox" size="40"></i>
+                    <p>Tidak ada data presensi di tanggal ini</p>
+                 </div>`;
+    }
+    
+    html += `<div class="detail-close-wrap">
+                <button class="btn-close-detail" onclick="closeDetail()">
+                    <i data-lucide="x" size="18"></i>
+                    <span>Tutup Detail</span>
+                </button>
+             </div>`;
+    
     content.innerHTML = html;
     lucide.createIcons();
+    
+    // ✅ Event delegation untuk foto (lebih aman dari onclick inline)
+    content.querySelectorAll('.detail-photo-img').forEach(img => {
+        img.addEventListener('click', function() {
+            openImageModal(this.dataset.full || this.src);
+        });
+    });
 }
 
-function renderDetailSection(title, record, type) {
-    const colors = { hadir: 'var(--success)', pulang: 'var(--pu-blue)', special: '#a855f7' };
-    const escapeHtml = (str) => { if (!str) return '-'; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; };
-    const status = escapeHtml(record.status); const keterangan = escapeHtml(record.keterangan || '-'); const gps = escapeHtml(record.gps || '-'); const nilai = record.nilai || 0; const time = record.time || '--:--';
+// ============================================================
+// 15. RENDER DETAIL SECTION (REFFACTORED - CSS Classes)
+// ============================================================
+function renderDetailSection(title, icon, record, type) {
+    const escapeHtml = (str) => {
+        if (!str) return '-';
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+    };
     
-    // ✅ Optimized image size based on device
-    const imgSize = DeviceProfile.config.imageSize;
+    const escapeAttr = (str) => {
+        if (!str) return '';
+        return String(str).replace(/"/g, '&quot;').replace(/'/g, '&#39;');
+    };
     
-    let html = `<div style="margin-bottom:20px;padding:16px;background:linear-gradient(135deg,rgba(30,64,175,0.92),rgba(15,23,42,0.95));border-radius:16px;border-left:4px solid ${colors[type]};box-shadow:0 6px 18px rgba(30,64,175,0.3)"><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px"><h5 style="font-size:0.9rem;font-weight:800;color:#ffffff;margin:0">${title}</h5><span style="font-family:'JetBrains Mono',monospace;font-size:0.85rem;color:${colors[type]};font-weight:800">${time}</span></div><div class="detail-row"><div class="detail-label">Status</div><div class="detail-value">${status}</div></div><div class="detail-row"><div class="detail-label">Nilai</div><div class="detail-value" style="color:${colors[type]};font-weight:800">${nilai} pts</div></div><div class="detail-row"><div class="detail-label">Keterangan</div><div class="detail-value">${keterangan}</div></div>${gps && gps !== '-' ? `<div class="detail-row"><div class="detail-label">GPS</div><div class="detail-value" style="font-family:'JetBrains Mono',monospace;font-size:0.75rem;background:rgba(0,0,0,0.25);padding:6px 10px;border-radius:8px;border:1px solid rgba(96,165,250,0.2)">${gps}</div></div>` : ''}<div style="margin-top:16px;display:grid;grid-template-columns:1fr 1fr;gap:12px">`;
+    const status = escapeHtml(record.status);
+    const keterangan = escapeHtml(record.keterangan || '-');
+    const gps = escapeHtml(record.gps || '-');
+    const nilai = record.nilai || 0;
+    const time = record.time || '--:--';
+    const wilayah = escapeHtml(record.wilayah || '-');
     
-    if (record.foto_selfie && record.foto_selfie !== '-') {
-        const optimizedSelfie = getOptimizedImageUrl(record.foto_selfie, imgSize);
-        html += `<div><div style="font-size:0.7rem;font-weight:700;opacity:0.6;margin-bottom:6px;text-transform:uppercase;color:rgba(255,255,255,0.7)">Foto Selfie</div><img src="${optimizedSelfie}" alt="Selfie" loading="lazy" style="width:100%;border-radius:12px;cursor:pointer;border:2px solid rgba(96,165,250,0.4)" onclick="openImageModal('${optimizedSelfie}')" onerror="this.style.display='none'"></div>`;
-    }
-    if (record.foto_kerja && record.foto_kerja !== '-') {
-        const optimizedWork = getOptimizedImageUrl(record.foto_kerja, imgSize);
-        html += `<div><div style="font-size:0.7rem;font-weight:700;opacity:0.6;margin-bottom:6px;text-transform:uppercase;color:rgba(255,255,255,0.7)">Foto Kerja</div><img src="${optimizedWork}" alt="Kerja" loading="lazy" style="width:100%;border-radius:12px;cursor:pointer;border:2px solid rgba(96,165,250,0.4)" onclick="openImageModal('${optimizedWork}')" onerror="this.style.display='none'"></div>`;
-    }
+    let html = `
+    <div class="detail-section detail-section-${type}">
+        <div class="detail-section-header">
+            <div class="detail-section-title">
+                <i data-lucide="${icon}" size="16"></i>
+                <span>${title}</span>
+            </div>
+            <span class="detail-section-time">
+                <i data-lucide="clock" size="12"></i>
+                ${time}
+            </span>
+        </div>
+        
+        <div class="detail-rows">
+            <div class="detail-row">
+                <div class="detail-label">Status</div>
+                <div class="detail-value">${status}</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Nilai</div>
+                <div class="detail-value detail-nilai">${nilai} pts</div>
+            </div>
+            
+            <div class="detail-row">
+                <div class="detail-label">Keterangan</div>
+                <div class="detail-value">${keterangan}</div>
+            </div>
+            
+            ${wilayah && wilayah !== '-' ? `
+            <div class="detail-row">
+                <div class="detail-label">Wilayah</div>
+                <div class="detail-value">${wilayah}</div>
+            </div>` : ''}
+            
+            ${gps && gps !== '-' ? `
+            <div class="detail-row">
+                <div class="detail-label">GPS</div>
+                <div class="detail-value detail-gps">${gps}</div>
+            </div>` : ''}
+        </div>
+        
+        ${(record.foto_selfie && record.foto_selfie !== '-') || (record.foto_kerja && record.foto_kerja !== '-') ? `
+        <div class="detail-photos">
+            ${record.foto_selfie && record.foto_selfie !== '-' ? `
+            <div class="detail-photo-item">
+                <div class="detail-photo-caption">
+                    <i data-lucide="camera" size="11"></i>
+                    Foto Selfie
+                </div>
+                <img class="detail-photo-img" 
+                     src="${escapeAttr(record.foto_selfie)}" 
+                     data-full="${escapeAttr(record.foto_selfie)}"
+                     alt="Foto Selfie" 
+                     loading="lazy"
+                     onerror="this.parentElement.style.display='none'">
+            </div>` : ''}
+            
+            ${record.foto_kerja && record.foto_kerja !== '-' ? `
+            <div class="detail-photo-item">
+                <div class="detail-photo-caption">
+                    <i data-lucide="image" size="11"></i>
+                    Foto Lokasi
+                </div>
+                <img class="detail-photo-img" 
+                     src="${escapeAttr(record.foto_kerja)}" 
+                     data-full="${escapeAttr(record.foto_kerja)}"
+                     alt="Foto Lokasi" 
+                     loading="lazy"
+                     onerror="this.parentElement.style.display='none'">
+            </div>` : ''}
+        </div>` : ''}
+    </div>`;
     
-    html += `</div></div>`;
     return html;
 }
 
 // ============================================================
-// 16. MODAL & UTILITIES
+// 16. OPEN IMAGE MODAL (Pakai CSS Class)
 // ============================================================
 function openImageModal(url) {
+    if (!url || url === '-') return;
+    
     const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.9);z-index:300000;display:flex;align-items:center;justify-content:center;cursor:zoom-out;padding:20px';
-    modal.onclick = () => modal.remove();
+    modal.className = 'image-modal-overlay';
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+    
     const img = document.createElement('img');
     img.src = url;
-    img.style.cssText = 'max-width:90%;max-height:90%;border-radius:12px;box-shadow:0 15px 40px rgba(0,0,0,0.6);';
+    img.alt = 'Detail Foto Presensi';
     img.loading = 'lazy';
+    
     modal.appendChild(img);
     document.body.appendChild(modal);
 }
