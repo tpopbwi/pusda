@@ -1050,8 +1050,7 @@ body {
 /* =========================================
    16. STATS FOOTER (Logo + Info + Stats)
    =========================================
-   Layout:
-   - > 480px : Logo di SAMPING content (horizontal/sejajar)
+   - > 480px : Logo di SAMPING content (horizontal)
    - < 480px : Logo di BAWAH content (vertikal)
    ========================================= */
 .stats-footer {
@@ -1067,7 +1066,6 @@ body {
     gap: 16px;
 }
 
-/* ✅ Logo */
 .stats-footer-logo {
     width: 52px;
     height: 52px;
@@ -1088,7 +1086,6 @@ body {
     object-fit: contain;
 }
 
-/* ✅ Content wrapper */
 .stats-footer-content {
     flex: 1;
     display: flex;
@@ -1097,7 +1094,6 @@ body {
     min-width: 0;
 }
 
-/* ✅ Info text */
 .stats-footer .info-text {
     display: flex;
     align-items: center;
@@ -1117,7 +1113,6 @@ body {
     flex-shrink: 0;
 }
 
-/* ✅ Stats total */
 .stats-footer .stats-total {
     font-size: 0.85rem;
     color: var(--text-dark);
@@ -1137,28 +1132,24 @@ body {
     line-height: 1.2;
 }
 
-/* ✅ Badge Total Kehadiran (Hijau) */
 .stats-footer .hadir-count {
     background: rgba(16, 185, 129, 0.12);
     color: #059669;
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
-/* ✅ Badge Efektif Kerja (Biru) */
 .stats-footer .alpha-count {
     background: rgba(59, 130, 246, 0.12);
     color: #2563eb;
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
-/* ✅ Label "Efektif Kerja Agt:" */
 .stats-footer .efektif-label {
     font-weight: 700;
     color: var(--text-mid);
     font-size: 0.8rem;
 }
 
-/* ✅ Divider titik tengah */
 .stats-footer .stats-divider {
     color: var(--text-muted);
     font-weight: 300;
@@ -1169,8 +1160,6 @@ body {
 /* =========================================
    16B. RESPONSIVE - STATS FOOTER
    ========================================= */
-
-/* Tablet (481px - 768px): Tetap horizontal, ukuran lebih kecil */
 @media (max-width: 768px) and (min-width: 481px) {
     .stats-footer {
         padding: 14px 16px;
@@ -1189,6 +1178,12 @@ body {
     
     .stats-footer .info-text {
         font-size: 0.7rem;
+    }
+    
+    .stats-footer .info-text i,
+    .stats-footer .info-text svg {
+        width: 10px !important;
+        height: 10px !important;
     }
     
     .stats-footer .stats-total {
@@ -1216,23 +1211,21 @@ body {
         border-radius: 12px;
     }
     
-    /* ✅ Content muncul DULU (di atas) */
     .stats-footer-content {
         order: 1;
         width: 100%;
     }
     
-    /* ✅ Logo muncul di BAWAH */
     .stats-footer-logo {
         order: 2;
-        width: 40px;
-        height: 40px;
+        width: 36px;
+        height: 36px;
         margin-top: 4px;
     }
     
     .stats-footer-logo img {
-        width: 30px;
-        height: 30px;
+        width: 26px;
+        height: 26px;
     }
     
     .stats-footer .info-text {
@@ -1265,20 +1258,19 @@ body {
     }
 }
 
-/* Very Small Mobile (< 380px) */
 @media (max-width: 380px) {
     .stats-footer {
         padding: 12px 14px;
     }
     
     .stats-footer-logo {
-        width: 36px;
-        height: 36px;
+        width: 32px;
+        height: 32px;
     }
     
     .stats-footer-logo img {
-        width: 26px;
-        height: 26px;
+        width: 24px;
+        height: 24px;
     }
     
     .stats-footer .info-text {
@@ -1300,7 +1292,7 @@ body {
 }
 
 /* =========================================
-   16C. DARK/GLASS CARD VARIANT (Jika ada)
+   16C. GLASS CARD VARIANT
    ========================================= */
 .raport-card.glass-card .stats-footer {
     background: rgba(255, 255, 255, 0.06);
@@ -1606,18 +1598,6 @@ body {
     
     .working-days-info { font-size: 0.68rem; padding: 6px 10px; }
     
-    .stats-footer { padding: 14px 16px; gap: 10px; }
-    .stats-footer-header { gap: 10px; }
-    .stats-footer-logo { width: 38px; height: 38px; border-radius: 10px; }
-    .stats-footer-logo img { width: 28px; height: 28px; }
-    .stats-footer-brand-name { font-size: 0.85rem; }
-    .stats-footer-brand-sub { font-size: 0.55rem; }
-    .stats-footer-badge { padding: 4px 8px; font-size: 0.55rem; }
-    .stats-footer .info-text { font-size: 0.68rem; }
-    .stats-footer .stats-total { font-size: 0.78rem; gap: 6px; }
-    .stats-footer .stats-total b { padding: 3px 10px; font-size: 0.82rem; }
-    .stats-footer .efektif-label { font-size: 0.72rem; }
-    
     .table-footer { flex-direction: column; align-items: stretch; gap: 10px; }
     
     .detail-row { flex-direction: column; gap: 4px; }
@@ -1626,28 +1606,7 @@ body {
     .stat-card[data-tooltip]:hover::after,
     .stat-card[data-tooltip]:hover::before { display: none; }
 }
-/* ✅ Icon footer lebih kecil di mobile */
-    .stats-footer-badge i,
-    .stats-footer-badge svg {
-        width: 8px !important;
-        height: 8px !important;
-    }
-    
-    .stats-footer .info-text i,
-    .stats-footer .info-text svg {
-        width: 10px !important;
-        height: 10px !important;
-    }
-    
-    .stats-footer-badge {
-        padding: 2px 6px;
-        font-size: 0.5rem;
-    }
-    
-    .stats-footer .info-text {
-        font-size: 0.62rem;
-    }
-}
+
 @media (max-width: 480px) {
     .today-status-grid { grid-template-columns: repeat(2, 1fr); gap: 8px; }
     .today-status-grid .status-card { padding: 10px; gap: 8px; }
@@ -1673,20 +1632,6 @@ body {
     .history-table th, .history-table td { padding: 8px 10px; }
     .status-badge-table { font-size: 0.6rem; padding: 3px 8px; max-width: 120px; }
     
-    .stats-footer { padding: 12px 14px; border-radius: 12px; }
-    .stats-footer-header { gap: 8px; }
-    .stats-footer-logo { width: 34px; height: 34px; }
-    .stats-footer-logo img { width: 24px; height: 24px; }
-    .stats-footer-brand-name { font-size: 0.78rem; }
-    .stats-footer-brand-sub { font-size: 0.5rem; letter-spacing: 1px; }
-    .stats-footer-badge { padding: 3px 7px; font-size: 0.5rem; }
-    .stats-footer-badge i { width: 10px; height: 10px; }
-    .stats-footer .info-text { font-size: 0.62rem; }
-    .stats-footer .stats-total { font-size: 0.72rem; gap: 5px; }
-    .stats-footer .stats-total b { padding: 2px 8px; font-size: 0.75rem; }
-    .stats-footer .efektif-label { font-size: 0.68rem; }
-    .stats-footer .stats-divider { font-size: 0.9rem; }
-    
     .raport-card .card-header .date-badge,
     .raport-card .card-header .month-badge { font-size: 0.65rem; padding: 4px 10px; }
 }
@@ -1698,33 +1643,6 @@ body {
     .stats-grid { gap: 4px; }
     .stat-number { font-size: 1rem; }
     .status-badge-table { font-size: 0.55rem; padding: 2px 6px; max-width: 100px; }
-    .stats-footer .stats-total { font-size: 0.68rem; }
-    .stats-footer .stats-total b { padding: 2px 6px; font-size: 0.7rem; }
-    .stats-footer-brand-name { font-size: 0.72rem; }
-}
-/* ✅ Icon footer paling kecil di HP kecil */
-    .stats-footer-badge i,
-    .stats-footer-badge svg {
-        width: 7px !important;
-        height: 7px !important;
-    }
-    
-    .stats-footer .info-text i,
-    .stats-footer .info-text svg {
-        width: 9px !important;
-        height: 9px !important;
-    }
-    
-    .stats-footer-badge {
-        padding: 2px 5px;
-        font-size: 0.45rem;
-        letter-spacing: 0.5px;
-    }
-    
-    .stats-footer .info-text {
-        font-size: 0.58rem;
-        gap: 4px;
-    }
 }
 /* =========================================
    21. PRINT STYLES
