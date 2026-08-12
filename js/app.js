@@ -1,6 +1,6 @@
 // ============ KONFIGURASI GLOBAL ============
 const GITHUB_LOGO_URL = "https://raw.githubusercontent.com/tpopbwi/presensi-pusda/main/assets/logo.png";
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx9QYwnT9Be3vv7wlg1WAcrR-8rxBUvEM4gsPieUj7r19S8eZc-QLKRfxtnxNHxlmSsEQ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwg8LoyLRWaqpOpmXj6GGdwVksNWEUOKijD3vpllMSfeHVQY5XaeXcd7ygoyFFL-JIv/exec";
 let appData = { pegawai: [], korlap: [], tools: [], config: {} }, slideIdx = 0;
 
 // ============ PWA MANIFEST (Data URI) ============
