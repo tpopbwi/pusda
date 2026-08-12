@@ -12,7 +12,7 @@
 // ✅ Synced: Full compatibility dengan RAPORT.GS v3.4.0
 // ============================================================
 
-const API_BASE = "https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec";
+const API_BASE = "https://script.google.com/macros/s/AKfycbwg8LoyLRWaqpOpmXj6GGdwVksNWEUOKijD3vpllMSfeHVQY5XaeXcd7ygoyFFL-JIv/exec";
 const isLocalFile = window.location.protocol === 'file:';
 const API = isLocalFile 
     ? "https://cors-anywhere.herokuapp.com/" + API_BASE
