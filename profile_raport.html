@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="description" content="E-PUSDA - Profile Raport Kinerja Pegawai">
+    <meta name="theme-color" content="#1e40af">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="E-PUSDA Raport">
+    
+    <!-- ✅ PERFORMANCE: Preconnect ke API & Resources (Kurangi Latency) -->
+    <link rel="preconnect" href="https://script.google.com">
+    <link rel="preconnect" href="https://script.googleusercontent.com">
+    <link rel="preconnect" href="https://drive.google.com">
+    <link rel="preconnect" href="https://lh3.googleusercontent.com">
+    <link rel="dns-prefetch" href="https://script.google.com">
+    <link rel="dns-prefetch" href="https://lh3.googleusercontent.com">
+    
+    <!-- ✅ PWA Manifest -->
+    <link rel="manifest" href="manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" href="assets/logo.png">
+    <link rel="apple-touch-icon" href="assets/logo.png">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- CSS -->
+    <link rel="stylesheet" href="css/profile_raport.css">
+    
+    <title>Profile Raport - E-PUSDA</title>
+    
+    <!-- ✅ DETEKSI HP RENDAH SEBELUM CSS LOAD (Hindari Flash Efek Berat) -->
+    <script>
+        (function() {
+            try {
+                const isLowEnd = 
+                    (navigator.deviceMemory && navigator.deviceMemory < 4) ||
+                    (navigator.hardwareConcurrency && navigator.hardwareConcurrency < 4) ||
+                    window.innerWidth < 480;
+                if (isLowEnd) {
+                    document.documentElement.classList.add('low-end-device');
+                }
+            } catch(e) {}
+        })();
+    </script>
+</head>
+<body>
+    
+    <!-- ============================================================
+         BACKGROUND GRADIENT (FIXED)
+         ============================================================ -->
+    <div class="fixed-bg"></div>
+    
+    <!-- ============================================================
+         LOADING OVERLAY
+         ============================================================ -->
+    <div id="loadingOverlay">
+        <div class="sending-loader">
+            <div class="ring-layer ring-1"></div>
+            <div class="ring-layer ring-2"></div>
+            <div class="ring-layer ring-3"></div>
+            <div class="pulse-logo"></div>
+        </div>
+        <p id="loadStatus" style="font-weight:600;font-size:0.85rem;opacity:0.8;">Memuat Profile Raport...</p>
+    </div>
+    
+    <!-- ============================================================
+         SIDEBAR (DESKTOP ONLY)
+         ============================================================ -->
+    <aside class="sidebar">
+        <div class="brand">
+            <img id="sidebarLogo" src="assets/logo.png" alt="Logo">
+            <div>
+                <h1>E-PUSDA</h1>
+                <p>UPT MANAGEMENT</p>
+            </div>
+        </div>
+        
+        <nav class="nav-items">
+            <a href="presensi.html" class="nav-link">
+                <i data-lucide="fingerprint" size="20"></i>
+                <span>Presensi</span>
+            </a>
+            <a href="profile_raport.html" class="nav-link active">
+                <i data-lucide="bar-chart-3" size="20"></i>
+                <span>Raport Saya</span>
+            </a>
+            <a href="agenda.html" class="nav-link">
+                <i data-lucide="calendar-days" size="20"></i>
+                <span>Agenda</span>
+            </a>
+            <a href="tools.html" class="nav-link">
+                <i data-lucide="layout-grid" size="20"></i>
+                <span>Tools</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-clock">
+            <p>Waktu Server</p>
+            <h2 id="liveClock">--:--</h2>
+        </div>
+    </aside>
+    
+    <!-- ============================================================
+         MAIN CONTENT
+         ============================================================ -->
+    <main class="main-content">
+        
+        <!-- ========== PAGE HEADER ========== -->
+        <header class="page-header">
+            <button class="btn-back" onclick="goBack()">
+                <i data-lucide="arrow-left" size="18"></i>
+                <span class="btn-back-label">Kembali</span>
+            </button>
+            <button class="btn-presensi-header" onclick="goToPresensi()">
+                <i data-lucide="fingerprint" size="18"></i>
+                <span>Absensi Sekarang</span>
+            </button>
+        </header>
+        
+        <!-- ========== SUCCESS TOAST (Hidden by Default) ========== -->
+        <div class="success-toast" id="successToast" style="display:none;">
+            <div class="toast-icon">
+                <i data-lucide="check-circle" size="24"></i>
+            </div>
+            <div class="toast-content">
+                <h4>Berhasil!</h4>
+                <p id="toastMessage">Operasi berhasil dilakukan.</p>
+            </div>
+            <button class="toast-close" onclick="closeToast()">
+                <i data-lucide="x" size="18"></i>
+            </button>
+        </div>
+        
+        <!-- ========== PROFILE HEADER (CARD-TOP BIRU) ========== -->
+        <section class="profile-header">
+            <div class="profile-avatar-popout">
+                <img id="profileAvatar" src="" alt="Foto Profil">
+                <div class="avatar-status" id="avatarStatus">
+                    <i data-lucide="check" size="14"></i>
+                </div>
+            </div>
+            
+            <div class="profile-info">
+                <h2 id="profileName">Nama Pegawai</h2>
+                <p id="profileJob">
+                    <i data-lucide="briefcase" size="14"></i>
+                    Jabatan
+                </p>
+                <p id="profileWil">
+                    <i data-lucide="map-pin" size="14"></i>
+                    Wilayah
+                </p>
+            </div>
+            
+            <!-- Stats Badge (Glass Effect) -->
+            <div class="profile-stats-badge">
+                <div class="stat-item">
+                    <span class="stat-value" id="totalKehadiran">0</span>
+                    <span class="stat-label">Kehadiran</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="totalNilai">0</span>
+                    <span class="stat-label">Total Nilai</span>
+                </div>
+                <div class="stat-divider"></div>
+                <div class="stat-item">
+                    <span class="stat-value" id="persentaseKehadiran">0%</span>
+                    <span class="stat-label">Persentase</span>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ========== RAPORT HARI INI (GLASS CARD) ========== -->
+        <section class="raport-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="sun" size="20"></i>
+                    <span>Raport Hari Ini</span>
+                </h3>
+                <span class="date-badge" id="todayDate">-</span>
+            </div>
+            
+            <div class="today-status-grid">
+                <!-- Hadir -->
+                <div class="status-card status-hadir">
+                    <div class="status-icon">
+                        <i data-lucide="sunrise" size="20"></i>
+                    </div>
+                    <div class="status-detail">
+                        <span class="status-label">Jam Hadir</span>
+                        <span class="status-time" id="todayHadir">--:--</span>
+                        <span class="status-point" id="todayHadirPoint">0 pts</span>
+                    </div>
+                </div>
+                
+                <!-- Pulang -->
+                <div class="status-card status-pulang">
+                    <div class="status-icon">
+                        <i data-lucide="sunset" size="20"></i>
+                    </div>
+                    <div class="status-detail">
+                        <span class="status-label">Jam Pulang</span>
+                        <span class="status-time" id="todayPulang">--:--</span>
+                        <span class="status-point" id="todayPulangPoint">0 pts</span>
+                    </div>
+                </div>
+                
+                <!-- Status Khusus -->
+                <div class="status-card status-khusus">
+                    <div class="status-icon">
+                        <i data-lucide="file-text" size="20"></i>
+                    </div>
+                    <div class="status-detail">
+                        <span class="status-label">Status Khusus</span>
+                        <span class="status-time" id="todaySpecial">-</span>
+                        <span class="status-point" id="todaySpecialPoint">0 pts</span>
+                    </div>
+                </div>
+                
+                <!-- Total -->
+                <div class="status-card status-total">
+                    <div class="status-icon">
+                        <i data-lucide="sigma" size="20"></i>
+                    </div>
+                    <div class="status-detail">
+                        <span class="status-label">Total Hari Ini</span>
+                        <span class="status-time" id="todayTotal">0</span>
+                        <span class="status-point" id="todayTotalPoint">0 pts</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- ========== RIWAYAT PRESENSI (TABLE) ========== -->
+        <section class="raport-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="history" size="20"></i>
+                    <span>Riwayat Presensi</span>
+                </h3>
+                
+                <!-- Filter Controls -->
+                <div class="filter-controls">
+                    <button class="btn-filter" id="filter7" onclick="setFilter('7')">7 Hari</button>
+                    <button class="btn-filter" id="filter30" onclick="setFilter('30')">30 Hari</button>
+                    <button class="btn-filter active" id="filterMonth" onclick="setFilter('month')">Bulan Ini</button>
+                    <button class="btn-filter" id="filterAll" onclick="setFilter('all')">Semua</button>
+                </div>
+            </div>
+            
+            <div class="table-wrapper">
+                <table class="history-table">
+                    <thead>
+                        <tr>
+                            <th>Tanggal</th>
+                            <th>Hari</th>
+                            <th>Masuk</th>
+                            <th>Pulang</th>
+                            <th>Nilai</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody">
+                        <!-- Rows akan di-generate oleh JavaScript -->
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="table-footer">
+                <span id="historyCount">Belum ada data</span>
+                <button class="btn-load-more" id="btnLoadMore" onclick="loadMoreHistory()" style="display:none;">
+                    <i data-lucide="chevron-down" size="16"></i>
+                    Load More
+                </button>
+            </div>
+        </section>
+        
+        <!-- ========== STATISTIK KINERJA ========== -->
+        <section class="raport-card">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="bar-chart-3" size="20"></i>
+                    <span id="statsTitleText">Statistik Bulan Ini</span>
+                </h3>
+                
+                <!-- Month Selector -->
+                <select id="statsMonthSelect" class="month-select" onchange="onStatsMonthChange(this.value)">
+                    <!-- Options akan di-generate oleh JavaScript -->
+                </select>
+            </div>
+            
+            <!-- Working Days Info -->
+            <div class="working-days-info" style="margin-bottom:16px;">
+                <i data-lucide="calendar-check" size="14"></i>
+                <span>Hari Kerja Efektif (s/d hari ini): <strong id="totalWorkingDays">0</strong></span>
+            </div>
+            
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <!-- Hadir -->
+                <div class="stat-card stat-hadir" data-tooltip="Total hari hadir tepat waktu">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statHadir">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statHadirPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Hadir</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barHadir" style="width:0%"></div></div>
+                </div>
+                
+                <!-- Terlambat -->
+                <div class="stat-card stat-terlambat" data-tooltip="Total hari terlambat">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statTerlambat">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statTerlambatPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Terlambat</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barTerlambat" style="width:0%"></div></div>
+                </div>
+                
+                <!-- Izin -->
+                <div class="stat-card stat-izin" data-tooltip="Total hari izin">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statIzin">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statIzinPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Izin</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barIzin" style="width:0%"></div></div>
+                </div>
+                
+                <!-- Sakit -->
+                <div class="stat-card stat-sakit" data-tooltip="Total hari sakit">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statSakit">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statSakitPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Sakit</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barSakit" style="width:0%"></div></div>
+                </div>
+                
+                <!-- Dinas -->
+                <div class="stat-card stat-dinas" data-tooltip="Total hari dinas luar">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statDinas">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statDinasPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Dinas</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barDinas" style="width:0%"></div></div>
+                </div>
+                
+                <!-- Alpha -->
+                <div class="stat-card stat-alpha" data-tooltip="Total hari tanpa keterangan (Alpha)">
+                    <div class="stat-number-wrapper">
+                        <span class="stat-number" id="statAlpha">0</span>
+                        <span class="stat-percentage">
+                            <span class="pct-value" id="statAlphaPct">0.0%</span>
+                        </span>
+                    </div>
+                    <div class="stat-name">Alpha</div>
+                    <div class="stat-bar"><div class="bar-fill" id="barAlpha" style="width:0%"></div></div>
+                </div>
+            </div>
+            
+            <!-- ✅ STATS FOOTER - Total Kehadiran + Efektif Kerja Bulanan -->
+            <div class="stats-footer">
+                <span class="info-text">
+                    <i data-lucide="info" size="14"></i>
+                    <span>Persentase dihitung dari total hari kerja efektif</span>
+                </span>
+                
+                <span class="stats-total">
+                    Total Kehadiran: 
+                    <b class="hadir-count" id="totalKehadiranStats">0</b>
+                    
+                    <span class="stats-divider">·</span>
+                    
+                    <!-- ✅ LABEL DINAMIS (Diubah oleh JS: Agt, Sep, Okt, dst) -->
+                    <span class="efektif-label" id="labelEfektifKerja">Efektif Kerja Agt:</span>
+                    <b class="alpha-count" id="totalAlphaStats">0</b>
+                </span>
+            </div>
+        </section>
+        
+        <!-- ========== DETAIL PRESENSI (Hidden by Default) ========== -->
+        <section class="raport-card" id="detailCard" style="display:none;">
+            <div class="card-header">
+                <h3>
+                    <i data-lucide="eye" size="20"></i>
+                    <span>Detail Presensi</span>
+                </h3>
+            </div>
+            <div id="detailContent">
+                <!-- Content akan di-generate oleh JavaScript -->
+            </div>
+        </section>
+        
+    </main>
+    
+    <!-- ============================================================
+         NOTIFICATION MODAL (Hidden by Default)
+         ============================================================ -->
+    <div id="notificationModal">
+        <div class="notif-modal-content" id="notifModalContent">
+            <div class="notif-icon-wrap">
+                <i data-lucide="info" size="32" id="notifIcon"></i>
+            </div>
+            <h3 class="notif-title" id="notifTitle">Notifikasi</h3>
+            <p class="notif-message" id="notifMessage">Pesan notifikasi akan muncul di sini.</p>
+            <button class="btn-notif-ok" id="btnNotifOk">
+                <i data-lucide="check" size="18"></i>
+                Mengerti
+            </button>
+        </div>
+    </div>
+    
+    <!-- ============================================================
+         BOTTOM NAVIGATION (MOBILE ONLY)
+         ============================================================ -->
+    <nav class="bottom-nav">
+        <a href="presensi.html" class="b-nav-item">
+            <i data-lucide="fingerprint" size="22"></i>
+            <span>Presensi</span>
+        </a>
+        <a href="profile_raport.html" class="b-nav-item active">
+            <i data-lucide="bar-chart-3" size="22"></i>
+            <span>Raport</span>
+        </a>
+        <a href="presensi.html" class="b-nav-item">
+            <div class="b-nav-fab">
+                <i data-lucide="qrcode" size="26"></i>
+            </div>
+        </a>
+        <a href="agenda.html" class="b-nav-item">
+            <i data-lucide="calendar-days" size="22"></i>
+            <span>Agenda</span>
+        </a>
+        <a href="tools.html" class="b-nav-item">
+            <i data-lucide="layout-grid" size="22"></i>
+            <span>Tools</span>
+        </a>
+    </nav>
+    
+    <!-- ============================================================
+         SCRIPTS
+         ============================================================ -->
+    
+    <!-- ✅ Initialize Lucide Icons -->
+    <script>
+        lucide.createIcons();
+    </script>
+    
+    <!-- ✅ Main JavaScript -->
+    <script src="js/profile_raport.js"></script>
+    
+</body>
+</html>
