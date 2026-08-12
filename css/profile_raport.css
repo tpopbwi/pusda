@@ -1048,7 +1048,11 @@ body {
 }
 
 /* =========================================
-   16. STATS FOOTER (Dengan Logo Resmi)
+   16. STATS FOOTER (Logo + Info + Stats)
+   =========================================
+   Layout:
+   - > 480px : Logo di SAMPING content (horizontal/sejajar)
+   - < 480px : Logo di BAWAH content (vertikal)
    ========================================= */
 .stats-footer {
     margin-top: 20px;
@@ -1058,19 +1062,15 @@ body {
     border: 1px solid var(--card-border);
     border-left: 4px solid var(--pu-blue);
     display: flex;
-    flex-direction: column;
-    gap: 12px;
-}
-
-.stats-footer-header {
-    display: flex;
+    flex-direction: row;
     align-items: center;
-    gap: 12px;
+    gap: 16px;
 }
 
+/* ✅ Logo */
 .stats-footer-logo {
-    width: 44px;
-    height: 44px;
+    width: 52px;
+    height: 52px;
     border-radius: 12px;
     background: var(--card-white);
     border: 1.5px solid var(--card-border);
@@ -1083,89 +1083,21 @@ body {
 }
 
 .stats-footer-logo img {
-    width: 32px;
-    height: 32px;
+    width: 40px;
+    height: 40px;
     object-fit: contain;
 }
 
-.stats-footer-brand {
+/* ✅ Content wrapper */
+.stats-footer-content {
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: 8px;
     min-width: 0;
 }
 
-.stats-footer-brand-name {
-    font-size: 0.95rem;
-    font-weight: 800;
-    letter-spacing: 0.5px;
-    line-height: 1.2;
-}
-
-.stats-footer-brand-sub {
-    font-size: 0.6rem;
-    font-weight: 800;
-    color: var(--text-muted);
-    letter-spacing: 1.5px;
-    text-transform: uppercase;
-}
-
-.stats-footer-badge {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    padding: 5px 10px;
-    border-radius: 20px;
-    background: rgba(16, 185, 129, 0.1);
-    border: 1px solid rgba(16, 185, 129, 0.3);
-    color: #059669;
-    font-size: 0.6rem;
-    font-weight: 800;
-    letter-spacing: 1px;
-    flex-shrink: 0;
-}
-
-/* =========================================
-   FIX: Ukuran Icon Footer (Kecil & Proporsional)
-   ========================================= */
-
-/* ✅ Badge RESMI - icon sangat kecil */
-.stats-footer-badge i,
-.stats-footer-badge svg {
-    width: 10px !important;
-    height: 10px !important;
-    stroke-width: 2.5px !important;
-}
-
-/* ✅ Info text - icon kecil */
-.stats-footer .info-text i,
-.stats-footer .info-text svg {
-    width: 12px !important;
-    height: 12px !important;
-    stroke-width: 2px !important;
-    flex-shrink: 0;
-}
-
-/* ✅ Pastikan badge tidak terlalu besar */
-.stats-footer-badge {
-    padding: 3px 8px;
-    font-size: 0.55rem;
-    gap: 4px;
-}
-
-/* ✅ Info text lebih compact */
-.stats-footer .info-text {
-    font-size: 0.7rem;
-    gap: 6px;
-}
-
-.stats-footer-divider {
-    height: 1px;
-    background: var(--card-border);
-    margin: 2px 0;
-}
-
+/* ✅ Info text */
 .stats-footer .info-text {
     display: flex;
     align-items: center;
@@ -1176,11 +1108,16 @@ body {
     font-weight: 500;
 }
 
-.stats-footer .info-text i {
+.stats-footer .info-text i,
+.stats-footer .info-text svg {
+    width: 12px !important;
+    height: 12px !important;
+    stroke-width: 2px !important;
     color: var(--pu-blue);
     flex-shrink: 0;
 }
 
+/* ✅ Stats total */
 .stats-footer .stats-total {
     font-size: 0.85rem;
     color: var(--text-dark);
@@ -1200,24 +1137,28 @@ body {
     line-height: 1.2;
 }
 
+/* ✅ Badge Total Kehadiran (Hijau) */
 .stats-footer .hadir-count {
     background: rgba(16, 185, 129, 0.12);
     color: #059669;
     border: 1px solid rgba(16, 185, 129, 0.3);
 }
 
+/* ✅ Badge Efektif Kerja (Biru) */
 .stats-footer .alpha-count {
     background: rgba(59, 130, 246, 0.12);
     color: #2563eb;
     border: 1px solid rgba(59, 130, 246, 0.3);
 }
 
+/* ✅ Label "Efektif Kerja Agt:" */
 .stats-footer .efektif-label {
     font-weight: 700;
     color: var(--text-mid);
     font-size: 0.8rem;
 }
 
+/* ✅ Divider titik tengah */
 .stats-footer .stats-divider {
     color: var(--text-muted);
     font-weight: 300;
@@ -1225,6 +1166,180 @@ body {
     opacity: 0.6;
 }
 
+/* =========================================
+   16B. RESPONSIVE - STATS FOOTER
+   ========================================= */
+
+/* Tablet (481px - 768px): Tetap horizontal, ukuran lebih kecil */
+@media (max-width: 768px) and (min-width: 481px) {
+    .stats-footer {
+        padding: 14px 16px;
+        gap: 12px;
+    }
+    
+    .stats-footer-logo {
+        width: 44px;
+        height: 44px;
+    }
+    
+    .stats-footer-logo img {
+        width: 34px;
+        height: 34px;
+    }
+    
+    .stats-footer .info-text {
+        font-size: 0.7rem;
+    }
+    
+    .stats-footer .stats-total {
+        font-size: 0.8rem;
+        gap: 6px;
+    }
+    
+    .stats-footer .stats-total b {
+        padding: 3px 10px;
+        font-size: 0.85rem;
+    }
+    
+    .stats-footer .efektif-label {
+        font-size: 0.75rem;
+    }
+}
+
+/* ✅ MOBILE (< 480px): Logo di BAWAH content */
+@media (max-width: 480px) {
+    .stats-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 14px 16px;
+        border-radius: 12px;
+    }
+    
+    /* ✅ Content muncul DULU (di atas) */
+    .stats-footer-content {
+        order: 1;
+        width: 100%;
+    }
+    
+    /* ✅ Logo muncul di BAWAH */
+    .stats-footer-logo {
+        order: 2;
+        width: 40px;
+        height: 40px;
+        margin-top: 4px;
+    }
+    
+    .stats-footer-logo img {
+        width: 30px;
+        height: 30px;
+    }
+    
+    .stats-footer .info-text {
+        font-size: 0.65rem;
+        gap: 6px;
+    }
+    
+    .stats-footer .info-text i,
+    .stats-footer .info-text svg {
+        width: 10px !important;
+        height: 10px !important;
+    }
+    
+    .stats-footer .stats-total {
+        font-size: 0.75rem;
+        gap: 5px;
+    }
+    
+    .stats-footer .stats-total b {
+        padding: 2px 8px;
+        font-size: 0.78rem;
+    }
+    
+    .stats-footer .efektif-label {
+        font-size: 0.7rem;
+    }
+    
+    .stats-footer .stats-divider {
+        font-size: 0.9rem;
+    }
+}
+
+/* Very Small Mobile (< 380px) */
+@media (max-width: 380px) {
+    .stats-footer {
+        padding: 12px 14px;
+    }
+    
+    .stats-footer-logo {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .stats-footer-logo img {
+        width: 26px;
+        height: 26px;
+    }
+    
+    .stats-footer .info-text {
+        font-size: 0.6rem;
+    }
+    
+    .stats-footer .stats-total {
+        font-size: 0.68rem;
+    }
+    
+    .stats-footer .stats-total b {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+    }
+    
+    .stats-footer .efektif-label {
+        font-size: 0.65rem;
+    }
+}
+
+/* =========================================
+   16C. DARK/GLASS CARD VARIANT (Jika ada)
+   ========================================= */
+.raport-card.glass-card .stats-footer {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--sda-toska);
+}
+
+.raport-card.glass-card .stats-footer-logo {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(255, 255, 255, 0.2);
+}
+
+.raport-card.glass-card .stats-footer .info-text {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.raport-card.glass-card .stats-footer .stats-total {
+    color: rgba(255, 255, 255, 0.9);
+}
+
+.raport-card.glass-card .stats-footer .efektif-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.raport-card.glass-card .stats-footer .stats-divider {
+    color: rgba(255, 255, 255, 0.3);
+}
+
+.raport-card.glass-card .stats-footer .hadir-count {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
+}
+
+.raport-card.glass-card .stats-footer .alpha-count {
+    background: rgba(59, 130, 246, 0.2);
+    color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.4);
+}
 /* =========================================
    17. DETAIL CONTENT
    ========================================= */
