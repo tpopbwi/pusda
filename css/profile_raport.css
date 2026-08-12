@@ -1048,64 +1048,169 @@ body {
 .stat-alpha .stat-percentage .pct-value { color: var(--stat-alpha); background: rgba(239, 68, 68, 0.12); }
 
 /* =========================================
-   15. STATS FOOTER
+   15. STATS FOOTER (Total Kehadiran + Efektif Kerja)
+   FIXED: Warna teks untuk card PUTIH
    ========================================= */
 .stats-footer {
-    margin-top: 16px;
+    margin-top: 20px;
     padding: 16px 20px;
-    background: rgba(30, 64, 175, 0.08);
-    border-radius: 12px;
-    border: 1px solid rgba(59, 130, 246, 0.15);
+    background: var(--card-soft);
+    border-radius: 14px;
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--pu-blue);
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 10px;
 }
 
+/* ✅ Info text - warna GELAP untuk card putih */
 .stats-footer .info-text {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-size: 0.8rem;
-    color: rgba(255, 255, 255, 0.6);
+    gap: 8px;
+    font-size: 0.75rem;
+    color: var(--text-muted);
     font-style: italic;
+    font-weight: 500;
 }
 
-.stats-footer .info-text i { color: #60a5fa; }
+.stats-footer .info-text i {
+    color: var(--pu-blue);
+    flex-shrink: 0;
+}
 
+/* ✅ Stats total - warna GELAP untuk card putih */
 .stats-footer .stats-total {
-    font-size: 0.95rem;
-    color: rgba(255, 255, 255, 0.85);
+    font-size: 0.85rem;
+    color: var(--text-dark);
     display: flex;
     align-items: center;
     gap: 8px;
     flex-wrap: wrap;
+    font-weight: 600;
 }
 
+/* ✅ Badge angka dengan style yang jelas */
 .stats-footer .stats-total b {
     font-weight: 800;
     font-family: 'JetBrains Mono', monospace;
-    padding: 2px 8px;
-    border-radius: 6px;
+    padding: 4px 12px;
+    border-radius: 8px;
+    font-size: 0.9rem;
+    line-height: 1.2;
+}
+/* ✅ Total Kehadiran - Hijau */
+.stats-footer .hadir-count {
+    background: rgba(16, 185, 129, 0.12);
+    color: #059669;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+/* ✅ Efektif Kerja - Biru */
+.stats-footer .alpha-count {
+    background: rgba(59, 130, 246, 0.12);
+    color: #2563eb;
+    border: 1px solid rgba(59, 130, 246, 0.3);
+}
+/* ✅ Label "Efektif Kerja Agt:" */
+.stats-footer .efektif-label {
+    font-weight: 700;
+    color: var(--text-mid);
+    font-size: 0.8rem;
+}
+/* ✅ Divider titik tengah */
+.stats-footer .stats-divider {
+    color: var(--text-muted);
+    font-weight: 300;
+    font-size: 1.1rem;
+    opacity: 0.6;
 }
 
-.stats-footer .hadir-count {
+/* =========================================
+   DARK/GLASS CARD VARIANT (Jika pakai glass)
+   ========================================= */
+.raport-card.glass-card .stats-footer {
+    background: rgba(255, 255, 255, 0.06);
+    border-color: rgba(255, 255, 255, 0.1);
+    border-left-color: var(--sda-toska);
+}
+.raport-card.glass-card .stats-footer .info-text {
+    color: rgba(255, 255, 255, 0.6);
+}
+.raport-card.glass-card .stats-footer .stats-total {
+    color: rgba(255, 255, 255, 0.9);
+}
+.raport-card.glass-card .stats-footer .efektif-label {
+    color: rgba(255, 255, 255, 0.7);
+}
+.raport-card.glass-card .stats-footer .stats-divider {
+    color: rgba(255, 255, 255, 0.3);
+}
+.raport-card.glass-card .stats-footer .hadir-count {
     background: rgba(16, 185, 129, 0.2);
     color: #34d399;
+    border-color: rgba(16, 185, 129, 0.4);
 }
-
-.stats-footer .alpha-count {
-    background: rgba(96, 165, 250, 0.2);
+.raport-card.glass-card .stats-footer .alpha-count {
+    background: rgba(59, 130, 246, 0.2);
     color: #60a5fa;
+    border-color: rgba(59, 130, 246, 0.4);
 }
 
-.stats-footer .efektif-label {
-    font-weight: 600;
-    color: rgba(255, 255, 255, 0.75);
+/* =========================================
+   RESPONSIVE - STATS FOOTER
+   ========================================= */
+@media (max-width: 768px) {
+    .stats-footer {
+        padding: 14px 16px;
+        gap: 8px;
+    }
+    .stats-footer .info-text {
+        font-size: 0.68rem;
+    }
+    .stats-footer .stats-total {
+        font-size: 0.78rem;
+        gap: 6px;
+    }
+    .stats-footer .stats-total b {
+        padding: 3px 10px;
+        font-size: 0.82rem;
+    }
+    .stats-footer .efektif-label {
+        font-size: 0.72rem;
+    }
 }
 
-.stats-footer .stats-divider {
-    color: rgba(255, 255, 255, 0.3);
-    font-weight: 300;
+@media (max-width: 480px) {
+    .stats-footer {
+        padding: 12px 14px;
+        border-radius: 12px;
+    }
+    .stats-footer .info-text {
+        font-size: 0.62rem;
+    }
+    .stats-footer .stats-total {
+        font-size: 0.72rem;
+        gap: 5px;
+    }
+    .stats-footer .stats-total b {
+        padding: 2px 8px;
+        font-size: 0.75rem;
+    }
+    .stats-footer .efektif-label {
+        font-size: 0.68rem;
+    }
+    .stats-footer .stats-divider {
+        font-size: 0.9rem;
+    }
+}
+@media (max-width: 380px) {
+    .stats-footer .stats-total {
+        font-size: 0.68rem;
+    }
+    .stats-footer .stats-total b {
+        padding: 2px 6px;
+        font-size: 0.7rem;
+    }
 }
 
 /* =========================================
