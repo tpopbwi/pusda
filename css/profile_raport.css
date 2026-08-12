@@ -1333,27 +1333,132 @@ body {
     border-color: rgba(59, 130, 246, 0.4);
 }
 /* =========================================
-   17. DETAIL CONTENT
+   17. DETAIL CONTENT (Presensi Detail)
    ========================================= */
-#detailContent { padding: 8px 0; }
+#detailContent {
+    padding: 8px 0;
+}
+
+/* ✅ Judul Tanggal */
+.detail-date-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 12px 16px;
+    margin-bottom: 16px;
+    background: linear-gradient(135deg, rgba(30, 64, 175, 0.08), rgba(45, 212, 191, 0.06));
+    border-radius: 12px;
+    border-left: 4px solid var(--sda-toska);
+    color: var(--primary);
+    font-weight: 800;
+    font-size: 0.9rem;
+}
+
+.detail-date-title i {
+    color: var(--sda-toska);
+    flex-shrink: 0;
+}
+
+/* ✅ Section (Hadir / Pulang / Special) */
+.detail-section {
+    margin-bottom: 16px;
+    padding: 16px;
+    background: var(--card-soft);
+    border-radius: 16px;
+    border: 1px solid var(--card-border);
+    border-left: 4px solid var(--card-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.detail-section:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+}
+
+/* ✅ Varian warna per tipe */
+.detail-section-hadir {
+    border-left-color: var(--stat-hadir);
+    background: rgba(16, 185, 129, 0.05);
+}
+
+.detail-section-pulang {
+    border-left-color: var(--pu-blue);
+    background: rgba(59, 130, 246, 0.05);
+}
+
+.detail-section-special {
+    border-left-color: var(--stat-izin);
+    background: rgba(168, 85, 247, 0.05);
+}
+
+/* ✅ Header Section (Title + Waktu) */
+.detail-section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    padding-bottom: 10px;
+    border-bottom: 1px dashed var(--card-border);
+}
+
+.detail-section-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    color: var(--text-dark);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.detail-section-hadir .detail-section-title i { color: var(--stat-hadir); }
+.detail-section-pulang .detail-section-title i { color: var(--pu-blue); }
+.detail-section-special .detail-section-title i { color: var(--stat-izin); }
+
+.detail-section-time {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.8rem;
+    font-weight: 700;
+    padding: 4px 10px;
+    border-radius: 8px;
+    background: rgba(0, 0, 0, 0.04);
+}
+
+.detail-section-hadir .detail-section-time { color: var(--stat-hadir); }
+.detail-section-pulang .detail-section-time { color: var(--pu-blue); }
+.detail-section-special .detail-section-time { color: var(--stat-izin); }
+
+/* ✅ Detail Rows */
+.detail-rows {
+    display: flex;
+    flex-direction: column;
+}
 
 .detail-row {
     display: flex;
-    padding: 10px 0;
+    padding: 8px 0;
     border-bottom: 1px solid var(--card-border);
     gap: 12px;
+    align-items: flex-start;
 }
 
-.detail-row:last-child { border-bottom: none; }
+.detail-row:last-child {
+    border-bottom: none;
+}
 
 .detail-label {
-    width: 120px;
+    width: 110px;
     font-weight: 800;
     color: var(--text-muted);
-    font-size: 0.75rem;
+    font-size: 0.72rem;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     flex-shrink: 0;
+    padding-top: 2px;
 }
 
 .detail-value {
@@ -1362,35 +1467,285 @@ body {
     font-size: 0.85rem;
     color: var(--text-dark);
     word-break: break-word;
+    line-height: 1.4;
 }
 
-.detail-value img {
-    max-width: 100%;
-    max-height: 200px;
+/* ✅ Nilai dengan highlight */
+.detail-nilai {
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+}
+
+.detail-section-hadir .detail-nilai { color: var(--stat-hadir); }
+.detail-section-pulang .detail-nilai { color: var(--pu-blue); }
+.detail-section-special .detail-nilai { color: var(--stat-izin); }
+
+/* ✅ GPS dengan style monospace */
+.detail-gps {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px 10px;
+    border-radius: 8px;
+    border: 1px solid var(--card-border);
+    color: var(--text-mid);
+}
+
+/* ✅ Grid Foto */
+.detail-photos {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+    padding-top: 14px;
+    border-top: 1px dashed var(--card-border);
+}
+
+.detail-photo-item {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.detail-photo-caption {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.68rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+}
+
+.detail-photo-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
     border-radius: 12px;
-    margin-top: 8px;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+    border: 2px solid var(--card-border);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
-.detail-value img:hover { transform: scale(1.02); }
+.detail-photo-img:hover {
+    transform: scale(1.03);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    border-color: var(--pu-blue);
+}
+
+/* ✅ Empty State */
+.detail-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.detail-empty i {
+    opacity: 0.4;
+}
+
+.detail-empty p {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* ✅ Tombol Close */
+.detail-close-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 20px;
+}
 
 .btn-close-detail {
-    background: rgba(239, 68, 68, 0.08);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 22px;
+    border-radius: 14px;
     border: 1.5px solid rgba(239, 68, 68, 0.3);
-    border-radius: 50%;
-    width: 32px;
-    height: 32px;
+    background: rgba(239, 68, 68, 0.08);
     color: var(--danger);
+    font-weight: 800;
+    font-size: 0.8rem;
     cursor: pointer;
+    transition: all 0.2s ease;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.btn-close-detail:hover {
+    background: var(--danger);
+    color: #fff;
+    border-color: var(--danger);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(239, 68, 68, 0.3);
+}
+
+/* =========================================
+   17B. RESPONSIVE - DETAIL CONTENT
+   ========================================= */
+@media (max-width: 768px) {
+    .detail-section {
+        padding: 14px;
+    }
+    
+    .detail-date-title {
+        font-size: 0.82rem;
+        padding: 10px 14px;
+    }
+    
+    .detail-section-title {
+        font-size: 0.78rem;
+    }
+    
+    .detail-section-time {
+        font-size: 0.72rem;
+    }
+    
+    .detail-label {
+        width: 90px;
+        font-size: 0.65rem;
+    }
+    
+    .detail-value {
+        font-size: 0.8rem;
+    }
+    
+    .detail-gps {
+        font-size: 0.68rem;
+    }
+    
+    .detail-photo-img {
+        height: 140px;
+    }
+}
+
+@media (max-width: 480px) {
+    .detail-section {
+        padding: 12px;
+    }
+    
+    .detail-date-title {
+        font-size: 0.75rem;
+        padding: 10px 12px;
+        gap: 6px;
+    }
+    
+    .detail-date-title i {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .detail-section-header {
+        margin-bottom: 10px;
+        padding-bottom: 8px;
+    }
+    
+    .detail-section-title {
+        font-size: 0.72rem;
+        gap: 6px;
+    }
+    
+    .detail-section-title i {
+        width: 14px;
+        height: 14px;
+    }
+    
+    .detail-section-time {
+        font-size: 0.68rem;
+        padding: 3px 8px;
+    }
+    
+    /* ✅ Row jadi vertikal di HP kecil */
+    .detail-row {
+        flex-direction: column;
+        gap: 4px;
+        padding: 6px 0;
+    }
+    
+    .detail-label {
+        width: 100%;
+        font-size: 0.6rem;
+        padding-top: 0;
+    }
+    
+    .detail-value {
+        font-size: 0.78rem;
+    }
+    
+    .detail-gps {
+        font-size: 0.65rem;
+        padding: 5px 8px;
+    }
+    
+    /* ✅ Foto tetap 2 kolom tapi lebih pendek */
+    .detail-photos {
+        gap: 8px;
+        margin-top: 12px;
+        padding-top: 12px;
+    }
+    
+    .detail-photo-caption {
+        font-size: 0.6rem;
+    }
+    
+    .detail-photo-img {
+        height: 120px;
+        border-radius: 10px;
+    }
+    
+    .btn-close-detail {
+        padding: 9px 18px;
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 380px) {
+    .detail-photo-img {
+        height: 100px;
+    }
+    
+    .detail-section-time {
+        font-size: 0.62rem;
+    }
+}
+
+/* =========================================
+   17C. IMAGE MODAL (Untuk openImageModal)
+   ========================================= */
+.image-modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    z-index: 300000;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
+    cursor: zoom-out;
+    padding: 20px;
+    animation: fadeIn 0.2s ease-out;
 }
 
-.btn-close-detail:hover { background: var(--danger); color: #fff; }
+.image-modal-overlay img {
+    max-width: 90%;
+    max-height: 90%;
+    border-radius: 12px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    cursor: default;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
 
 /* =========================================
    18. NOTIFICATION MODAL
