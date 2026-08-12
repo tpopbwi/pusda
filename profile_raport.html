@@ -372,21 +372,28 @@
                 </div>
             </div>
             
-           <!-- ✅ STATS FOOTER (Dengan Logo Resmi) -->
+           <!-- ✅ STATS FOOTER (Struktur BARU) -->
 <div class="stats-footer">
-    <!-- Header dengan Logo -->
-    <div class="stats-footer-header">
-        <div class="stats-footer-logo">
-            <img src="assets/logo.png" alt="Logo UPT PUSDA" 
-                 onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/tpopbwi/presensi-pusda/main/assets/logo.png';">
-        </div>
-        <div class="stats-footer-brand">
-            <span class="stats-footer-brand-name">
-                <span style="color:var(--pu-blue)">UPT</span> 
-                <span style="color:var(--sda-toska)">PUSDA</span>
-            </span>
-            <span class="stats-footer-brand-sub">WS BONDOYUDO BARU</span>
-        </div>  
+    <div class="stats-footer-logo">
+        <img src="assets/logo.png" alt="Logo UPT PUSDA" 
+             onerror="this.onerror=null;this.src='https://raw.githubusercontent.com/tpopbwi/presensi-pusda/main/assets/logo.png';">
+    </div>
+    
+    <div class="stats-footer-content">
+        <span class="info-text">
+            <i data-lucide="info" size="12"></i>
+            <span>Persentase dihitung dari total hari kerja efektif</span>
+        </span>
+        
+        <span class="stats-total">
+            Total Kehadiran: 
+            <b class="hadir-count" id="totalKehadiranStats">0</b>
+            <span class="stats-divider">·</span>
+            <span class="efektif-label" id="labelEfektifKerja">Efektif Kerja Agt:</span>
+            <b class="alpha-count" id="totalAlphaStats">0</b>
+        </span>
+    </div>
+</div> 
     <!-- Divider -->
     <div class="stats-footer-divider"></div>
     
