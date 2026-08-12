@@ -3654,11 +3654,13 @@ window.onload = () => {
     updateAttendanceStatusIndicator();
     updateButtonStates();
     
-    // ✅ Throttled updates based on device
-    const indicatorInterval = DeviceProfile.tier === 'low' ? 120000 : 60000;
-    setInterval(updateAttendanceStatusIndicator, indicatorInterval);
+    // ✅ NEW: Initialize notifications & PWA
+    setTimeout(() => {
+        initNotificationsAndPWA();
+    }, 2000); // Delay 2s agar UI ready
     
-    // ✅ Throttled button updates (lebih jarang di low-end)
+    setInterval(updateAttendanceStatusIndicator, 60000);
+    
     setInterval(() => {
         updateButtonStates();
     }, TIME_CONSTANTS.BUTTON_UPDATE_INTERVAL_MS);
@@ -3668,7 +3670,6 @@ window.onload = () => {
         const jakartaStr = now.toLocaleString('en-US', { timeZone: 'Asia/Jakarta' });
         const jakartaDate = new Date(jakartaStr);
         const timeStr = jakartaDate.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', hour12: false });
-        
         const liveClock = document.getElementById('liveClock');
         if (liveClock) liveClock.innerText = timeStr;
         updateWatermarkClock();
@@ -3677,6 +3678,15 @@ window.onload = () => {
     updateWatermarkClock();
     checkAppVersion();
     detectReturnFromProfile();
+    
+    // ✅ NEW: Check notifications every 5 minutes
+    setInterval(() => {
+        if (NotificationManager.isGranted()) {
+            NotificationManager.init().then(() => {
+                // Re-check schedules
+            });
+        }
+    }, 5 * 60 * 1000);
     
     document.addEventListener('visibilitychange', () => {
         if (!document.hidden) {
@@ -3716,27 +3726,23 @@ window.onload = () => {
             const protocol = window.location.protocol;
             const isSecure = protocol === 'https:' ||
                 (protocol === 'http:' && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1'));
-            
             if (isSecure) {
-                navigator.serviceWorker.getRegistration('./sw.js').then(reg => {
-                    if (!reg) {
-                        navigator.serviceWorker.register('./sw.js')
-                            .then((registration) => {
-                                console.log('✅ Service Worker registered:', registration.scope);
-                            })
-                            .catch(err => console.warn('⚠️ SW registration failed:', err));
-                    } else {
-                        reg.update().then(() => {
-                            if (DEBUG_MODE) console.log('✅ SW update check complete');
-                        }).catch(err => {
-                            console.warn('⚠️ SW update failed:', err);
+                navigator.serviceWorker.register('./sw.js')
+                    .then((registration) => {
+                        console.log('✅ SW registered:', registration.scope);
+                        
+                        // Listen for updates
+                        registration.addEventListener('updatefound', () => {
+                            const newWorker = registration.installing;
+                            newWorker.addEventListener('statechange', () => {
+                                if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+                                    console.log('🔄 New SW available, reloading...');
+                                    window.location.reload();
+                                }
+                            });
                         });
-                    }
-                }).catch(err => {
-                    console.warn('⚠️ SW getRegistration failed:', err);
-                });
-            } else {
-                if (DEBUG_MODE) console.info('ℹ️ SW skipped - protocol not supported');
+                    })
+                    .catch(err => console.warn('⚠️ SW registration failed:', err));
             }
         }
     } catch (e) {
