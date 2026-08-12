@@ -127,7 +127,7 @@ async function fetchWithRetry(url, options = {}, retries = 2, delay = 1500) {
 // ============================================================
 const DEBUG_MODE = false;
 const GITHUB_LOGO_URL = "assets/logo.png";
-const API = "https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec";
+const API = "https://script.google.com/macros/s/AKfycbwg8LoyLRWaqpOpmXj6GGdwVksNWEUOKijD3vpllMSfeHVQY5XaeXcd7ygoyFFL-JIv/exec";
 
 const TIME_CONSTANTS = {
     ONE_DAY_MS: 86400000,
