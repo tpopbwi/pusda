@@ -162,3 +162,111 @@ input:focus, select:focus { border-color: var(--sda-toska); box-shadow: 0 0 0 3p
 
 .shimmer { background: linear-gradient(90deg, rgba(255,255,255,0.03) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.03) 75%); background-size: 200% 100%; animation: shimmer-animation 1.5s infinite linear; }
 @keyframes shimmer-animation { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* ============================================================
+   PERFORMANCE ENHANCEMENTS FOR LOW-END DEVICES
+   ============================================================ */
+
+/* 1. Reduce blur & backdrop effects on mobile */
+@media (max-width: 768px) {
+    .sidebar {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 32, 77, 0.98) !important;
+    }
+    .filter-card {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 32, 77, 0.9) !important;
+    }
+    .bottom-nav {
+        backdrop-filter: none !important;
+        -webkit-backdrop-filter: none !important;
+        background: rgba(15, 23, 42, 0.98) !important;
+    }
+    /* Disable hover transform on touch devices to prevent repaints */
+    .pegawai-card:hover {
+        transform: none !important;
+        box-shadow: none !important;
+    }
+    .btn-pro:hover {
+        transform: none !important;
+    }
+}
+
+/* 2. GPU acceleration for frequently animated elements */
+.skeleton-card .shimmer {
+    will-change: background-position;
+    transform: translateZ(0);
+}
+.loader-ring {
+    will-change: transform;
+    transform: translateZ(0);
+}
+
+/* 3. Optimasi rendering untuk kartu */
+.pegawai-card {
+    contain: layout style paint; /* Batasi dampak layout */
+    /* Pastikan border-radius tidak menyebabkan clipping yang berat */
+}
+.pegawai-card .card-top {
+    contain: layout style paint;
+}
+.pegawai-card .card-body {
+    contain: layout style paint;
+}
+
+/* 4. Hindari font rendering yang berat (sudah baik) */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+}
+
+/* 5. Skeleton loading lebih ringan */
+.skeleton-card .shimmer {
+    background-size: 400% 100%;
+    animation-duration: 2s; /* lebih lambat mengurangi CPU spike */
+}
+
+/* 6. Optimasi gambar */
+.photo-frame-pro img {
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges; /* Untuk gambar yang sudah diresize */
+}
+
+/* 7. Hindari layout thrashing pada scroll */
+.main-content {
+    contain: layout style;
+}
+
+/* 8. Touch-friendly ukuran tombol (untuk menghindari zoom) */
+.btn-pro, .nav-link, .b-nav-item, .b-nav-fab {
+    touch-action: manipulation;
+}
+
+/* 9. Nonaktifkan efek hover pada perangkat sentuh (disarankan) */
+@media (hover: none) {
+    .pegawai-card:hover {
+        transform: none !important;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4) !important;
+    }
+    .btn-pro:hover {
+        transform: none !important;
+    }
+}
+
+/* 10. Pastikan scroll smooth, tapi tanpa efek berat */
+html {
+    scroll-behavior: smooth;
+}
+/* Namun di low-end lebih baik nonaktifkan smooth scroll */
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+    * {
+        animation-duration: 0.01ms !important;
+        transition-duration: 0.01ms !important;
+    }
+}
