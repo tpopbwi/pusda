@@ -503,7 +503,7 @@
             border: 0;
         }
     </style>
-
+    <script src="js/wilayah.js"></script>
     <!-- =========================================
          🆕 TAMBAHAN: Inline script untuk file input handler
          ========================================= -->
@@ -530,66 +530,72 @@
             }
         }
     </script>
-<!-- =========================================
-     FLOATING TOOLBAR (tambahkan sebelum </body>)
-     ========================================= -->
-<div class="floating-toolbar">
-    <button class="floating-toolbar-btn maps" onclick="openMaps()" title="Buka Peta Monitoring">
-        <i data-lucide="map" size="24"></i>
-    </button>
-    <button class="floating-toolbar-btn weather" onclick="openWeather()" title="Buka Info Cuaca">
-        <i data-lucide="cloud-sun" size="24"></i>
-    </button>
-    <button class="floating-toolbar-btn signal" onclick="openSignal()" title="Cek Kualitas Sinyal">
-        <i data-lucide="signal" size="24"></i>
-    </button>
-</div>
+    <!-- =========================================
+         FLOATING TOOLBAR (Tombol Akses Cepat)
+         ========================================= -->
+    <div class="floating-toolbar">
+        <button class="floating-toolbar-btn maps" onclick="openMaps()" title="Buka Peta Monitoring">
+            <i data-lucide="map" size="24"></i>
+        </button>
+        <button class="floating-toolbar-btn weather" onclick="openWeather()" title="Buka Info Cuaca">
+            <i data-lucide="cloud-sun" size="24"></i>
+        </button>
+        <button class="floating-toolbar-btn signal" onclick="openSignal()" title="Cek Kualitas Sinyal">
+            <i data-lucide="signal" size="24"></i>
+        </button>
+    </div>
 
-<!-- =========================================
-     FLOATING WINDOWS SCRIPTS
-     ========================================= -->
-<link rel="stylesheet" href="css/floating.css">
-<script src="js/floating.js"></script>
+    <!-- =========================================
+         FLOATING WINDOWS ASSETS
+         ========================================= -->
+    <link rel="stylesheet" href="css/floating.css">
+    <script src="js/floating.js"></script>
 
-<script>
-    // Communication dengan floating windows
-    window.addEventListener('floatingData', (event) => {
-        const { windowId, data } = event.detail;
-        console.log(`Data dari ${windowId}:`, data);
-        
-        // Handle data dari maps (contoh: update summary)
-        if (windowId === 'maps' && data.type === 'geofenceStats') {
-            updateGeofenceSummary(data.stats);
-        }
-    });
+    <!-- =========================================
+         CUSTOM JS (Existing)
+         ========================================= -->
+    <script src="js/wilayah.js"></script>
+
+    <!-- =========================================
+         FLOATING WINDOWS INTEGRATION
+         Semua handler untuk komunikasi dengan floating windows
+         ========================================= -->
+    <script>
+    // ============================================================
+    // 1. WINDOW OPENERS - Fungsi untuk membuka floating windows
+    // ============================================================
     
-    // Send data ke maps saat dibutuhkan
-    function sendPresensiToMaps() {
-        const selectedDate = document.getElementById('fDate').value;
-        const cachedPresensi = localStorage.getItem('wilayah_presensi_' + selectedDate);
+    /**
+     * Buka Peta Monitoring (Maps)
+     * Otomatis mengirim data presensi setelah window terbuka
+     */
+    function openMaps() {
+        floatingManager.createWindow('maps', 'Peta Monitoring', 'map', 'maps.html', {
+            width: 900,
+            height: 650,
+            resizable: true
+        });
         
-        if (cachedPresensi) {
-            floatingManager.sendMessage('maps', {
-                key: 'presensi',
-                value: JSON.parse(cachedPresensi)
-            });
-        }
+        // Kirim data presensi setelah iframe load (delay 500ms)
+        setTimeout(sendPresensiToMaps, 500);
     }
     
-    // Override openMaps untuk auto-send data
-    const originalOpenMaps = openMaps;
-    openMaps = function() {
-        originalOpenMaps();
-        setTimeout(sendPresensiToMaps, 500); // Wait for iframe to load
-    };
-</script>
-    <!-- Di bagian toolbar floating -->
-<button class="floating-toolbar-btn signal" onclick="openSignal()" title="Cek Kualitas Sinyal">
-    <i data-lucide="signal" size="24"></i>
-</button>
-
-<script>
-    // Fungsi untuk buka signal validator
+    /**
+     * Buka Weather Center
+     * Menampilkan info cuaca dan saran kegiatan lapangan
+     */
+    function openWeather() {
+        floatingManager.createWindow('weather', 'Weather Center', 'cloud-sun', 'weather.html', {
+            width: 850,
+            height: 750,
+            resizable: true
+        });
+    }
+    
+    /**
+     * Buka Signal Validator
+     * Cek kualitas koneksi dan rekomendasi presensi
+     */
     function openSignal() {
         floatingManager.createWindow('signal', 'Signal Validator', 'signal', 'signal.html', {
             width: 700,
@@ -597,27 +603,197 @@
             resizable: true
         });
     }
+
+    // ============================================================
+    // 2. DATA SENDERS - Kirim data dari wilayah ke floating windows
+    // ============================================================
     
-    // Listen untuk data dari signal validator
+    /**
+     * Kirim data presensi ke Maps window
+     * Digunakan untuk plot markers di peta
+     */
+    function sendPresensiToMaps() {
+        const selectedDate = document.getElementById('fDate')?.value;
+        if (!selectedDate) return;
+        
+        const cachedPresensi = localStorage.getItem('wilayah_presensi_' + selectedDate);
+        if (!cachedPresensi) return;
+        
+        try {
+            floatingManager.sendMessage('maps', {
+                key: 'presensi',
+                value: JSON.parse(cachedPresensi)
+            });
+        } catch (e) {
+            console.warn('Failed to send presensi data to maps:', e);
+        }
+    }
+    
+    /**
+     * Kirim data pegawai ke Maps window
+     * Untuk menampilkan info pegawai di marker popup
+     */
+    function sendPegawaiToMaps() {
+        if (!dbE || dbE.length === 0) return;
+        
+        floatingManager.sendMessage('maps', {
+            key: 'pegawai',
+            value: dbE
+        });
+    }
+
+    // ============================================================
+    // 3. EVENT LISTENERS - Handle data dari floating windows
+    // ============================================================
+    
     window.addEventListener('floatingData', (event) => {
         const { windowId, data } = event.detail;
+        console.log(`📩 Data dari ${windowId}:`, data);
         
-        if (windowId === 'signal' && data.type === 'signalReport') {
-            console.log('Signal Report:', data);
-            
-            // Tampilkan notifikasi di dashboard
+        // Router berdasarkan windowId dan type
+        switch (windowId) {
+            case 'maps':
+                handleMapsData(data);
+                break;
+            case 'weather':
+                handleWeatherData(data);
+                break;
+            case 'signal':
+                handleSignalData(data);
+                break;
+            default:
+                console.warn(`Unknown window: ${windowId}`);
+        }
+    });
+    
+    /**
+     * Handler untuk data dari Maps
+     */
+    function handleMapsData(data) {
+        if (data.type === 'geofenceStats') {
+            updateGeofenceSummary(data.stats);
+        } else if (data.type === 'markerClicked') {
+            // Bisa buka detail pegawai jika marker diklik
+            if (data.pegawaiId) {
+                openProfile(data.pegawaiId);
+            }
+        }
+    }
+    
+    /**
+     * Handler untuk data dari Weather
+     */
+    function handleWeatherData(data) {
+        if (data.type === 'weatherReport') {
+            showToast(
+                `🌤️ ${data.location}: ${Math.round(data.temp)}°C, ${data.description}`,
+                'info'
+            );
+            updateWeatherIndicator(data);
+        } else if (data.type === 'weatherAlert') {
+            showToast(`⚠️ ${data.title}: ${data.desc}`, 'warning');
+        }
+    }
+    
+    /**
+     * Handler untuk data dari Signal
+     */
+    function handleSignalData(data) {
+        if (data.type === 'signalReport') {
             showToast(
                 `📶 Kualitas sinyal: ${data.quality} (${data.connectionType.toUpperCase()})`,
                 data.online ? 'success' : 'warning'
             );
-            
-            // Optional: Update indicator di dashboard
             updateSignalIndicator(data);
+            
+            // Simpan signal quality untuk referensi
+            sessionStorage.setItem('last_signal_quality', JSON.stringify(data));
         }
-    });
+    }
+
+    // ============================================================
+    // 4. UI UPDATERS - Update indikator di dashboard
+    // ============================================================
     
+    /**
+     * Update geofence summary di dashboard (dari Maps)
+     */
+    function updateGeofenceSummary(stats) {
+        // Bisa update summary cards atau section khusus
+        console.log('📍 Geofence Stats:', stats);
+        
+        // Contoh: Update badge di korlap cards
+        const totalOut = stats?.outArea || 0;
+        if (totalOut > 0) {
+            showToast(
+                `⚠️ ${totalOut} presensi di luar area geofence`,
+                'warning'
+            );
+        }
+    }
+    
+    /**
+     * Update weather indicator di header
+     */
+    function updateWeatherIndicator(data) {
+        let indicator = document.getElementById('weatherIndicator');
+        
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'weatherIndicator';
+            indicator.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                margin-left: 10px;
+                transition: all 0.3s ease;
+            `;
+            
+            const liveIndicator = document.querySelector('.live-indicator');
+            if (liveIndicator) liveIndicator.appendChild(indicator);
+        }
+        
+        const icons = {
+            'Clear': '☀️',
+            'Clouds': '☁️',
+            'Rain': '🌧️',
+            'Thunderstorm': '⛈️',
+            'Snow': '❄️',
+            'Mist': '🌫️',
+            'Drizzle': '🌦️',
+            'Fog': '🌫️',
+            'Haze': '🌫️'
+        };
+        
+        const icon = icons[data.condition] || '🌤️';
+        
+        // Color based on condition
+        let bgColor, textColor;
+        if (['Clear', 'Clouds'].includes(data.condition)) {
+            bgColor = 'rgba(245, 158, 11, 0.15)';
+            textColor = '#f59e0b';
+        } else if (['Rain', 'Drizzle', 'Thunderstorm'].includes(data.condition)) {
+            bgColor = 'rgba(59, 130, 246, 0.15)';
+            textColor = '#3b82f6';
+        } else {
+            bgColor = 'rgba(107, 114, 128, 0.15)';
+            textColor = '#6b7280';
+        }
+        
+        indicator.style.background = bgColor;
+        indicator.style.color = textColor;
+        indicator.innerHTML = `${icon} ${Math.round(data.temp)}°C`;
+        indicator.title = `${data.description} - ${data.location}`;
+    }
+    
+    /**
+     * Update signal indicator di header
+     */
     function updateSignalIndicator(data) {
-        // Buat/update indicator di header dashboard
         let indicator = document.getElementById('signalIndicator');
         
         if (!indicator) {
@@ -632,7 +808,11 @@
                 font-size: 0.75rem;
                 font-weight: 700;
                 margin-left: 10px;
+                cursor: pointer;
+                transition: all 0.3s ease;
             `;
+            indicator.onclick = openSignal; // Klik untuk buka detail
+            indicator.title = 'Klik untuk detail signal';
             
             const liveIndicator = document.querySelector('.live-indicator');
             if (liveIndicator) liveIndicator.appendChild(indicator);
@@ -649,12 +829,63 @@
         const color = colors[data.quality] || '#6b7280';
         indicator.style.background = `${color}20`;
         indicator.style.color = color;
-        indicator.innerHTML = `📶 ${data.quality}`;
+        
+        // Icon berdasarkan bars (jika ada di data)
+        const bars = data.bars || 0;
+        const barIcon = bars >= 4 ? '📶' : bars >= 2 ? '📶' : '📵';
+        
+        indicator.innerHTML = `${barIcon} ${data.quality}`;
     }
-</script>
-    <!-- =========================================
-         CUSTOM JS
-         ========================================= -->
-    <script src="js/wilayah.js"></script>
+
+    // ============================================================
+    // 5. KEYBOARD SHORTCUTS (Optional Enhancement)
+    // ============================================================
+    
+    document.addEventListener('keydown', (e) => {
+        // Ctrl+Shift+M = Open Maps
+        if (e.ctrlKey && e.shiftKey && e.key === 'M') {
+            e.preventDefault();
+            openMaps();
+        }
+        // Ctrl+Shift+W = Open Weather
+        if (e.ctrlKey && e.shiftKey && e.key === 'W') {
+            e.preventDefault();
+            openWeather();
+        }
+        // Ctrl+Shift+S = Open Signal
+        if (e.ctrlKey && e.shiftKey && e.key === 'S') {
+            e.preventDefault();
+            openSignal();
+        }
+        // Escape = Close all floating windows
+        if (e.key === 'Escape') {
+            floatingManager.getWindows().forEach(win => {
+                floatingManager.closeWindow(win.id);
+            });
+        }
+    });
+
+    // ============================================================
+    // 6. INITIALIZATION - Setup saat halaman load
+    // ============================================================
+    
+    document.addEventListener('DOMContentLoaded', () => {
+        // Check jika ada signal quality tersimpan, tampilkan indicator
+        const lastSignal = sessionStorage.getItem('last_signal_quality');
+        if (lastSignal) {
+            try {
+                updateSignalIndicator(JSON.parse(lastSignal));
+            } catch (e) {
+                console.warn('Failed to restore signal indicator:', e);
+            }
+        }
+        
+        // Lucide icons refresh setelah toolbar ditambahkan
+        if (typeof lucide !== 'undefined') {
+            setTimeout(() => lucide.createIcons(), 100);
+        }
+    });
+    </script>
+
 </body>
 </html>
