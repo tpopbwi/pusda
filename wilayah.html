@@ -583,6 +583,75 @@
         setTimeout(sendPresensiToMaps, 500); // Wait for iframe to load
     };
 </script>
+    <!-- Di bagian toolbar floating -->
+<button class="floating-toolbar-btn signal" onclick="openSignal()" title="Cek Kualitas Sinyal">
+    <i data-lucide="signal" size="24"></i>
+</button>
+
+<script>
+    // Fungsi untuk buka signal validator
+    function openSignal() {
+        floatingManager.createWindow('signal', 'Signal Validator', 'signal', 'signal.html', {
+            width: 700,
+            height: 800,
+            resizable: true
+        });
+    }
+    
+    // Listen untuk data dari signal validator
+    window.addEventListener('floatingData', (event) => {
+        const { windowId, data } = event.detail;
+        
+        if (windowId === 'signal' && data.type === 'signalReport') {
+            console.log('Signal Report:', data);
+            
+            // Tampilkan notifikasi di dashboard
+            showToast(
+                `📶 Kualitas sinyal: ${data.quality} (${data.connectionType.toUpperCase()})`,
+                data.online ? 'success' : 'warning'
+            );
+            
+            // Optional: Update indicator di dashboard
+            updateSignalIndicator(data);
+        }
+    });
+    
+    function updateSignalIndicator(data) {
+        // Buat/update indicator di header dashboard
+        let indicator = document.getElementById('signalIndicator');
+        
+        if (!indicator) {
+            indicator = document.createElement('div');
+            indicator.id = 'signalIndicator';
+            indicator.style.cssText = `
+                display: inline-flex;
+                align-items: center;
+                gap: 8px;
+                padding: 6px 12px;
+                border-radius: 20px;
+                font-size: 0.75rem;
+                font-weight: 700;
+                margin-left: 10px;
+            `;
+            
+            const liveIndicator = document.querySelector('.live-indicator');
+            if (liveIndicator) liveIndicator.appendChild(indicator);
+        }
+        
+        const colors = {
+            'Sangat Baik': '#10b981',
+            'Baik': '#10b981',
+            'Cukup': '#f59e0b',
+            'Buruk': '#ef4444',
+            'Offline': '#6b7280'
+        };
+        
+        const color = colors[data.quality] || '#6b7280';
+        indicator.style.background = `${color}20`;
+        indicator.style.color = color;
+        indicator.innerHTML = `📶 ${data.quality}`;
+    }
+</script>
     <!-- =========================================
          CUSTOM JS
          ========================================= -->
