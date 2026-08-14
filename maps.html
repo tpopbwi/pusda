@@ -2,187 +2,252 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Peta Monitoring - UPT PUSDA</title>
-    
+
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
+        /* ============================================================
+           MAPS - TEMA UPT PUSDA
+           ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background: #0d1b3e;
-            color: #f8fafc;
+
+        :root {
+            --bg-dark: #0d1b3e;
+            --bg-card: rgba(15, 32, 77, 0.85);
+            --border: rgba(255, 255, 255, 0.12);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --info: #3b82f6;
+            --toska: #2dd4bf;
+            --text: #f8fafc;
+            --text-muted: rgba(255, 255, 255, 0.6);
+            --radius: 16px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        html, body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%);
+            color: var(--text);
             overflow: hidden;
         }
-        
+
         .maps-container {
-            width: 100%;
-            height: 100vh;
             display: flex;
             flex-direction: column;
+            height: 100vh;
+            padding: 12px;
+            gap: 12px;
         }
-        
+
+        /* Header */
         .maps-header {
-            padding: 16px;
-            background: rgba(15, 32, 77, 0.95);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            flex-shrink: 0;
         }
-        
-        .maps-header h1 {
-            font-size: 1.2rem;
-            margin-bottom: 12px;
-            color: var(--sda-toska);
+
+        .maps-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        
+
+        .maps-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 0;
+        }
+        .maps-title i { color: var(--toska); }
+
         .maps-controls {
             display: flex;
-            gap: 12px;
+            align-items: center;
+            gap: 6px;
             flex-wrap: wrap;
         }
-        
-        .maps-controls select,
-        .maps-controls button {
-            padding: 8px 16px;
+
+        .maps-controls select {
+            padding: 6px 12px;
             border-radius: 8px;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--border);
+            background: rgba(0,0,0,0.4);
             color: white;
-            font-size: 0.85rem;
-        }
-        
-        .maps-controls button {
+            font-size: 0.75rem;
             cursor: pointer;
+            min-height: 36px;
+        }
+        .maps-controls select option { background: #0d1b3e; }
+
+        .maps-controls button {
+            padding: 6px 12px;
+            border-radius: 8px;
+            border: none;
+            background: linear-gradient(135deg, var(--info), #1e40af);
+            color: white;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
             transition: all 0.2s ease;
+            min-height: 36px;
         }
-        
         .maps-controls button:hover {
-            background: var(--pu-blue);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
         }
-        
-        #map {
-            flex: 1;
-            width: 100%;
-        }
-        
+        .maps-controls button i { font-size: 14px; }
+
+        /* Stats */
         .maps-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 12px;
-            margin-top: 12px;
+            gap: 10px;
         }
-        
+
         .maps-stat {
-            background: rgba(0, 0, 0, 0.3);
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.25);
+            border-radius: 10px;
+            padding: 10px 8px;
             text-align: center;
         }
-        
         .maps-stat .value {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
         }
-        
         .maps-stat .label {
-            font-size: 0.7rem;
-            opacity: 0.7;
+            font-size: 0.6rem;
+            color: var(--text-muted);
             text-transform: uppercase;
+            margin-top: 2px;
         }
-        
-        .maps-stat.success .value { color: #10b981; }
-        .maps-stat.danger .value { color: #ef4444; }
-        
-        /* Office marker */
-        .office-marker {
-            background: #3b82f6;
-            width: 40px;
-            height: 40px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: white;
-            border: 3px solid white;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        .maps-stat.success .value { color: var(--success); }
+        .maps-stat.danger .value { color: var(--danger); }
+
+        /* Map */
+        #map {
+            flex: 1;
+            border-radius: var(--radius);
+            overflow: hidden;
+            border: 1px solid var(--border);
+            background: #0a1128;
+            min-height: 200px;
         }
-        
-        /* Presensi markers */
-        .presensi-marker {
-            transition: transform 0.2s ease;
-        }
-        
-        .presensi-marker:hover {
-            transform: scale(1.2);
-        }
-        
-        /* Popup styling */
+
+        /* Leaflet popup custom */
         .leaflet-popup-content-wrapper {
             background: #1e293b;
             color: white;
-            border-radius: 12px;
+            border-radius: 10px;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
-        
-        .leaflet-popup-tip {
-            background: #1e293b;
-        }
-        
+        .leaflet-popup-tip { background: #1e293b; }
+        .leaflet-popup-content { font-size: 0.8rem; line-height: 1.4; }
+
         /* Legend */
         .maps-legend {
             position: absolute;
             bottom: 20px;
             left: 20px;
-            background: rgba(15, 32, 77, 0.95);
-            padding: 12px;
-            border-radius: 8px;
+            background: var(--bg-card);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            padding: 12px 14px;
             z-index: 1000;
+            font-size: 0.7rem;
         }
-        
         .legend-item {
             display: flex;
             align-items: center;
             gap: 8px;
-            margin-bottom: 8px;
-            font-size: 0.8rem;
+            margin-bottom: 4px;
         }
-        
+        .legend-item:last-child { margin-bottom: 0; }
         .legend-color {
-            width: 16px;
-            height: 16px;
+            width: 14px;
+            height: 14px;
             border-radius: 50%;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+
+        /* Responsive */
+        @media (max-width: 600px) {
+            .maps-container { padding: 8px; gap: 10px; }
+            .maps-header { padding: 12px 14px; }
+            .maps-title { font-size: 0.95rem; }
+            .maps-controls select { font-size: 0.7rem; padding: 4px 8px; min-height: 32px; }
+            .maps-controls button { font-size: 0.65rem; padding: 4px 10px; min-height: 32px; }
+            .maps-controls button i { font-size: 12px; }
+            .maps-stats { gap: 6px; }
+            .maps-stat .value { font-size: 1.1rem; }
+            .maps-stat .label { font-size: 0.55rem; }
+            .maps-legend { bottom: 12px; left: 12px; padding: 10px 12px; font-size: 0.65rem; }
+        }
+
+        @media (max-width: 400px) {
+            .maps-header-top { flex-direction: column; align-items: stretch; }
+            .maps-controls { justify-content: space-between; }
         }
     </style>
 </head>
 <body>
     <div class="maps-container">
+        <!-- Header -->
         <div class="maps-header">
-            <h1>🗺️ Peta Monitoring Presensi</h1>
-            <div class="maps-controls">
-                <select id="geofenceRadius" onchange="updateGeofence()">
-                    <option value="100">Radius 100m</option>
-                    <option value="500" selected>Radius 500m</option>
-                    <option value="1000">Radius 1km</option>
-                    <option value="2000">Radius 2km</option>
-                </select>
-                <button onclick="plotPresensiMarkers()">
-                    🔄 Refresh Data
-                </button>
-                <button onclick="fitToMarkers()">
-                    🎯 Fit All
-                </button>
+            <div class="maps-header-top">
+                <div class="maps-title">
+                    <i data-lucide="map" size="18"></i>
+                    Peta Monitoring
+                </div>
+                <div class="maps-controls">
+                    <select id="geofenceRadius" onchange="updateGeofence()">
+                        <option value="100">100m</option>
+                        <option value="500" selected>500m</option>
+                        <option value="1000">1km</option>
+                        <option value="2000">2km</option>
+                    </select>
+                    <button onclick="plotPresensiMarkers()">
+                        <i data-lucide="refresh-cw" size="14"></i>
+                    </button>
+                    <button onclick="fitToMarkers()">
+                        <i data-lucide="maximize" size="14"></i>
+                    </button>
+                </div>
             </div>
-            
+
             <div class="maps-stats">
                 <div class="maps-stat">
                     <div class="value" id="totalPresensi">0</div>
-                    <div class="label">Total Presensi</div>
+                    <div class="label">Total</div>
                 </div>
                 <div class="maps-stat success">
                     <div class="value" id="inArea">0</div>
@@ -194,9 +259,11 @@
                 </div>
             </div>
         </div>
-        
+
+        <!-- Map -->
         <div id="map"></div>
-        
+
+        <!-- Legend -->
         <div class="maps-legend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #3b82f6;"></div>
@@ -215,77 +282,65 @@
 
     <!-- Leaflet JS -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
     <script>
         // ============================================================
-        // MAPS LOGIC
+        // MAPS LOGIC (sama seperti sebelumnya, hanya tampilan diubah)
         // ============================================================
-        
-        // Office location (sesuaikan dengan lokasi kantor Anda)
+
+        // Konfigurasi lokasi kantor (sesuaikan)
         const OFFICE_LOCATION = {
             lat: -8.4338918,
             lng: 114.2217959,
             name: 'Kantor UPT PUSDA WS Bondoyudo Baru'
         };
-        
+
         let map = null;
         let markers = [];
         let geofenceCircle = null;
         let presensiData = [];
-        
-        // Initialize map
+
+        // Inisialisasi map
         function initMap() {
             map = L.map('map').setView([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], 13);
-            
-            // Add tile layer (OpenStreetMap)
+
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap contributors'
+                attribution: '© OpenStreetMap'
             }).addTo(map);
-            
-            // Add office marker
+
+            // Marker kantor
             const officeIcon = L.divIcon({
                 className: 'office-marker',
-                html: '<div style="font-size: 20px;">🏢</div>',
-                iconSize: [40, 40],
-                iconAnchor: [20, 20]
+                html: '<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏢</div>',
+                iconSize: [36, 36],
+                iconAnchor: [18, 18]
             });
-            
+
             L.marker([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], { icon: officeIcon })
                 .addTo(map)
                 .bindPopup(`<b>${OFFICE_LOCATION.name}</b><br><small>Lokasi acuan geofencing</small>`);
-            
-            // Initialize geofence
+
             updateGeofence();
-            
-            // Load presensi data
             loadPresensiData();
         }
-        
-        // Load presensi data (dari localStorage atau parent window)
+
+        // Load presensi data
         function loadPresensiData() {
-            // Try to get from localStorage first
             const cached = localStorage.getItem('wilayah_presensi_' + new Date().toISOString().split('T')[0]);
-            
             if (cached) {
                 presensiData = JSON.parse(cached);
                 plotPresensiMarkers();
             } else {
-                // Request data from parent window
-                requestParentData();
+                // Minta data dari parent jika dalam floating window
+                if (window.parent !== window) {
+                    window.parent.postMessage({
+                        type: 'FLOATING_WINDOW_REQUEST',
+                        data: { action: 'getData', key: 'presensi' }
+                    }, '*');
+                }
             }
         }
-        
-        // Request data from parent window
-        function requestParentData() {
-            if (window.parent !== window) {
-                window.parent.postMessage({
-                    type: 'FLOATING_WINDOW_REQUEST',
-                    data: { action: 'getData', key: 'presensi' }
-                }, '*');
-            }
-        }
-        
-        // Listen for messages from parent
+
+        // Terima data dari parent
         window.addEventListener('message', (event) => {
             if (event.data.type === 'FLOATING_WINDOW_MESSAGE') {
                 const { data } = event.data;
@@ -295,49 +350,40 @@
                 }
             }
         });
-        
-        // Plot presensi markers
+
+        // Plot markers
         function plotPresensiMarkers() {
-            // Clear existing markers
             markers.forEach(m => map.removeLayer(m));
             markers = [];
-            
+
             let inArea = 0, outArea = 0;
             const radius = parseInt(document.getElementById('geofenceRadius').value);
-            
+
             presensiData.forEach(log => {
                 const gps = log.GPS || log.gps;
                 if (!gps || gps === '-' || gps === 'null') return;
-                
+
                 const [lat, lng] = gps.split(',').map(Number);
                 if (isNaN(lat) || isNaN(lng)) return;
-                
+
                 const distance = calculateDistance(
                     OFFICE_LOCATION.lat, OFFICE_LOCATION.lng,
                     lat, lng
                 );
-                
                 const isInArea = distance <= radius;
                 if (isInArea) inArea++; else outArea++;
-                
+
                 const color = isInArea ? '#10b981' : '#ef4444';
                 const status = log.Status || log.status || 'Unknown';
                 const time = formatTime(log.Timestamp || log.timestamp);
-                
+
                 const markerIcon = L.divIcon({
                     className: 'presensi-marker',
-                    html: `<div style="
-                        background: ${color};
-                        width: 24px;
-                        height: 24px;
-                        border-radius: 50%;
-                        border: 3px solid white;
-                        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-                    "></div>`,
-                    iconSize: [24, 24],
-                    iconAnchor: [12, 12]
+                    html: `<div style="background:${color};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
+                    iconSize: [20, 20],
+                    iconAnchor: [10, 10]
                 });
-                
+
                 const marker = L.marker([lat, lng], { icon: markerIcon })
                     .addTo(map)
                     .bindPopup(`
@@ -346,26 +392,23 @@
                         <small>📍 ${distance.toFixed(0)}m dari kantor</small><br>
                         <small>${isInArea ? '✅ Dalam area' : '⚠️ Luar area'}</small>
                     `);
-                
                 markers.push(marker);
             });
-            
-            // Update stats
+
             document.getElementById('totalPresensi').textContent = markers.length;
             document.getElementById('inArea').textContent = inArea;
             document.getElementById('outArea').textContent = outArea;
+
+            // Refresh Lucide icons di header
+            if (typeof lucide !== 'undefined') lucide.createIcons();
         }
-        
-        // Update geofence circle
+
+        // Update geofence
         function updateGeofence() {
             if (!map) return;
-            
-            if (geofenceCircle) {
-                map.removeLayer(geofenceCircle);
-            }
-            
+            if (geofenceCircle) map.removeLayer(geofenceCircle);
+
             const radius = parseInt(document.getElementById('geofenceRadius').value);
-            
             geofenceCircle = L.circle(
                 [OFFICE_LOCATION.lat, OFFICE_LOCATION.lng],
                 {
@@ -377,47 +420,39 @@
                     dashArray: '5, 10'
                 }
             ).addTo(map);
-            
             plotPresensiMarkers();
         }
-        
-        // Fit map to show all markers
+
+        // Fit all markers
         function fitToMarkers() {
             if (markers.length === 0) return;
-            
             const group = L.featureGroup(markers);
             map.fitBounds(group.getBounds().pad(0.1));
         }
-        
-        // Calculate distance between two points (Haversine)
+
+        // Helper: distance
         function calculateDistance(lat1, lon1, lat2, lon2) {
-            const R = 6371e3; // Earth radius in meters
+            const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lon2 - lon1) * Math.PI / 180;
-            
-            const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
-                      Math.cos(φ1) * Math.cos(φ2) *
-                      Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
-            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-            
-            return R * c;
+            const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         }
-        
-        // Format time
+
         function formatTime(dateStr) {
             if (!dateStr) return '--:--';
             try {
-                const d = new Date(dateStr);
-                return d.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
-            } catch {
-                return '--:--';
-            }
+                return new Date(dateStr).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+            } catch { return '--:--'; }
         }
-        
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', initMap);
+
+        // Init
+        document.addEventListener('DOMContentLoaded', () => {
+            if (typeof lucide !== 'undefined') lucide.createIcons();
+            initMap();
+        });
     </script>
 </body>
 </html>
