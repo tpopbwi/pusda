@@ -10,14 +10,14 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <!-- Google Fonts (Sharp & Contrast) -->
+    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
-           MAPS - GABUNGAN PRESENSI + PINTU AIR (PERBAIKAN KONTRAK & POPUP)
+           MAPS - FULL RESPONSIVE + PROFESSIONAL POPUP
            ============================================================ */
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
@@ -182,79 +182,100 @@
         .leaflet-control-zoom { border: none !important; box-shadow: var(--shadow); }
 
         /* ============================================================
-           POPUP PINTU AIR - PROFESSIONAL CARD
+           PROFESSIONAL POPUP PINTU AIR
            ============================================================ */
-        .custom-popup {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            padding: 4px 2px;
-            min-width: 200px;
-            max-width: 320px;
-            color: #ffffff;
+        .pintu-popup .leaflet-popup-content-wrapper {
+            background: #0f172a;
+            border-radius: 16px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 0;
+            overflow: hidden;
         }
 
+        .pintu-popup .leaflet-popup-tip {
+            background: #0f172a;
+        }
+
+        .pintu-popup .leaflet-popup-content {
+            margin: 0;
+            padding: 0;
+            width: 100% !important;
+            min-width: 280px;
+            max-width: 380px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            color: #e2e8f0;
+            line-height: 1.5;
+        }
+
+        /* Popup Inner */
+        .popup-inner {
+            padding: 18px 20px 16px;
+        }
+
+        /* Header */
         .popup-header {
             display: flex;
             justify-content: space-between;
             align-items: flex-start;
-            gap: 8px;
+            gap: 10px;
             margin-bottom: 4px;
         }
+
         .popup-title {
             font-weight: 800;
-            font-size: 1.05rem;
+            font-size: 1.1rem;
             color: #ffffff;
             letter-spacing: -0.3px;
             line-height: 1.2;
-            text-shadow: 0 1px 4px rgba(0,0,0,0.4);
         }
-        .popup-status {
-            font-size: 0.6rem;
+
+        .popup-badge {
+            font-size: 0.55rem;
             font-weight: 800;
-            padding: 2px 12px;
+            padding: 3px 14px;
             border-radius: 20px;
             text-transform: uppercase;
             white-space: nowrap;
-            border: 1px solid rgba(255,255,255,0.15);
-            flex-shrink: 0;
             letter-spacing: 0.5px;
+            flex-shrink: 0;
             margin-top: 2px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
         }
-        .status-baik { background: rgba(16, 185, 129, 0.25); color: #34d399; border-color: rgba(16, 185, 129, 0.4); }
-        .status-rusak-ringan { background: rgba(245, 158, 11, 0.25); color: #fbbf24; border-color: rgba(245, 158, 11, 0.4); }
-        .status-rusak-berat { background: rgba(239, 68, 68, 0.25); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
-        .status-rusak { background: rgba(239, 68, 68, 0.25); color: #f87171; border-color: rgba(239, 68, 68, 0.4); }
+        .badge-baik { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .badge-rusak-ringan { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .badge-rusak-berat { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-rusak { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
         .popup-location {
             font-size: 0.7rem;
             color: #94a3b8;
-            margin-bottom: 6px;
+            margin-bottom: 10px;
             display: flex;
             align-items: center;
-            gap: 4px;
+            gap: 6px;
             font-weight: 600;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
-        .popup-location i { font-size: 12px; color: var(--toska); }
+        .popup-location i { color: var(--toska); }
 
         .popup-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.08);
-            margin: 6px 0;
+            background: rgba(255, 255, 255, 0.06);
+            margin: 8px 0;
         }
 
+        /* Grid Info */
         .popup-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 2px 12px;
-            margin-bottom: 2px;
+            gap: 2px 16px;
+            margin-bottom: 4px;
         }
+
         .popup-item {
             display: flex;
             justify-content: space-between;
-            padding: 2px 0;
-            font-size: 0.75rem;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+            padding: 3px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
         }
         .popup-item .label {
             color: #94a3b8;
@@ -268,72 +289,92 @@
             font-weight: 700;
             font-family: 'JetBrains Mono', monospace;
             font-size: 0.75rem;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.2);
         }
         .popup-specs .popup-item .value {
             color: #2dd4bf;
         }
 
+        /* Conditions */
         .popup-conditions {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 8px 12px;
-            border-radius: 8px;
-            margin: 4px 0;
-        }
-        .cond-item {
-            display: flex;
-            justify-content: space-between;
-            font-size: 0.7rem;
-            color: #cbd5e1;
-            font-weight: 600;
-        }
-        .cond-item span:last-child {
-            font-weight: 700;
-            color: #f8fafc;
-            font-family: 'JetBrains Mono', monospace;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 6px;
+            background: rgba(0, 0, 0, 0.35);
+            padding: 10px 12px;
+            border-radius: 10px;
+            margin: 6px 0;
         }
 
+        .cond-item {
+            text-align: center;
+        }
+        .cond-item .cond-label {
+            font-size: 0.55rem;
+            font-weight: 700;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            display: block;
+        }
+        .cond-item .cond-value {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #f1f5f9;
+            font-family: 'JetBrains Mono', monospace;
+            margin-top: 2px;
+            display: block;
+        }
+        .cond-value.good { color: #34d399; }
+        .cond-value.warning { color: #fbbf24; }
+        .cond-value.danger { color: #f87171; }
+
+        /* Notes */
         .popup-notes {
             font-size: 0.7rem;
             font-weight: 600;
             color: #94a3b8;
-            margin-top: 4px;
-            padding: 6px 10px;
-            background: rgba(0,0,0,0.2);
-            border-radius: 6px;
+            padding: 8px 12px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
             border-left: 3px solid var(--info);
+            margin: 4px 0 8px;
         }
 
+        /* Photo */
         .popup-photo {
-            margin: 8px 0 4px;
-            border-radius: 8px;
+            border-radius: 10px;
             overflow: hidden;
-            max-height: 140px;
-            background: #0f172a;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            border: 1px solid rgba(255,255,255,0.06);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            max-height: 150px;
+            background: #0a1128;
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            margin: 6px 0;
         }
         .popup-photo img {
             width: 100%;
-            height: 140px;
+            height: 150px;
             object-fit: cover;
             display: block;
         }
 
+        /* Footer */
         .popup-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
             font-size: 0.6rem;
             color: #64748b;
-            margin-top: 6px;
-            text-align: right;
             font-family: 'JetBrains Mono', monospace;
-            font-weight: 500;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        .popup-footer .coord {
+            color: #94a3b8;
+        }
+        .popup-footer .coord i {
+            color: var(--toska);
+            font-size: 12px;
+            margin-right: 4px;
         }
 
         /* Legend */
@@ -368,13 +409,17 @@
             .maps-stat .value { font-size: 0.95rem; }
             .maps-stat .label { font-size: 0.5rem; }
             .maps-legend { bottom: 12px; left: 12px; padding: 8px 10px; font-size: 0.6rem; }
-            /* Popup lebih lebar di HP */
-            .custom-popup { min-width: 160px; max-width: 260px; }
+
+            .pintu-popup .leaflet-popup-content {
+                min-width: 220px;
+                max-width: 280px;
+            }
             .popup-grid { grid-template-columns: 1fr; gap: 0; }
             .popup-specs { grid-template-columns: 1fr 1fr; }
-            .popup-title { font-size: 0.9rem; }
-            .popup-photo { max-height: 100px; }
-            .popup-photo img { height: 100px; }
+            .popup-conditions { grid-template-columns: 1fr; gap: 4px; }
+            .popup-title { font-size: 0.95rem; }
+            .popup-photo { max-height: 110px; }
+            .popup-photo img { height: 110px; }
         }
     </style>
 </head>
@@ -511,7 +556,7 @@
         }
 
         // ============================================================
-        // 5. INIT MAP (SATELIT + LABEL CERAH & TAJAM)
+        // 5. INIT MAP
         // ============================================================
         function initMap() {
             map = L.map('map', {
@@ -519,13 +564,13 @@
                 zoomControl: true
             }).setView([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], 13);
 
-            // Tile layer satelit ESRI (tanpa watermark)
+            // Tile layer satelit ESRI
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 19,
                 attribution: ''
             }).addTo(map);
 
-            // Overlay label CartoDB DARK - opacity 1.0 agar sangat cerah dan tajam
+            // Overlay label CartoDB DARK - opacity 1.0 agar cerah
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
                 attribution: '',
@@ -713,30 +758,34 @@
                     console.warn('⚠️ Koordinat kosong untuk item:', item.id);
                     return;
                 }
-                
+
                 const parts = item.koordinat.replace(/\s/g, '').split(',').map(Number);
                 if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
                     console.warn('⚠️ Koordinat tidak valid untuk item:', item.id, item.koordinat);
                     return;
                 }
-                
+
                 const lat = parts[0];
                 const lng = parts[1];
-                
+
                 // Tentukan status & warna marker
                 let color = '#10b981';
-                let statusClass = 'status-baik';
-                
+                let badgeClass = 'badge-baik';
+                let condClass = 'good';
+
                 const kondisi = item.kondisi_daun_pintu || '';
                 if (kondisi.includes('Rusak Berat')) {
                     color = '#ef4444';
-                    statusClass = 'status-rusak-berat';
+                    badgeClass = 'badge-rusak-berat';
+                    condClass = 'danger';
                 } else if (kondisi.includes('Rusak Ringan')) {
                     color = '#f59e0b';
-                    statusClass = 'status-rusak-ringan';
+                    badgeClass = 'badge-rusak-ringan';
+                    condClass = 'warning';
                 } else if (kondisi.includes('Rusak')) {
                     color = '#ef4444';
-                    statusClass = 'status-rusak';
+                    badgeClass = 'badge-rusak';
+                    condClass = 'danger';
                 }
 
                 // Ikon Marker
@@ -751,58 +800,92 @@
                 });
 
                 // ============================================================
-                // PROFESSIONAL POPUP CONTENT
+                // PROFESSIONAL POPUP CONTENT (STRUKTUR BARU)
                 // ============================================================
                 const statusDisplay = kondisi || 'Tidak Diketahui';
+                const coordDisplay = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
+
+                // Fungsi untuk menentukan class kondisi
+                const getCondClass = (val) => {
+                    if (!val) return 'good';
+                    const v = val.toLowerCase();
+                    if (v.includes('rusak berat') || v.includes('rusak')) return 'danger';
+                    if (v.includes('rusak ringan')) return 'warning';
+                    return 'good';
+                };
+
                 const popupContent = `
-                    <div class="custom-popup">
+                    <div class="popup-inner">
+                        <!-- Header -->
                         <div class="popup-header">
                             <div class="popup-title">${item.nama_saluran || 'Nama Saluran'}</div>
-                            <span class="popup-status ${statusClass}">${statusDisplay}</span>
+                            <span class="popup-badge ${badgeClass}">${statusDisplay}</span>
                         </div>
+
+                        <!-- Lokasi -->
                         <div class="popup-location">
-                            <i data-lucide="map-pin" size="12"></i> ${item.nama_daerah || '-'} · ${item.nomenklatur || '-'}
+                            <i data-lucide="map-pin" size="12"></i>
+                            ${item.nama_daerah || '-'} · ${item.nomenklatur || '-'}
                         </div>
+
                         <div class="popup-divider"></div>
-                        
+
+                        <!-- Informasi Utama -->
                         <div class="popup-grid">
                             <div class="popup-item"><span class="label">ID</span><span class="value">${item.id || '-'}</span></div>
                             <div class="popup-item"><span class="label">Petugas</span><span class="value">${item.nama_petugas || '-'}</span></div>
                             <div class="popup-item"><span class="label">Jenis</span><span class="value">${item.jenis_pintu || '-'}</span></div>
                         </div>
-                        
+
                         <div class="popup-divider"></div>
-                        
+
+                        <!-- Spesifikasi Teknis -->
                         <div class="popup-grid popup-specs">
                             <div class="popup-item"><span class="label">H1</span><span class="value">${item.h1 || 0}m</span></div>
                             <div class="popup-item"><span class="label">H</span><span class="value">${item.h || 0}m</span></div>
                             <div class="popup-item"><span class="label">B</span><span class="value">${item.b || 0}m</span></div>
                             <div class="popup-item"><span class="label">t</span><span class="value">${item.t || 0}m</span></div>
                         </div>
-                        
+
                         <div class="popup-divider"></div>
-                        
+
+                        <!-- Kondisi -->
                         <div class="popup-conditions">
-                            <div class="cond-item"><span>Daun Pintu</span> <span>${item.kondisi_daun_pintu || '-'}</span></div>
-                            <div class="cond-item"><span>Drat Stang</span> <span>${item.kondisi_drat_stang || '-'}</span></div>
-                            <div class="cond-item"><span>Rangka</span> <span>${item.kondisi_rangka || '-'}</span></div>
+                            <div class="cond-item">
+                                <span class="cond-label">Daun Pintu</span>
+                                <span class="cond-value ${getCondClass(item.kondisi_daun_pintu)}">${item.kondisi_daun_pintu || '-'}</span>
+                            </div>
+                            <div class="cond-item">
+                                <span class="cond-label">Drat Stang</span>
+                                <span class="cond-value ${getCondClass(item.kondisi_drat_stang)}">${item.kondisi_drat_stang || '-'}</span>
+                            </div>
+                            <div class="cond-item">
+                                <span class="cond-label">Rangka</span>
+                                <span class="cond-value ${getCondClass(item.kondisi_rangka)}">${item.kondisi_rangka || '-'}</span>
+                            </div>
                         </div>
-                        
+
+                        <!-- Keterangan -->
                         ${item.keterangan ? `<div class="popup-notes">📝 ${item.keterangan}</div>` : ''}
-                        
+
+                        <!-- Foto -->
                         ${item.url_foto && item.url_foto !== '-' ? `
                             <div class="popup-photo">
                                 <img src="${item.url_foto}" alt="Foto Pintu" loading="lazy" onerror="this.parentElement.style.display='none'">
                             </div>
                         ` : ''}
-                        
-                        <div class="popup-footer">📅 ${item.timestamp || 'Tanggal tidak tersedia'}</div>
+
+                        <!-- Footer -->
+                        <div class="popup-footer">
+                            <span class="coord"><i data-lucide="map-pin" size="10"></i> ${coordDisplay}</span>
+                            <span>📅 ${item.timestamp ? new Date(item.timestamp).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'}</span>
+                        </div>
                     </div>
                 `;
 
-                marker.bindPopup(popupContent, { 
-                    maxWidth: 320,
-                    minWidth: 200,
+                marker.bindPopup(popupContent, {
+                    maxWidth: 380,
+                    minWidth: 280,
                     className: 'pintu-popup'
                 });
 
@@ -810,14 +893,14 @@
                 pintuMarkers.push(marker);
             });
 
-            // Refresh Lucide icons di dalam popup (akan jalan saat popup dibuka)
+            // Refresh Lucide icons di dalam popup
             setTimeout(() => {
                 if (typeof lucide !== 'undefined') {
-                    document.querySelectorAll('.custom-popup i[data-lucide]').forEach(el => {
+                    document.querySelectorAll('.popup-inner i[data-lucide]').forEach(el => {
                         lucide.createIcons({ node: el });
                     });
                 }
-            }, 100);
+            }, 200);
         }
 
         function updatePintuStats() {
