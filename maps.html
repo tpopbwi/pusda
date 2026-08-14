@@ -12,13 +12,9 @@
 
     <style>
         /* ============================================================
-           MAPS - TEMA UPT PUSDA
+           MAPS - GABUNGAN PRESENSI + PINTU AIR
            ============================================================ */
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
             --bg-dark: #0d1b3e;
@@ -35,22 +31,9 @@
             --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        html, body {
-            height: 100%;
-            margin: 0;
-            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, sans-serif;
-            background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%);
-            color: var(--text);
-            overflow: hidden;
-        }
+        html, body { height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%); color: var(--text); overflow: hidden; }
 
-        .maps-container {
-            display: flex;
-            flex-direction: column;
-            height: 100vh;
-            padding: 12px;
-            gap: 12px;
-        }
+        .maps-container { display: flex; flex-direction: column; height: 100vh; padding: 12px; gap: 12px; }
 
         /* Header */
         .maps-header {
@@ -97,9 +80,10 @@
             border: 1px solid var(--border);
             background: rgba(0,0,0,0.4);
             color: white;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
-            min-height: 36px;
+            min-height: 32px;
+            max-width: 140px;
         }
         .maps-controls select option { background: #0d1b3e; }
 
@@ -111,43 +95,56 @@
             color: white;
             cursor: pointer;
             font-weight: 700;
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             display: flex;
             align-items: center;
             gap: 6px;
             transition: all 0.2s ease;
-            min-height: 36px;
+            min-height: 32px;
         }
-        .maps-controls button:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
-        }
+        .maps-controls button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
         .maps-controls button i { font-size: 14px; }
+
+        /* Layer toggle */
+        .layer-toggle {
+            display: flex;
+            gap: 4px;
+            background: rgba(0,0,0,0.3);
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .layer-toggle button {
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: none;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.6rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.2s;
+            min-height: 28px;
+        }
+        .layer-toggle button.active {
+            background: var(--info);
+            color: white;
+            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+        }
 
         /* Stats */
         .maps-stats {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
+            gap: 8px;
         }
-
         .maps-stat {
             background: rgba(0,0,0,0.25);
-            border-radius: 10px;
-            padding: 10px 8px;
+            border-radius: 8px;
+            padding: 8px 6px;
             text-align: center;
         }
-        .maps-stat .value {
-            font-size: 1.3rem;
-            font-weight: 800;
-            font-family: 'JetBrains Mono', monospace;
-        }
-        .maps-stat .label {
-            font-size: 0.6rem;
-            color: var(--text-muted);
-            text-transform: uppercase;
-            margin-top: 2px;
-        }
+        .maps-stat .value { font-size: 1.1rem; font-weight: 800; font-family: 'JetBrains Mono', monospace; }
+        .maps-stat .label { font-size: 0.55rem; color: var(--text-muted); text-transform: uppercase; margin-top: 2px; }
         .maps-stat.success .value { color: var(--success); }
         .maps-stat.danger .value { color: var(--danger); }
 
@@ -161,7 +158,11 @@
             min-height: 200px;
         }
 
-        /* Leaflet popup custom */
+        /* Hilangkan watermark Leaflet */
+        .leaflet-control-attribution { display: none !important; }
+        .leaflet-control-zoom { border: none !important; box-shadow: var(--shadow); }
+
+        /* Popup */
         .leaflet-popup-content-wrapper {
             background: #1e293b;
             color: white;
@@ -169,7 +170,10 @@
             box-shadow: 0 4px 16px rgba(0,0,0,0.4);
         }
         .leaflet-popup-tip { background: #1e293b; }
-        .leaflet-popup-content { font-size: 0.8rem; line-height: 1.4; }
+        .leaflet-popup-content { font-size: 0.7rem; line-height: 1.5; max-height: 250px; overflow-y: auto; }
+        .leaflet-popup-content table { width: 100%; border-collapse: collapse; }
+        .leaflet-popup-content td { padding: 2px 4px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .leaflet-popup-content td:first-child { font-weight: 700; color: var(--toska); }
 
         /* Legend */
         .maps-legend {
@@ -181,41 +185,27 @@
             -webkit-backdrop-filter: blur(20px);
             border: 1px solid var(--border);
             border-radius: 10px;
-            padding: 12px 14px;
+            padding: 10px 12px;
             z-index: 1000;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
         }
-        .legend-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            margin-bottom: 4px;
-        }
+        .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
         .legend-item:last-child { margin-bottom: 0; }
-        .legend-color {
-            width: 14px;
-            height: 14px;
-            border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.2);
-        }
+        .legend-color { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
 
         /* Responsive */
         @media (max-width: 600px) {
-            .maps-container { padding: 8px; gap: 10px; }
-            .maps-header { padding: 12px 14px; }
-            .maps-title { font-size: 0.95rem; }
-            .maps-controls select { font-size: 0.7rem; padding: 4px 8px; min-height: 32px; }
-            .maps-controls button { font-size: 0.65rem; padding: 4px 10px; min-height: 32px; }
+            .maps-container { padding: 8px; gap: 8px; }
+            .maps-header { padding: 10px 12px; }
+            .maps-title { font-size: 0.9rem; }
+            .maps-controls select { font-size: 0.6rem; padding: 4px 6px; min-height: 28px; max-width: 100px; }
+            .maps-controls button { font-size: 0.6rem; padding: 4px 8px; min-height: 28px; }
             .maps-controls button i { font-size: 12px; }
-            .maps-stats { gap: 6px; }
-            .maps-stat .value { font-size: 1.1rem; }
-            .maps-stat .label { font-size: 0.55rem; }
-            .maps-legend { bottom: 12px; left: 12px; padding: 10px 12px; font-size: 0.65rem; }
-        }
-
-        @media (max-width: 400px) {
-            .maps-header-top { flex-direction: column; align-items: stretch; }
-            .maps-controls { justify-content: space-between; }
+            .layer-toggle button { font-size: 0.5rem; padding: 3px 8px; min-height: 24px; }
+            .maps-stats { gap: 4px; }
+            .maps-stat .value { font-size: 0.95rem; }
+            .maps-stat .label { font-size: 0.5rem; }
+            .maps-legend { bottom: 12px; left: 12px; padding: 8px 10px; font-size: 0.6rem; }
         }
     </style>
 </head>
@@ -229,33 +219,43 @@
                     Peta Monitoring
                 </div>
                 <div class="maps-controls">
-                    <select id="geofenceRadius" onchange="updateGeofence()">
-                        <option value="100">100m</option>
-                        <option value="500" selected>500m</option>
-                        <option value="1000">1km</option>
-                        <option value="2000">2km</option>
+                    <!-- Layer Toggle -->
+                    <div class="layer-toggle" id="layerToggle">
+                        <button class="active" data-layer="presensi" onclick="switchLayer('presensi')">👤 Presensi</button>
+                        <button data-layer="pintu" onclick="switchLayer('pintu')">💧 Pintu Air</button>
+                    </div>
+                    <!-- Filter Pintu Air (muncul saat layer pintu aktif) -->
+                    <select id="filterDaerah" style="display:none;" onchange="applyPintuFilter()">
+                        <option value="ALL">Semua Daerah</option>
                     </select>
-                    <button onclick="plotPresensiMarkers()">
+                    <select id="filterJenis" style="display:none;" onchange="applyPintuFilter()">
+                        <option value="ALL">Semua Jenis</option>
+                        <option value="Pintu Air">💧 Pintu Air</option>
+                        <option value="Pintu Pembagi">🔧 Pintu Pembagi</option>
+                        <option value="Pintu Sorong">⚙️ Pintu Sorong</option>
+                    </select>
+                    <button onclick="refreshData()">
                         <i data-lucide="refresh-cw" size="14"></i>
                     </button>
-                    <button onclick="fitToMarkers()">
+                    <button onclick="fitToAll()">
                         <i data-lucide="maximize" size="14"></i>
                     </button>
                 </div>
             </div>
 
-            <div class="maps-stats">
+            <!-- Statistik -->
+            <div class="maps-stats" id="statsContainer">
                 <div class="maps-stat">
-                    <div class="value" id="totalPresensi">0</div>
-                    <div class="label">Total</div>
+                    <div class="value" id="stat1">0</div>
+                    <div class="label" id="label1">Total</div>
                 </div>
                 <div class="maps-stat success">
-                    <div class="value" id="inArea">0</div>
-                    <div class="label">Dalam Area</div>
+                    <div class="value" id="stat2">0</div>
+                    <div class="label" id="label2">Baik</div>
                 </div>
                 <div class="maps-stat danger">
-                    <div class="value" id="outArea">0</div>
-                    <div class="label">Luar Area</div>
+                    <div class="value" id="stat3">0</div>
+                    <div class="label" id="label3">Perlu Perbaikan</div>
                 </div>
             </div>
         </div>
@@ -264,11 +264,7 @@
         <div id="map"></div>
 
         <!-- Legend -->
-        <div class="maps-legend">
-            <div class="legend-item">
-                <div class="legend-color" style="background: #3b82f6;"></div>
-                <span>Kantor</span>
-            </div>
+        <div class="maps-legend" id="mapLegend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #10b981;"></div>
                 <span>Dalam Area</span>
@@ -277,6 +273,10 @@
                 <div class="legend-color" style="background: #ef4444;"></div>
                 <span>Luar Area</span>
             </div>
+            <div class="legend-item">
+                <div class="legend-color" style="background: #3b82f6;"></div>
+                <span>Kantor</span>
+            </div>
         </div>
     </div>
 
@@ -284,59 +284,188 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ============================================================
-        // MAPS LOGIC (sama seperti sebelumnya, hanya tampilan diubah)
+        // 1. KONFIGURASI
         // ============================================================
-
-        // Konfigurasi lokasi kantor (sesuaikan)
         const OFFICE_LOCATION = {
             lat: -8.4338918,
             lng: 114.2217959,
             name: 'Kantor UPT PUSDA WS Bondoyudo Baru'
         };
 
+        // ============================================================
+        // 2. DATA PINTU AIR (CONTOH - GANTI DENGAN DATA DARI API)
+        // ============================================================
+        let pintuAirData = [
+            {
+                timestamp: '2025-01-15 08:00',
+                id: 'PA-001',
+                nama_daerah: 'Daerah Irigasi Bondoyudo',
+                nama_petugas: 'Bambang S.',
+                nama_saluran: 'Saluran Primer Kiri',
+                nomenklatur: 'P.01',
+                jenis_pintu: 'Pintu Air',
+                koordinat: [-8.4338918, 114.2217959],
+                h1: 1.2,
+                h: 0.8,
+                b: 0.6,
+                t: 0.05,
+                kondisi_daun_pintu: 'Baik',
+                kondisi_drat_stang: 'Baik',
+                kondisi_rangka: 'Baik',
+                keterangan: 'Normal operasional',
+                url_foto: ''
+            },
+            {
+                timestamp: '2025-01-15 09:30',
+                id: 'PA-002',
+                nama_daerah: 'Daerah Irigasi Bondoyudo',
+                nama_petugas: 'Siti R.',
+                nama_saluran: 'Saluran Sekunder Kanan',
+                nomenklatur: 'P.02',
+                jenis_pintu: 'Pintu Pembagi',
+                koordinat: [-8.4450, 114.2300],
+                h1: 0.9,
+                h: 0.5,
+                b: 0.4,
+                t: 0.03,
+                kondisi_daun_pintu: 'Rusak Ringan',
+                kondisi_drat_stang: 'Rusak',
+                kondisi_rangka: 'Baik',
+                keterangan: 'Drat stang patah, perlu penggantian',
+                url_foto: ''
+            },
+            {
+                timestamp: '2025-01-15 10:15',
+                id: 'PA-003',
+                nama_daerah: 'Daerah Irigasi Lumajang',
+                nama_petugas: 'Agus W.',
+                nama_saluran: 'Saluran Tersier Utara',
+                nomenklatur: 'P.03',
+                jenis_pintu: 'Pintu Sorong',
+                koordinat: [-8.4600, 114.2400],
+                h1: 1.5,
+                h: 1.0,
+                b: 0.8,
+                t: 0.06,
+                kondisi_daun_pintu: 'Rusak Berat',
+                kondisi_drat_stang: 'Rusak',
+                kondisi_rangka: 'Rusak Ringan',
+                keterangan: 'Daun pintu bengkok, perlu penggantian total',
+                url_foto: ''
+            }
+        ];
+
+        // ============================================================
+        // 3. VARIABEL GLOBAL
+        // ============================================================
         let map = null;
-        let markers = [];
-        let geofenceCircle = null;
+        let currentLayer = 'presensi';
+
+        // Presensi
         let presensiData = [];
+        let presensiMarkers = [];
+        let geofenceCircle = null;
 
-        // Inisialisasi map
+        // Pintu Air
+        let pintuMarkers = [];
+        let filteredPintuData = [];
+
+        // ============================================================
+        // 4. INIT MAP (SATELIT, TANPA WATERMARK)
+        // ============================================================
         function initMap() {
-            map = L.map('map').setView([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], 13);
+            map = L.map('map', {
+                attributionControl: false,
+                zoomControl: true
+            }).setView([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], 13);
 
-            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-                attribution: '© OpenStreetMap'
+            // Tile layer satelit ESRI (tanpa watermark)
+            L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+                maxZoom: 19,
+                attribution: ''
             }).addTo(map);
 
-            // Marker kantor
-            const officeIcon = L.divIcon({
-                className: 'office-marker',
-                html: '<div style="background:#3b82f6;width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:18px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏢</div>',
-                iconSize: [36, 36],
-                iconAnchor: [18, 18]
-            });
+            // Label overlay (opsional)
+            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+                maxZoom: 19,
+                attribution: '',
+                opacity: 0.5
+            }).addTo(map);
 
+            // Marker Kantor
+            const officeIcon = L.divIcon({
+                html: '<div style="background:#3b82f6;width:32px;height:32px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;border:3px solid white;box-shadow:0 4px 12px rgba(0,0,0,0.3);">🏢</div>',
+                iconSize: [32, 32],
+                iconAnchor: [16, 16]
+            });
             L.marker([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], { icon: officeIcon })
                 .addTo(map)
-                .bindPopup(`<b>${OFFICE_LOCATION.name}</b><br><small>Lokasi acuan geofencing</small>`);
+                .bindPopup(`<b>${OFFICE_LOCATION.name}</b>`);
 
+            // Geofence
             updateGeofence();
+
+            // Load data
             loadPresensiData();
+            populatePintuFilters();
+            applyPintuFilter();
+
+            // Default layer: presensi
+            switchLayer('presensi');
         }
 
-        // Load presensi data
+        // ============================================================
+        // 5. LAYER SWITCH
+        // ============================================================
+        function switchLayer(layer) {
+            currentLayer = layer;
+
+            // Update tombol
+            document.querySelectorAll('.layer-toggle button').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.layer === layer);
+            });
+
+            // Tampilkan/sembunyikan filter pintu
+            const filterDaerah = document.getElementById('filterDaerah');
+            const filterJenis = document.getElementById('filterJenis');
+            if (layer === 'pintu') {
+                filterDaerah.style.display = 'inline-block';
+                filterJenis.style.display = 'inline-block';
+                // Update statistik untuk pintu
+                updatePintuStats();
+                // Tampilkan marker pintu, sembunyikan presensi
+                pintuMarkers.forEach(m => map.addLayer(m));
+                presensiMarkers.forEach(m => map.removeLayer(m));
+                if (geofenceCircle) map.removeLayer(geofenceCircle);
+                // Update legend
+                updateLegend('pintu');
+            } else {
+                filterDaerah.style.display = 'none';
+                filterJenis.style.display = 'none';
+                // Tampilkan presensi, sembunyikan pintu
+                presensiMarkers.forEach(m => map.addLayer(m));
+                pintuMarkers.forEach(m => map.removeLayer(m));
+                if (geofenceCircle) map.addLayer(geofenceCircle);
+                // Update statistik presensi
+                updatePresensiStats();
+                // Update legend
+                updateLegend('presensi');
+            }
+        }
+
+        // ============================================================
+        // 6. PRESENSI - LOAD & PLOT
+        // ============================================================
         function loadPresensiData() {
             const cached = localStorage.getItem('wilayah_presensi_' + new Date().toISOString().split('T')[0]);
             if (cached) {
                 presensiData = JSON.parse(cached);
                 plotPresensiMarkers();
-            } else {
-                // Minta data dari parent jika dalam floating window
-                if (window.parent !== window) {
-                    window.parent.postMessage({
-                        type: 'FLOATING_WINDOW_REQUEST',
-                        data: { action: 'getData', key: 'presensi' }
-                    }, '*');
-                }
+            } else if (window.parent !== window) {
+                window.parent.postMessage({
+                    type: 'FLOATING_WINDOW_REQUEST',
+                    data: { action: 'getData', key: 'presensi' }
+                }, '*');
             }
         }
 
@@ -351,86 +480,215 @@
             }
         });
 
-        // Plot markers
         function plotPresensiMarkers() {
-            markers.forEach(m => map.removeLayer(m));
-            markers = [];
+            presensiMarkers.forEach(m => map.removeLayer(m));
+            presensiMarkers = [];
 
-            let inArea = 0, outArea = 0;
-            const radius = parseInt(document.getElementById('geofenceRadius').value);
+            const radius = parseInt(document.getElementById('geofenceRadius')?.value || 500);
 
             presensiData.forEach(log => {
                 const gps = log.GPS || log.gps;
                 if (!gps || gps === '-' || gps === 'null') return;
-
                 const [lat, lng] = gps.split(',').map(Number);
                 if (isNaN(lat) || isNaN(lng)) return;
 
-                const distance = calculateDistance(
-                    OFFICE_LOCATION.lat, OFFICE_LOCATION.lng,
-                    lat, lng
-                );
+                const distance = calculateDistance(OFFICE_LOCATION.lat, OFFICE_LOCATION.lng, lat, lng);
                 const isInArea = distance <= radius;
-                if (isInArea) inArea++; else outArea++;
-
                 const color = isInArea ? '#10b981' : '#ef4444';
-                const status = log.Status || log.status || 'Unknown';
-                const time = formatTime(log.Timestamp || log.timestamp);
 
-                const markerIcon = L.divIcon({
-                    className: 'presensi-marker',
-                    html: `<div style="background:${color};width:20px;height:20px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);"></div>`,
-                    iconSize: [20, 20],
-                    iconAnchor: [10, 10]
+                const marker = L.circleMarker([lat, lng], {
+                    radius: 6,
+                    fillColor: color,
+                    color: 'white',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.85
                 });
 
-                const marker = L.marker([lat, lng], { icon: markerIcon })
-                    .addTo(map)
-                    .bindPopup(`
-                        <b>Presensi ${status}</b><br>
-                        <small>⏰ ${time}</small><br>
-                        <small>📍 ${distance.toFixed(0)}m dari kantor</small><br>
-                        <small>${isInArea ? '✅ Dalam area' : '⚠️ Luar area'}</small>
-                    `);
-                markers.push(marker);
+                const nama = log.Nama || log.nama || 'Pegawai';
+                const status = log.Status || log.status || '-';
+                const waktu = formatTime(log.Timestamp || log.timestamp);
+
+                marker.bindPopup(`
+                    <b>${nama}</b><br>
+                    <small>Status: ${status}</small><br>
+                    <small>⏰ ${waktu}</small><br>
+                    <small>📍 ${distance.toFixed(0)}m dari kantor</small>
+                `);
+
+                // Tambahkan ke map hanya jika layer presensi aktif
+                if (currentLayer === 'presensi') map.addLayer(marker);
+                presensiMarkers.push(marker);
             });
 
-            document.getElementById('totalPresensi').textContent = markers.length;
-            document.getElementById('inArea').textContent = inArea;
-            document.getElementById('outArea').textContent = outArea;
-
-            // Refresh Lucide icons di header
-            if (typeof lucide !== 'undefined') lucide.createIcons();
+            if (currentLayer === 'presensi') updatePresensiStats();
         }
 
-        // Update geofence
+        function updatePresensiStats() {
+            const inArea = presensiMarkers.filter(m => m.options.fillColor === '#10b981').length;
+            const outArea = presensiMarkers.length - inArea;
+            document.getElementById('stat1').textContent = presensiMarkers.length;
+            document.getElementById('stat2').textContent = inArea;
+            document.getElementById('stat3').textContent = outArea;
+            document.getElementById('label1').textContent = 'Total Presensi';
+            document.getElementById('label2').textContent = 'Dalam Area';
+            document.getElementById('label3').textContent = 'Luar Area';
+        }
+
         function updateGeofence() {
             if (!map) return;
             if (geofenceCircle) map.removeLayer(geofenceCircle);
+            const radius = 500; // default
+            geofenceCircle = L.circle([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], {
+                radius: radius,
+                color: '#3b82f6',
+                fillColor: '#3b82f6',
+                fillOpacity: 0.08,
+                weight: 2,
+                dashArray: '5, 10'
+            });
+            if (currentLayer === 'presensi') map.addLayer(geofenceCircle);
+        }
 
-            const radius = parseInt(document.getElementById('geofenceRadius').value);
-            geofenceCircle = L.circle(
-                [OFFICE_LOCATION.lat, OFFICE_LOCATION.lng],
-                {
-                    radius: radius,
-                    color: '#3b82f6',
-                    fillColor: '#3b82f6',
-                    fillOpacity: 0.1,
-                    weight: 2,
-                    dashArray: '5, 10'
+        // ============================================================
+        // 7. PINTU AIR - FILTER & PLOT
+        // ============================================================
+        function populatePintuFilters() {
+            const daerahSet = new Set(pintuAirData.map(d => d.nama_daerah));
+            const selectDaerah = document.getElementById('filterDaerah');
+            daerahSet.forEach(daerah => {
+                const opt = document.createElement('option');
+                opt.value = daerah;
+                opt.textContent = daerah;
+                selectDaerah.appendChild(opt);
+            });
+        }
+
+        function applyPintuFilter() {
+            const daerah = document.getElementById('filterDaerah').value;
+            const jenis = document.getElementById('filterJenis').value;
+
+            filteredPintuData = pintuAirData.filter(item => {
+                const matchDaerah = daerah === 'ALL' || item.nama_daerah === daerah;
+                const matchJenis = jenis === 'ALL' || item.jenis_pintu === jenis;
+                return matchDaerah && matchJenis;
+            });
+
+            plotPintuMarkers();
+            if (currentLayer === 'pintu') updatePintuStats();
+        }
+
+        function plotPintuMarkers() {
+            pintuMarkers.forEach(m => map.removeLayer(m));
+            pintuMarkers = [];
+
+            filteredPintuData.forEach(item => {
+                const [lat, lng] = item.koordinat;
+                let color = '#10b981';
+                if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
+                    color = '#ef4444';
+                } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
+                    color = '#f59e0b';
                 }
-            ).addTo(map);
-            plotPresensiMarkers();
+
+                const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
+
+                const marker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        html: iconHtml,
+                        iconSize: [18, 18],
+                        iconAnchor: [9, 9]
+                    })
+                });
+
+                marker.bindPopup(`
+                    <b>${item.nama_saluran}</b><br>
+                    <small>${item.nama_daerah}</small>
+                    <hr>
+                    <table>
+                        <tr><td>ID</td><td>${item.id}</td></tr>
+                        <tr><td>Petugas</td><td>${item.nama_petugas}</td></tr>
+                        <tr><td>Jenis</td><td>${item.jenis_pintu}</td></tr>
+                        <tr><td>Nomenklatur</td><td>${item.nomenklatur}</td></tr>
+                        <tr><td>H1</td><td>${item.h1}m</td></tr>
+                        <tr><td>H</td><td>${item.h}m</td></tr>
+                        <tr><td>B</td><td>${item.b}m</td></tr>
+                        <tr><td>t</td><td>${item.t}m</td></tr>
+                        <tr><td>Daun Pintu</td><td>${item.kondisi_daun_pintu}</td></tr>
+                        <tr><td>Drat Stang</td><td>${item.kondisi_drat_stang}</td></tr>
+                        <tr><td>Rangka</td><td>${item.kondisi_rangka}</td></tr>
+                        <tr><td>Keterangan</td><td>${item.keterangan}</td></tr>
+                    </table>
+                    ${item.url_foto ? `<img src="${item.url_foto}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
+                    <br><small>📅 ${item.timestamp}</small>
+                `, { maxWidth: 280 });
+
+                if (currentLayer === 'pintu') map.addLayer(marker);
+                pintuMarkers.push(marker);
+            });
         }
 
-        // Fit all markers
-        function fitToMarkers() {
-            if (markers.length === 0) return;
-            const group = L.featureGroup(markers);
-            map.fitBounds(group.getBounds().pad(0.1));
+        function updatePintuStats() {
+            const total = filteredPintuData.length;
+            let baik = 0, rusak = 0;
+            filteredPintuData.forEach(item => {
+                if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
+                    rusak++;
+                } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
+                    rusak++;
+                } else {
+                    baik++;
+                }
+            });
+            document.getElementById('stat1').textContent = total;
+            document.getElementById('stat2').textContent = baik;
+            document.getElementById('stat3').textContent = rusak;
+            document.getElementById('label1').textContent = 'Total Pintu';
+            document.getElementById('label2').textContent = 'Kondisi Baik';
+            document.getElementById('label3').textContent = 'Perlu Perbaikan';
         }
 
-        // Helper: distance
+        // ============================================================
+        // 8. LEGEND UPDATER
+        // ============================================================
+        function updateLegend(layer) {
+            const legend = document.getElementById('mapLegend');
+            if (layer === 'presensi') {
+                legend.innerHTML = `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Dalam Area</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>Luar Area</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #3b82f6;"></div>
+                        <span>Kantor</span>
+                    </div>
+                `;
+            } else {
+                legend.innerHTML = `
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #10b981;"></div>
+                        <span>Kondisi Baik</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #f59e0b;"></div>
+                        <span>Perawatan</span>
+                    </div>
+                    <div class="legend-item">
+                        <div class="legend-color" style="background: #ef4444;"></div>
+                        <span>Perlu Perbaikan</span>
+                    </div>
+                `;
+            }
+        }
+
+        // ============================================================
+        // 9. HELPERS
+        // ============================================================
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
@@ -448,7 +706,21 @@
             } catch { return '--:--'; }
         }
 
-        // Init
+        function refreshData() {
+            loadPresensiData();
+            applyPintuFilter();
+        }
+
+        function fitToAll() {
+            const allMarkers = [...presensiMarkers, ...pintuMarkers];
+            if (allMarkers.length === 0) return;
+            const group = L.featureGroup(allMarkers);
+            map.fitBounds(group.getBounds().pad(0.15));
+        }
+
+        // ============================================================
+        // 10. INIT
+        // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
             initMap();
