@@ -2995,5 +2995,756 @@ td {
     }
 }
 /* ============================================================
+   PERBAIKAN TAMPILAN HP - WILAYAH
+   ============================================================ */
+
+@media (max-width: 768px) {
+    /* 1. Header lebih compact */
+    .section-header {
+        padding: 10px 14px;
+        gap: 8px;
+    }
+    .section-header h1 {
+        font-size: 1rem;
+    }
+    .section-header h1::before {
+        height: 22px;
+        width: 4px;
+    }
+    .live-indicator {
+        font-size: 0.5rem;
+        padding: 4px 12px;
+        gap: 4px;
+        border-radius: 30px;
+    }
+    .live-dot {
+        width: 6px;
+        height: 6px;
+    }
+    .countdown-badge {
+        font-size: 0.55rem;
+        padding: 2px 6px;
+        min-width: 28px;
+    }
+    .live-text {
+        display: none; /* Sembunyikan teks "LIVE MONITORING" di HP, cukup dot + timer */
+    }
+
+    /* 2. Summary Cards - 2x2 grid, lebih compact */
+    .summary-cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .summary-card {
+        padding: 10px 12px;
+        gap: 10px;
+        border-radius: 14px;
+    }
+    .summary-icon {
+        width: 34px;
+        height: 34px;
+    }
+    .summary-icon i {
+        width: 16px;
+        height: 16px;
+    }
+    .summary-value {
+        font-size: 1.2rem;
+    }
+    .summary-label {
+        font-size: 0.5rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* 3. Filter Bar - susun 2 kolom, label lebih pendek */
+    .filter-row {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    .filter-item {
+        flex: 1 1 calc(50% - 8px);
+        min-width: 0;
+    }
+    .filter-item:last-child {
+        flex: 1 1 100%;
+    }
+    .filter-label {
+        font-size: 0.55rem;
+        letter-spacing: 0.5px;
+        padding-left: 2px;
+    }
+    input, select {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+        min-height: 36px;
+        border-radius: 10px;
+    }
+
+    /* 4. Quick Filter Chips - hanya tampilkan yang punya angka > 0 */
+    .q-chip {
+        padding: 6px 12px;
+        font-size: 0.6rem;
+        min-height: 34px;
+    }
+    .q-chip .chip-count {
+        font-size: 0.5rem;
+        padding: 1px 6px;
+        min-width: 18px;
+    }
+    /* Sembunyikan chip dengan count 0 (opsional, tapi lebih baik) */
+    .q-chip .chip-count:empty,
+    .q-chip .chip-count[text-content="0"] {
+        display: none;
+    }
+    /* Atau dengan data attribute, kita akan handle di JS */
+
+    /* 5. Action Bar - tombol lebih compact */
+    .action-bar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+    .view-switcher {
+        flex: 1;
+        min-width: 0;
+    }
+    .view-btn {
+        padding: 6px 10px;
+        font-size: 0.6rem;
+        min-height: 34px;
+    }
+    .view-btn i {
+        font-size: 14px;
+    }
+    .view-btn span {
+        display: none; /* Sembunyikan teks "GRID"/"LIST", cukup ikon di HP */
+    }
+    .btn-wa-broadcast {
+        padding: 6px 12px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        flex: 0 0 auto;
+    }
+    .btn-wa-broadcast span {
+        display: none; /* Sembunyikan teks "Reminder WA", cukup ikon di HP */
+    }
+    .btn-wa-broadcast i {
+        font-size: 18px;
+    }
+
+    /* 6. Action Buttons (Reset, Export, Refresh) - jadi ikon saja */
+    .filter-actions {
+        gap: 6px;
+        justify-content: flex-start;
+    }
+    .btn-action {
+        padding: 6px 10px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        flex: 0 0 auto;
+    }
+    .btn-action span {
+        display: none; /* Sembunyikan teks, cukup ikon di HP */
+    }
+    .btn-action i {
+        font-size: 18px;
+    }
+
+    /* 7. Personel Grid - 1 kolom di HP */
+    .personel-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+
+    /* 8. Korlap Grid - 1 kolom */
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+
+    /* 9. Kartu Koordinator lebih compact */
+    .korlap-header-blue {
+        padding: 10px 14px;
+        gap: 12px;
+    }
+    .korlap-foto-wrap {
+        width: 48px;
+        height: 68px;
+    }
+    .korlap-info h2 {
+        font-size: 0.75rem;
+    }
+    .korlap-stats-row {
+        padding: 10px;
+        gap: 4px;
+    }
+    .k-stat-box b {
+        font-size: 0.85rem;
+    }
+    .k-stat-box span {
+        font-size: 0.4rem;
+    }
+
+    /* 10. Table - minimal width lebih kecil */
+    table {
+        min-width: 500px;
+    }
+    th {
+        padding: 8px 10px;
+        font-size: 0.5rem;
+    }
+    td {
+        padding: 6px 10px;
+        font-size: 0.65rem;
+    }
+
+    /* 11. Monitoring Panel - padding lebih kecil */
+    .monitoring-panel {
+        padding: 14px 12px;
+        gap: 14px;
+    }
+}
+
+/* ============================================================
+   PERBAIKAN UNTUK HP SANGAT KECIL (≤400px)
+   ============================================================ */
+@media (max-width: 400px) {
+    .filter-item {
+        flex: 1 1 100%;
+    }
+    .summary-cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .summary-card {
+        padding: 8px 10px;
+    }
+    .summary-value {
+        font-size: 1rem;
+    }
+    .summary-label {
+        font-size: 0.45rem;
+    }
+    .btn-action {
+        padding: 4px 8px;
+        min-height: 30px;
+    }
+    .btn-action i {
+        font-size: 16px;
+    }
+    .q-chip {
+        padding: 4px 10px;
+        font-size: 0.55rem;
+        min-height: 30px;
+    }
+}
+/* ============================================================
+   RESPONSIVE - MOBILE (≤768px) - PERBAIKAN
+   ============================================================ */
+@media (max-width: 768px) {
+    /* === HEADER === */
+    .section-header {
+        padding: 10px 14px;
+        gap: 6px;
+        flex-wrap: nowrap;
+        align-items: center;
+    }
+    .section-header h1 {
+        font-size: 1rem;
+        gap: 8px;
+    }
+    .section-header h1::before {
+        height: 20px;
+        width: 4px;
+    }
+    .live-indicator {
+        font-size: 0.5rem;
+        padding: 4px 12px;
+        gap: 4px;
+        border-radius: 30px;
+        flex-shrink: 0;
+    }
+    .live-dot {
+        width: 6px;
+        height: 6px;
+    }
+    .countdown-badge {
+        font-size: 0.5rem;
+        padding: 2px 6px;
+        min-width: 26px;
+    }
+    .live-text {
+        display: none; /* Sembunyikan teks "LIVE MONITORING" */
+    }
+
+    /* === SUMMARY CARDS === */
+    .summary-cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .summary-card {
+        padding: 10px 12px;
+        gap: 8px;
+        border-radius: 14px;
+    }
+    .summary-icon {
+        width: 34px;
+        height: 34px;
+    }
+    .summary-icon i {
+        width: 16px;
+        height: 16px;
+    }
+    .summary-value {
+        font-size: 1.2rem;
+    }
+    .summary-label {
+        font-size: 0.5rem;
+        letter-spacing: 0.3px;
+    }
+
+    /* === FILTER ROW === */
+    .filter-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+    }
+    .filter-item {
+        flex: unset;
+        min-width: 0;
+        width: 100%;
+    }
+    .filter-item:last-child {
+        grid-column: 1 / -1;
+    }
+    .filter-label {
+        font-size: 0.5rem;
+        letter-spacing: 0.5px;
+        padding-left: 2px;
+    }
+    input, select {
+        padding: 8px 10px;
+        font-size: 0.75rem;
+        min-height: 36px;
+        border-radius: 10px;
+    }
+
+    /* === QUICK FILTER CHIPS === */
+    .quick-filters {
+        gap: 6px;
+        padding: 4px 0;
+    }
+    .q-chip {
+        padding: 6px 12px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        gap: 4px;
+    }
+    .q-chip .chip-count {
+        font-size: 0.5rem;
+        padding: 1px 6px;
+        min-width: 18px;
+    }
+
+    /* === ACTION BAR === */
+    .action-bar {
+        flex-direction: row;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+    }
+    .view-switcher {
+        flex: 1;
+        min-width: 0;
+        padding: 3px;
+    }
+    .view-btn {
+        padding: 6px 10px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        gap: 4px;
+    }
+    .view-btn span {
+        display: none; /* Sembunyikan teks "GRID"/"LIST" */
+    }
+    .view-btn i {
+        font-size: 16px;
+    }
+
+    .btn-wa-broadcast {
+        padding: 6px 12px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        flex: 0 0 auto;
+        gap: 4px;
+    }
+    .btn-wa-broadcast span {
+        display: none; /* Sembunyikan teks "Reminder WA" */
+    }
+    .btn-wa-broadcast i {
+        font-size: 18px;
+    }
+
+    /* === ACTION BUTTONS (Reset, Export, Refresh) === */
+    .filter-actions {
+        gap: 6px;
+        justify-content: flex-start;
+    }
+    .btn-action {
+        padding: 6px 10px;
+        font-size: 0.6rem;
+        min-height: 34px;
+        flex: 0 0 auto;
+        gap: 4px;
+    }
+    .btn-action span {
+        display: none; /* Sembunyikan teks, cukup ikon */
+    }
+    .btn-action i {
+        font-size: 18px;
+    }
+
+    /* === KORLAP GRID === */
+    .summary-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .korlap-header-blue {
+        padding: 10px 14px;
+        gap: 12px;
+    }
+    .korlap-foto-wrap {
+        width: 48px;
+        height: 68px;
+    }
+    .korlap-info h2 {
+        font-size: 0.75rem;
+    }
+    .korlap-stats-row {
+        padding: 8px 10px;
+        gap: 4px;
+    }
+    .k-stat-box b {
+        font-size: 0.85rem;
+    }
+    .k-stat-box span {
+        font-size: 0.4rem;
+    }
+
+    /* === PERSONEL GRID === */
+    .personel-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+    }
+    .p-card-top {
+        padding: 10px;
+        gap: 10px;
+        min-height: 70px;
+    }
+    .p-photo-pop {
+        width: 44px;
+        height: 66px;
+    }
+    .p-photo-pop img {
+        max-height: 80px;
+    }
+    .p-info h3 {
+        font-size: 0.7rem;
+    }
+    .p-card-body {
+        padding: 8px;
+        gap: 6px;
+    }
+    .pres-indicator {
+        padding: 6px;
+        border-radius: 10px;
+    }
+    .pres-label span {
+        font-size: 0.45rem;
+    }
+    .pres-label b {
+        font-size: 0.7rem;
+    }
+    .mini-thumb {
+        min-height: 36px;
+        border-radius: 6px;
+    }
+    .gps-link-btn {
+        font-size: 0.45rem;
+        padding: 4px 6px;
+        min-height: 30px;
+        border-radius: 6px;
+    }
+    .btn-wa-call {
+        width: 30px;
+        height: 30px;
+        right: 6px;
+        top: 6px;
+    }
+    .btn-wa-call i {
+        font-size: 12px;
+    }
+
+    /* === TABLE === */
+    table {
+        min-width: 500px;
+    }
+    th {
+        padding: 6px 10px;
+        font-size: 0.5rem;
+    }
+    td {
+        padding: 4px 10px;
+        font-size: 0.65rem;
+    }
+    .table-icon-btn {
+        width: 28px;
+        height: 28px;
+        border-radius: 6px;
+    }
+    .table-icon-btn i {
+        font-size: 12px;
+    }
+
+    /* === BOTTOM NAV === */
+    .bottom-nav {
+        height: 60px;
+        bottom: 12px;
+        left: 12px;
+        right: 12px;
+        border-radius: 30px;
+    }
+    .b-nav-item {
+        width: 44px;
+        min-height: 36px;
+        font-size: 0.5rem;
+    }
+    .b-nav-item i {
+        font-size: 20px;
+    }
+    .b-nav-fab {
+        width: 50px;
+        height: 50px;
+        margin-top: -40px;
+    }
+    .b-nav-fab i {
+        font-size: 24px;
+    }
+
+    /* === MONITORING PANEL === */
+    .monitoring-panel {
+        padding: 12px 10px;
+        gap: 12px;
+        border-radius: 18px;
+    }
+
+    /* === MODAL === */
+    .modal-agenda {
+        padding: 14px 14px 90px 14px;
+    }
+    .modal-title {
+        font-size: 1rem;
+    }
+    .form-row-2 {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+    .file-input-label {
+        padding: 8px 12px;
+        min-height: 40px;
+        font-size: 0.65rem;
+        gap: 8px;
+    }
+    .file-input-label .file-icon-wrapper {
+        width: 28px;
+        height: 28px;
+    }
+    .file-input-label .file-icon-wrapper i {
+        font-size: 14px;
+    }
+    .btn-submit-agenda {
+        padding: 10px 16px;
+        font-size: 0.75rem;
+        min-height: 44px;
+    }
+
+    /* === SKELETON === */
+    .skeleton-card {
+        padding: 14px;
+        border-radius: 18px;
+    }
+    .skeleton-circle {
+        width: 44px;
+        height: 44px;
+    }
+    .skeleton-line {
+        height: 14px;
+    }
+
+    /* === FLOATING WINDOW === */
+    .floating-window {
+        min-width: 92vw;
+        min-height: 50vh;
+        max-height: 70vh;
+        top: 10vh !important;
+        left: 4vw !important;
+        border-radius: 18px;
+    }
+    .floating-toolbar {
+        bottom: 80px;
+        right: 12px;
+        gap: 8px;
+    }
+    .floating-toolbar-btn {
+        width: 44px;
+        height: 44px;
+        font-size: 18px;
+    }
+
+    /* === SYNC TOAST === */
+    #syncToast.sync-toast--full {
+        top: 12px;
+        padding: 8px 16px;
+        min-width: 180px;
+        font-size: 0.65rem;
+    }
+    #syncToast.sync-toast--soft {
+        bottom: 80px;
+        right: 8px;
+        font-size: 0.55rem;
+        padding: 4px 12px;
+    }
+}
+
+/* ============================================================
+   HP SANGAT KECIL (≤400px)
+   ============================================================ */
+@media (max-width: 400px) {
+    .filter-row {
+        grid-template-columns: 1fr;
+        gap: 6px;
+    }
+    .summary-cards-grid {
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+    }
+    .summary-card {
+        padding: 8px 10px;
+    }
+    .summary-value {
+        font-size: 1rem;
+    }
+    .summary-label {
+        font-size: 0.45rem;
+    }
+    .q-chip {
+        padding: 4px 8px;
+        font-size: 0.55rem;
+        min-height: 30px;
+    }
+    .view-btn {
+        padding: 4px 8px;
+        font-size: 0.55rem;
+        min-height: 30px;
+    }
+    .btn-wa-broadcast {
+        padding: 4px 10px;
+        min-height: 30px;
+    }
+    .btn-action {
+        padding: 4px 8px;
+        min-height: 30px;
+    }
+    .btn-action i {
+        font-size: 16px;
+    }
+    .bottom-nav {
+        height: 54px;
+        bottom: 8px;
+        left: 8px;
+        right: 8px;
+        border-radius: 24px;
+    }
+    .b-nav-item {
+        width: 38px;
+        min-height: 32px;
+        font-size: 0.45rem;
+    }
+    .b-nav-item i {
+        font-size: 18px;
+    }
+    .b-nav-fab {
+        width: 44px;
+        height: 44px;
+        margin-top: -36px;
+    }
+    .b-nav-fab i {
+        font-size: 20px;
+    }
+    .p-card-top {
+        padding: 8px;
+        gap: 8px;
+        min-height: 60px;
+    }
+    .p-photo-pop {
+        width: 38px;
+        height: 56px;
+    }
+    .p-photo-pop img {
+        max-height: 70px;
+    }
+    .p-info h3 {
+        font-size: 0.65rem;
+    }
+    .p-card-body {
+        padding: 6px;
+        gap: 4px;
+    }
+    .pres-indicator {
+        padding: 4px;
+        border-radius: 8px;
+    }
+    .pres-label span {
+        font-size: 0.4rem;
+    }
+    .pres-label b {
+        font-size: 0.6rem;
+    }
+    .mini-thumb {
+        min-height: 32px;
+        border-radius: 4px;
+    }
+    .gps-link-btn {
+        font-size: 0.4rem;
+        padding: 2px 4px;
+        min-height: 26px;
+    }
+    .btn-wa-call {
+        width: 26px;
+        height: 26px;
+        right: 4px;
+        top: 4px;
+    }
+    .btn-wa-call i {
+        font-size: 10px;
+    }
+    .floating-window {
+        min-width: 94vw;
+        min-height: 40vh;
+        max-height: 60vh;
+        top: 12vh !important;
+        left: 3vw !important;
+    }
+    .floating-toolbar {
+        bottom: 70px;
+        right: 8px;
+    }
+    .floating-toolbar-btn {
+        width: 38px;
+        height: 38px;
+        font-size: 16px;
+    }
+}
+/* ============================================================
    END OF WILAYAH.CSS v2.2
    ============================================================ */
