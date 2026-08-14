@@ -1,5 +1,9 @@
 /* ============================================================
-   MAPS.CSS - PETA EKSPLOITASI (TEMA UPT PUSDA)
+   MAPS.CSS - PETA MONITORING + EKSPLOITASI (TEMA UPT PUSDA)
+   ============================================================ */
+
+/* ============================================================
+   ROOT & BASE
    ============================================================ */
 * {
     margin: 0;
@@ -40,7 +44,9 @@ body {
     gap: 12px;
 }
 
-/* Header */
+/* ============================================================
+   HEADER
+   ============================================================ */
 .maps-header {
     background: var(--bg-card);
     backdrop-filter: blur(20px);
@@ -69,8 +75,8 @@ body {
     align-items: center;
     gap: 10px;
     margin: 0;
+    letter-spacing: -0.5px;
 }
-
 .maps-title i {
     color: var(--toska);
 }
@@ -88,11 +94,12 @@ body {
     border: 1px solid var(--border);
     background: rgba(0, 0, 0, 0.4);
     color: white;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
+    font-weight: 600;
     cursor: pointer;
-    min-height: 36px;
+    min-height: 32px;
+    max-width: 140px;
 }
-
 .maps-controls select option {
     background: #0d1b3e;
 }
@@ -105,50 +112,73 @@ body {
     color: white;
     cursor: pointer;
     font-weight: 700;
-    font-size: 0.75rem;
+    font-size: 0.7rem;
     display: flex;
     align-items: center;
     gap: 6px;
     transition: all 0.2s ease;
-    min-height: 36px;
+    min-height: 32px;
 }
-
 .maps-controls button:hover {
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
 }
-
 .maps-controls button i {
     font-size: 14px;
+}
+
+/* Layer Toggle */
+.layer-toggle {
+    display: flex;
+    gap: 4px;
+    background: rgba(0, 0, 0, 0.3);
+    padding: 4px;
+    border-radius: 8px;
+}
+.layer-toggle button {
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: none;
+    background: transparent;
+    color: var(--text-muted);
+    font-size: 0.6rem;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s;
+    min-height: 28px;
+}
+.layer-toggle button.active {
+    background: var(--info);
+    color: white;
+    box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
 }
 
 /* Stats */
 .maps-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
+    gap: 8px;
 }
-
 .maps-stat {
     background: rgba(0, 0, 0, 0.25);
-    border-radius: 10px;
-    padding: 10px 8px;
+    border-radius: 8px;
+    padding: 8px 6px;
     text-align: center;
 }
-
 .maps-stat .value {
-    font-size: 1.3rem;
+    font-size: 1.1rem;
     font-weight: 800;
     font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
 }
-
 .maps-stat .label {
-    font-size: 0.6rem;
+    font-size: 0.55rem;
     color: var(--text-muted);
     text-transform: uppercase;
     margin-top: 2px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
 }
-
 .maps-stat.success .value {
     color: var(--success);
 }
@@ -156,7 +186,9 @@ body {
     color: var(--danger);
 }
 
-/* Map */
+/* ============================================================
+   MAP
+   ============================================================ */
 #map {
     flex: 1;
     border-radius: var(--radius);
@@ -175,36 +207,218 @@ body {
     box-shadow: var(--shadow);
 }
 
-/* Popup custom */
-.leaflet-popup-content-wrapper {
-    background: #1e293b;
-    color: white;
-    border-radius: 10px;
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.4);
+/* ============================================================
+   PROFESSIONAL POPUP PINTU AIR
+   ============================================================ */
+.pintu-popup .leaflet-popup-content-wrapper {
+    background: #0f172a;
+    border-radius: 16px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 0;
+    overflow: hidden;
 }
-.leaflet-popup-tip {
-    background: #1e293b;
+.pintu-popup .leaflet-popup-tip {
+    background: #0f172a;
 }
-.leaflet-popup-content {
-    font-size: 0.75rem;
+.pintu-popup .leaflet-popup-content {
+    margin: 0;
+    padding: 0;
+    width: 100% !important;
+    min-width: 280px;
+    max-width: 380px;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    color: #e2e8f0;
     line-height: 1.5;
-    max-height: 300px;
-    overflow-y: auto;
 }
-.leaflet-popup-content table {
-    width: 100%;
-    border-collapse: collapse;
+
+.popup-inner {
+    padding: 18px 20px 16px;
 }
-.leaflet-popup-content td {
-    padding: 2px 4px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+
+.popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 4px;
 }
-.leaflet-popup-content td:first-child {
-    font-weight: 700;
+.popup-title {
+    font-weight: 800;
+    font-size: 1.1rem;
+    color: #ffffff;
+    letter-spacing: -0.3px;
+    line-height: 1.2;
+}
+.popup-badge {
+    font-size: 0.55rem;
+    font-weight: 800;
+    padding: 3px 14px;
+    border-radius: 20px;
+    text-transform: uppercase;
+    white-space: nowrap;
+    letter-spacing: 0.5px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+.badge-baik {
+    background: rgba(16, 185, 129, 0.2);
+    color: #34d399;
+    border: 1px solid rgba(16, 185, 129, 0.3);
+}
+.badge-rusak-ringan {
+    background: rgba(245, 158, 11, 0.2);
+    color: #fbbf24;
+    border: 1px solid rgba(245, 158, 11, 0.3);
+}
+.badge-rusak-berat {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+.badge-rusak {
+    background: rgba(239, 68, 68, 0.2);
+    color: #f87171;
+    border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.popup-location {
+    font-size: 0.7rem;
+    color: #94a3b8;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-weight: 600;
+}
+.popup-location i {
     color: var(--toska);
 }
 
-/* Legend */
+.popup-divider {
+    height: 1px;
+    background: rgba(255, 255, 255, 0.06);
+    margin: 8px 0;
+}
+
+.popup-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px 16px;
+    margin-bottom: 4px;
+}
+.popup-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 3px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+.popup-item .label {
+    color: #94a3b8;
+    font-weight: 700;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    letter-spacing: 0.5px;
+}
+.popup-item .value {
+    color: #f1f5f9;
+    font-weight: 700;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.75rem;
+}
+.popup-specs .popup-item .value {
+    color: #2dd4bf;
+}
+
+.popup-conditions {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 6px;
+    background: rgba(0, 0, 0, 0.35);
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin: 6px 0;
+}
+.cond-item {
+    text-align: center;
+}
+.cond-item .cond-label {
+    font-size: 0.55rem;
+    font-weight: 700;
+    color: #94a3b8;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: block;
+}
+.cond-item .cond-value {
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: #f1f5f9;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 2px;
+    display: block;
+}
+.cond-value.good {
+    color: #34d399;
+}
+.cond-value.warning {
+    color: #fbbf24;
+}
+.cond-value.danger {
+    color: #f87171;
+}
+
+.popup-notes {
+    font-size: 0.7rem;
+    font-weight: 600;
+    color: #94a3b8;
+    padding: 8px 12px;
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    border-left: 3px solid var(--info);
+    margin: 4px 0 8px;
+}
+
+.popup-photo {
+    border-radius: 10px;
+    overflow: hidden;
+    max-height: 150px;
+    background: #0a1128;
+    border: 1px solid rgba(255, 255, 255, 0.06);
+    margin: 6px 0;
+}
+.popup-photo img {
+    width: 100%;
+    height: 150px;
+    object-fit: cover;
+    display: block;
+}
+
+.popup-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.6rem;
+    color: #64748b;
+    font-family: 'JetBrains Mono', monospace;
+    margin-top: 8px;
+    padding-top: 8px;
+    border-top: 1px solid rgba(255, 255, 255, 0.05);
+    flex-wrap: wrap;
+    gap: 4px;
+}
+.popup-footer .coord {
+    color: #94a3b8;
+}
+.popup-footer .coord i {
+    color: var(--toska);
+    font-size: 12px;
+    margin-right: 4px;
+}
+
+/* ============================================================
+   LEGEND
+   ============================================================ */
 .maps-legend {
     position: absolute;
     bottom: 20px;
@@ -214,124 +428,114 @@ body {
     -webkit-backdrop-filter: blur(20px);
     border: 1px solid var(--border);
     border-radius: 10px;
-    padding: 12px 14px;
+    padding: 10px 12px;
     z-index: 1000;
-    font-size: 0.7rem;
+    font-size: 0.65rem;
+    font-weight: 600;
 }
-
 .legend-item {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-bottom: 4px;
+    gap: 6px;
+    margin-bottom: 3px;
 }
 .legend-item:last-child {
     margin-bottom: 0;
 }
 .legend-color {
-    width: 14px;
-    height: 14px;
+    width: 12px;
+    height: 12px;
     border-radius: 50%;
     border: 1px solid rgba(255, 255, 255, 0.2);
 }
 
-/* Responsive */
-@media (max-width: 600px) {
-    .maps-container {
-        padding: 8px;
-        gap: 10px;
-    }
-    .maps-header {
-        padding: 12px 14px;
-    }
-    .maps-title {
-        font-size: 0.95rem;
-    }
-    .maps-controls select {
-        font-size: 0.7rem;
-        padding: 4px 8px;
-        min-height: 32px;
-    }
-    .maps-controls button {
-        font-size: 0.65rem;
-        padding: 4px 10px;
-        min-height: 32px;
-    }
-    .maps-controls button i {
-        font-size: 12px;
-    }
-    .maps-stats {
-        gap: 6px;
-    }
-    .maps-stat .value {
-        font-size: 1.1rem;
-    }
-    .maps-stat .label {
-        font-size: 0.55rem;
-    }
-    .maps-legend {
-        bottom: 12px;
-        left: 12px;
-        padding: 10px 12px;
-        font-size: 0.65rem;
-    }
-}
-
-@media (max-width: 400px) {
-    .maps-header-top {
-        flex-direction: column;
-        align-items: stretch;
-    }
-    .maps-controls {
-        justify-content: space-between;
-    }
-}
 /* ============================================================
-   PERFORMANCE BOOSTER FOR LOW-END DEVICES
+   PERFORMANCE & RESPONSIVE
    ============================================================ */
-
-/* 1. Nonaktifkan semua backdrop-filter di HP (sangat berat) */
 @media (max-width: 768px) {
-    .sidebar,
-    .filter-card,
-    .monitoring-panel,
-    .bottom-nav,
-    .weather-header,
-    .signal-header,
-    .floating-window,
     .maps-header,
     .maps-legend {
         backdrop-filter: none !important;
         -webkit-backdrop-filter: none !important;
         background: rgba(15, 32, 77, 0.98) !important;
-        /* Warna solid pengganti blur */
     }
 
-    /* 2. Nonaktifkan hover transform (mengurangi repaint) */
-    .pegawai-card:hover,
-    .korlap-card:hover,
-    .personel-card:hover,
-    .btn-pro:hover,
-    .floating-toolbar-btn:hover {
+    .maps-container {
+        padding: 8px;
+        gap: 8px;
+    }
+    .maps-header {
+        padding: 10px 12px;
+    }
+    .maps-title {
+        font-size: 0.9rem;
+    }
+    .maps-controls select {
+        font-size: 0.6rem;
+        padding: 4px 6px;
+        min-height: 28px;
+        max-width: 100px;
+    }
+    .maps-controls button {
+        font-size: 0.6rem;
+        padding: 4px 8px;
+        min-height: 28px;
+    }
+    .maps-controls button i {
+        font-size: 12px;
+    }
+    .layer-toggle button {
+        font-size: 0.5rem;
+        padding: 3px 8px;
+        min-height: 24px;
+    }
+    .maps-stats {
+        gap: 4px;
+    }
+    .maps-stat .value {
+        font-size: 0.95rem;
+    }
+    .maps-stat .label {
+        font-size: 0.5rem;
+    }
+    .maps-legend {
+        bottom: 12px;
+        left: 12px;
+        padding: 8px 10px;
+        font-size: 0.6rem;
+    }
+
+    .pintu-popup .leaflet-popup-content {
+        min-width: 220px;
+        max-width: 280px;
+    }
+    .popup-grid {
+        grid-template-columns: 1fr;
+        gap: 0;
+    }
+    .popup-specs {
+        grid-template-columns: 1fr 1fr;
+    }
+    .popup-conditions {
+        grid-template-columns: 1fr;
+        gap: 4px;
+    }
+    .popup-title {
+        font-size: 0.95rem;
+    }
+    .popup-photo {
+        max-height: 110px;
+    }
+    .popup-photo img {
+        height: 110px;
+    }
+
+    .maps-controls button:hover {
         transform: none !important;
         box-shadow: none !important;
     }
-
-    /* 3. Sederhanakan shadow */
-    .pegawai-card,
-    .korlap-card,
-    .personel-card {
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
-    }
-
-    /* 4. Kurangi animasi shimmer (lebih lambat = lebih hemat CPU) */
-    .shimmer {
-        animation-duration: 3s !important;
-        background-size: 400% 100% !important;
-    }
 }
 
-/* 5. Jika user mengaktifkan mode hemat baterai, matikan semua animasi */
 @media (prefers-reduced-motion: reduce) {
     *,
     *::before,
@@ -339,12 +543,5 @@ body {
         animation-duration: 0.01ms !important;
         animation-iteration-count: 1 !important;
         transition-duration: 0.01ms !important;
-    }
-    .shimmer {
-        animation: none !important;
-        background: rgba(255, 255, 255, 0.05) !important;
-    }
-    .loader-ring {
-        animation-duration: 0.01ms !important;
     }
 }
