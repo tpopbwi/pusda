@@ -662,6 +662,7 @@
         // Pintu Air (viewport rendering)
         let filteredPintuData = [];
         let visiblePintuMarkers = []; // Marker yang sedang aktif di viewport
+        let activePopupMarker = null; // Marker yang memiliki popup terbuka
 
         // ============================================================
         // 3. FETCH DATA PINTU AIR
@@ -723,9 +724,10 @@
                 .addTo(map)
                 .bindPopup(`<b>${OFFICE_LOCATION.name}</b>`);
 
-            // Event: Hanya render marker yang terlihat di viewport (performansi)
-            map.on('moveend', renderVisibleMarkers);
-            map.on('zoomend', renderVisibleMarkers);
+            // Event dengan debounce untuk performa
+            const debouncedRender = debounce(renderVisibleMarkers, 300);
+            map.on('moveend', debouncedRender);
+            map.on('zoomend', debouncedRender);
 
             updateGeofence();
             loadPresensiData();
@@ -734,7 +736,18 @@
         }
 
         // ============================================================
-        // 5. LAYER SWITCH
+        // 5. DEBOUNCE HELPER
+        // ============================================================
+        function debounce(fn, delay) {
+            let timer;
+            return function() {
+                clearTimeout(timer);
+                timer = setTimeout(() => fn.apply(this, arguments), delay);
+            };
+        }
+
+        // ============================================================
+        // 6. LAYER SWITCH
         // ============================================================
         function switchLayer(layer) {
             currentLayer = layer;
@@ -777,7 +790,7 @@
         }
 
         // ============================================================
-        // 6. PRESENSI (Circle Markers)
+        // 7. PRESENSI (Circle Markers)
         // ============================================================
         function loadPresensiData() {
             const cached = localStorage.getItem('wilayah_presensi_' + new Date().toISOString().split('T')[0]);
@@ -871,7 +884,7 @@
         }
 
         // ============================================================
-        // 7. PINTU AIR - FILTER & VIEWPORT RENDER
+        // 8. PINTU AIR - FILTER & VIEWPORT RENDER (DENGAN POPUP PERSISTEN)
         // ============================================================
         function populatePintuFilters() {
             const daerahSet = new Set(pintuAirData.map(d => d.nama_daerah));
@@ -898,6 +911,7 @@
             // Hapus marker lama dan render ulang berdasarkan viewport
             visiblePintuMarkers.forEach(m => map.removeLayer(m));
             visiblePintuMarkers = [];
+            activePopupMarker = null;
 
             if (currentLayer === 'pintu') {
                 renderVisibleMarkers();
@@ -906,25 +920,37 @@
         }
 
         // ============================================================
-        // 8. RENDER MARKER BERDASARKAN VIEWPORT (KUNCI PERFORMANSI)
+        // 9. RENDER MARKER BERDASARKAN VIEWPORT (KUNCI PERFORMANSI + POPUP PERSISTEN)
         // ============================================================
         function renderVisibleMarkers() {
             // Hanya jalan jika layer pintu aktif
             if (currentLayer !== 'pintu') return;
             if (!map) return;
 
-            // Hapus marker yang tidak terlihat
-            visiblePintuMarkers.forEach(m => map.removeLayer(m));
-            visiblePintuMarkers = [];
+            // 🔍 Cek apakah ada popup yang sedang terbuka
+            const openPopup = map._popup;
+            let keepMarker = null;
+            if (openPopup && openPopup._source) {
+                keepMarker = openPopup._source;
+                activePopupMarker = keepMarker;
+            } else {
+                activePopupMarker = null;
+            }
+
+            // Hapus marker yang tidak terlihat, kecuali yang memiliki popup terbuka
+            visiblePintuMarkers.forEach(m => {
+                if (m !== keepMarker) {
+                    map.removeLayer(m);
+                }
+            });
+            // Update array hanya dengan marker yang tidak dihapus
+            visiblePintuMarkers = visiblePintuMarkers.filter(m => m === keepMarker);
 
             const bounds = map.getBounds();
             const zoom = map.getZoom();
 
             // Jika zoom terlalu jauh, jangan tampilkan marker (hemat resource)
-            if (zoom < 10) {
-                // Tampilkan pesan atau biarkan kosong
-                return;
-            }
+            if (zoom < 10) return;
 
             // Loop data yang sudah difilter
             filteredPintuData.forEach(item => {
@@ -1039,6 +1065,12 @@
                 // Tambahkan ke map dan simpan ke array visible
                 map.addLayer(marker);
                 visiblePintuMarkers.push(marker);
+
+                // Jika marker ini adalah yang memiliki popup terbuka, popup akan tetap terbuka
+                if (marker === keepMarker) {
+                    // Tidak perlu tindakan tambahan, karena marker tidak dihapus
+                    // Leaflet otomatis mempertahankan popup selama marker masih di peta
+                }
             });
 
             // Refresh icon di popup (dijalankan setelah popup terbuka nanti)
@@ -1052,7 +1084,7 @@
         }
 
         // ============================================================
-        // 9. UPDATE STATS PINTU
+        // 10. UPDATE STATS PINTU
         // ============================================================
         function updatePintuStats() {
             const total = filteredPintuData.length;
@@ -1075,7 +1107,7 @@
         }
 
         // ============================================================
-        // 10. LEGEND & HELPERS
+        // 11. LEGEND & HELPERS
         // ============================================================
         function updateLegend(layer) {
             const legend = document.getElementById('mapLegend');
@@ -1142,7 +1174,7 @@
         }
 
         // ============================================================
-        // 11. INIT
+        // 12. INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
