@@ -2,23 +2,26 @@
 <html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.5, user-scalable=yes">
     <title>Signal Validator - UPT PUSDA</title>
-    
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
     <style>
         /* ============================================================
-           SIGNAL VALIDATOR - STANDALONE STYLES
+           SIGNAL VALIDATOR - TEMA UPT PUSDA
            ============================================================ */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
-        
+
         :root {
             --bg-dark: #0d1b3e;
             --bg-card: rgba(15, 32, 77, 0.85);
-            --border: rgba(255, 255, 255, 0.1);
+            --border: rgba(255, 255, 255, 0.12);
             --success: #10b981;
             --warning: #f59e0b;
             --danger: #ef4444;
@@ -26,574 +29,555 @@
             --toska: #2dd4bf;
             --text: #f8fafc;
             --text-muted: rgba(255, 255, 255, 0.6);
+            --radius: 16px;
+            --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
-        
+
         body {
-            font-family: 'Plus Jakarta Sans', -apple-system, sans-serif;
-            background: linear-gradient(135deg, var(--bg-dark) 0%, #1e3a8a 100%);
+            font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%);
             color: var(--text);
             min-height: 100vh;
-            padding: 20px;
-            overflow-x: hidden;
+            padding: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
         }
-        
+
         .signal-container {
-            max-width: 800px;
-            margin: 0 auto;
+            max-width: 720px;
+            width: 100%;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 14px;
         }
-        
+
         /* Header */
         .signal-header {
-            text-align: center;
-            padding: 20px;
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
             backdrop-filter: blur(20px);
-        }
-        
-        .signal-header h1 {
-            font-size: 1.5rem;
-            margin-bottom: 8px;
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 14px 18px;
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .signal-header h1 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
             gap: 10px;
+            margin: 0;
         }
-        
-        .signal-header p {
-            font-size: 0.85rem;
-            color: var(--text-muted);
+
+        .signal-header h1 i {
+            color: var(--toska);
         }
-        
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            border: 1px solid transparent;
+        }
+
+        .status-badge.online {
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--success);
+            border-color: rgba(16, 185, 129, 0.3);
+        }
+
+        .status-badge.offline {
+            background: rgba(239, 68, 68, 0.15);
+            color: var(--danger);
+            border-color: rgba(239, 68, 68, 0.3);
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: currentColor;
+            animation: pulse-dot 1.5s infinite;
+        }
+
+        @keyframes pulse-dot {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.3); }
+        }
+
         /* Main Signal Display */
         .signal-main {
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 30px;
-            text-align: center;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 20px 16px;
+            text-align: center;
             position: relative;
             overflow: hidden;
         }
-        
+
         .signal-main::before {
             content: '';
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: radial-gradient(circle, rgba(59, 130, 246, 0.1) 0%, transparent 70%);
-            animation: pulse-bg 3s ease-in-out infinite;
+            inset: -50%;
+            background: radial-gradient(circle, rgba(59,130,246,0.08), transparent 70%);
+            animation: pulse-bg 4s ease-in-out infinite;
         }
-        
+
         @keyframes pulse-bg {
-            0%, 100% { opacity: 0.3; }
-            50% { opacity: 0.6; }
+            0%, 100% { opacity: 0.3; transform: scale(1); }
+            50% { opacity: 0.6; transform: scale(1.1); }
         }
-        
-        /* Signal Bars (Large) */
+
         .signal-bars-large {
             display: flex;
             align-items: flex-end;
             justify-content: center;
-            gap: 8px;
-            height: 120px;
-            margin-bottom: 20px;
+            gap: 6px;
+            height: 90px;
+            margin-bottom: 12px;
             position: relative;
             z-index: 1;
         }
-        
+
         .signal-bar-large {
-            width: 24px;
-            border-radius: 6px;
-            background: rgba(255, 255, 255, 0.1);
+            width: 20px;
+            border-radius: 4px;
+            background: rgba(255,255,255,0.08);
             transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
         }
-        
-        .signal-bar-large:nth-child(1) { height: 20%; }
-        .signal-bar-large:nth-child(2) { height: 40%; }
-        .signal-bar-large:nth-child(3) { height: 60%; }
-        .signal-bar-large:nth-child(4) { height: 80%; }
-        .signal-bar-large:nth-child(5) { height: 100%; }
-        
+
+        .signal-bar-large:nth-child(1) { height: 18%; }
+        .signal-bar-large:nth-child(2) { height: 36%; }
+        .signal-bar-large:nth-child(3) { height: 54%; }
+        .signal-bar-large:nth-child(4) { height: 72%; }
+        .signal-bar-large:nth-child(5) { height: 90%; }
+
         .signal-bar-large.active {
-            animation: bar-glow 1.5s ease-in-out infinite;
+            animation: bar-glow 1.8s ease-in-out infinite;
         }
-        
+
         @keyframes bar-glow {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.7; }
+            0%, 100% { opacity: 0.8; }
+            50% { opacity: 1; }
         }
-        
+
+        .bar-excellent, .bar-good { background: var(--success) !important; }
+        .bar-fair { background: var(--warning) !important; }
+        .bar-poor { background: var(--danger) !important; }
+        .bar-offline { background: #6b7280 !important; }
+
         .signal-quality-text {
-            font-size: 2rem;
+            font-size: 1.8rem;
             font-weight: 800;
-            margin-bottom: 8px;
             position: relative;
             z-index: 1;
+            margin-bottom: 2px;
         }
-        
-        .signal-quality-subtitle {
-            font-size: 0.9rem;
-            color: var(--text-muted);
-            position: relative;
-            z-index: 1;
-        }
-        
-        /* Quality Colors */
         .quality-excellent { color: var(--success); }
         .quality-good { color: var(--success); }
         .quality-fair { color: var(--warning); }
         .quality-poor { color: var(--danger); }
         .quality-offline { color: #6b7280; }
-        
-        .bar-excellent, .bar-good { background: var(--success) !important; }
-        .bar-fair { background: var(--warning) !important; }
-        .bar-poor { background: var(--danger) !important; }
-        .bar-offline { background: #6b7280 !important; }
-        
+
+        .signal-quality-subtitle {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            position: relative;
+            z-index: 1;
+        }
+
         /* Info Cards Grid */
         .info-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 10px;
         }
-        
+
         .info-card {
             background: var(--bg-card);
-            border-radius: 16px;
-            border: 1px solid var(--border);
-            padding: 20px;
             backdrop-filter: blur(20px);
-            transition: transform 0.3s ease;
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 14px 10px;
+            text-align: center;
         }
-        
-        .info-card:hover {
-            transform: translateY(-4px);
-        }
-        
+
         .info-card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 12px;
-            color: var(--toska);
-            font-size: 0.75rem;
+            justify-content: center;
+            gap: 6px;
+            font-size: 0.65rem;
             font-weight: 700;
+            color: var(--toska);
             text-transform: uppercase;
-            letter-spacing: 1px;
+            letter-spacing: 0.5px;
+            margin-bottom: 6px;
         }
-        
+
+        .info-card-header i {
+            font-size: 14px;
+        }
+
         .info-card-value {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
-            margin-bottom: 4px;
+            color: #fff;
         }
-        
+
         .info-card-label {
-            font-size: 0.75rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
+            margin-top: 2px;
         }
-        
-        /* Speed Test Section */
+
+        /* Speed Test */
         .speed-test-section {
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 25px;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 16px;
         }
-        
+
         .speed-test-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            margin-bottom: 14px;
+            flex-wrap: wrap;
+            gap: 8px;
         }
-        
+
         .speed-test-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        
+
+        .speed-test-title i {
+            color: var(--toska);
+        }
+
         .speed-test-btn {
-            padding: 10px 20px;
+            padding: 8px 18px;
             border-radius: 10px;
             border: none;
             background: linear-gradient(135deg, var(--info), #1e40af);
             color: white;
             font-weight: 700;
+            font-size: 0.8rem;
             cursor: pointer;
-            transition: all 0.3s ease;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
+            transition: all 0.2s ease;
+            min-height: 40px;
         }
-        
+
         .speed-test-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(59, 130, 246, 0.4);
+            box-shadow: 0 6px 16px rgba(59,130,246,0.4);
         }
-        
         .speed-test-btn:disabled {
             opacity: 0.5;
             cursor: not-allowed;
-            transform: none;
+            transform: none !important;
         }
-        
+
+        .progress-container {
+            display: none;
+            margin-bottom: 12px;
+        }
+        .progress-container.active { display: block; }
+
+        .progress-bar {
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, var(--info), var(--toska));
+            width: 0%;
+            transition: width 0.3s ease;
+            border-radius: 4px;
+        }
+        .progress-text {
+            font-size: 0.7rem;
+            color: var(--text-muted);
+            text-align: center;
+            margin-top: 6px;
+        }
+
         .speed-results {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 20px;
+            gap: 10px;
         }
-        
+
         .speed-result-item {
+            background: rgba(0,0,0,0.25);
+            border-radius: 10px;
+            padding: 12px 8px;
             text-align: center;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border-radius: 12px;
         }
-        
         .speed-result-value {
-            font-size: 1.5rem;
+            font-size: 1.3rem;
             font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
             color: var(--toska);
         }
-        
         .speed-result-label {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: var(--text-muted);
             text-transform: uppercase;
             margin-top: 4px;
         }
-        
-        /* Progress Bar */
-        .progress-container {
-            margin-top: 20px;
-            display: none;
-        }
-        
-        .progress-container.active {
-            display: block;
-        }
-        
-        .progress-bar {
-            height: 8px;
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
-            overflow: hidden;
-            margin-bottom: 10px;
-        }
-        
-        .progress-fill {
-            height: 100%;
-            background: linear-gradient(90deg, var(--info), var(--toska));
-            border-radius: 4px;
-            width: 0%;
-            transition: width 0.3s ease;
-        }
-        
-        .progress-text {
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            text-align: center;
-        }
-        
-        /* Recommendation Panel */
+
+        /* Recommendations */
         .recommendation-panel {
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 25px;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 16px;
         }
-        
+
         .recommendation-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
-            margin-bottom: 15px;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+            margin-bottom: 12px;
         }
-        
-        .recommendation-list {
-            list-style: none;
+        .recommendation-title i {
+            color: var(--toska);
         }
-        
+
         .recommendation-item {
             display: flex;
             align-items: flex-start;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.2);
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.2);
             border-radius: 10px;
-            margin-bottom: 10px;
-            font-size: 0.85rem;
-            line-height: 1.5;
+            margin-bottom: 8px;
+            font-size: 0.8rem;
+            line-height: 1.4;
         }
-        
         .recommendation-icon {
             flex-shrink: 0;
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border-radius: 6px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-size: 14px;
+            background: rgba(59,130,246,0.15);
         }
-        
-        .recommendation-icon.success { background: rgba(16, 185, 129, 0.2); }
-        .recommendation-icon.warning { background: rgba(245, 158, 11, 0.2); }
-        .recommendation-icon.danger { background: rgba(239, 68, 68, 0.2); }
-        .recommendation-icon.info { background: rgba(59, 130, 246, 0.2); }
-        
-        /* History Log */
+        .recommendation-icon.success { background: rgba(16,185,129,0.2); }
+        .recommendation-icon.warning { background: rgba(245,158,11,0.2); }
+        .recommendation-icon.danger { background: rgba(239,68,68,0.2); }
+
+        /* History */
         .history-section {
             background: var(--bg-card);
-            border-radius: 20px;
-            border: 1px solid var(--border);
-            padding: 25px;
             backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            padding: 18px 16px;
         }
-        
+
         .history-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 15px;
+            margin-bottom: 12px;
         }
-        
+
         .history-title {
-            font-size: 1.1rem;
+            font-size: 0.95rem;
             font-weight: 700;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
-        
+        .history-title i { color: var(--toska); }
+
         .history-clear-btn {
-            padding: 6px 12px;
+            padding: 4px 12px;
             border-radius: 8px;
             border: 1px solid var(--border);
             background: transparent;
             color: var(--text-muted);
-            font-size: 0.75rem;
+            font-size: 0.7rem;
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: 0.2s;
+            min-height: 32px;
         }
-        
         .history-clear-btn:hover {
-            background: rgba(239, 68, 68, 0.1);
+            background: rgba(239,68,68,0.15);
             color: var(--danger);
             border-color: var(--danger);
         }
-        
+
         .history-list {
-            max-height: 300px;
+            max-height: 200px;
             overflow-y: auto;
             display: flex;
             flex-direction: column;
-            gap: 8px;
+            gap: 6px;
         }
-        
         .history-list::-webkit-scrollbar {
-            width: 6px;
+            width: 4px;
         }
-        
-        .history-list::-webkit-scrollbar-track {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 3px;
-        }
-        
         .history-list::-webkit-scrollbar-thumb {
             background: var(--info);
-            border-radius: 3px;
+            border-radius: 4px;
         }
-        
+
         .history-item {
             display: flex;
             align-items: center;
-            gap: 12px;
-            padding: 12px;
-            background: rgba(0, 0, 0, 0.2);
+            gap: 10px;
+            padding: 10px 12px;
+            background: rgba(0,0,0,0.2);
             border-radius: 10px;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             animation: slide-in 0.3s ease-out;
         }
-        
+
         @keyframes slide-in {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-12px); }
+            to { opacity: 1; transform: translateX(0); }
         }
-        
+
         .history-time {
             font-family: 'JetBrains Mono', monospace;
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             color: var(--text-muted);
-            min-width: 60px;
+            min-width: 50px;
         }
-        
         .history-quality {
-            padding: 4px 10px;
+            padding: 2px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             font-weight: 700;
             text-transform: uppercase;
         }
-        
-        .history-quality.excellent, .history-quality.good {
-            background: rgba(16, 185, 129, 0.2);
+        .history-quality.excellent,
+        .history-quality.good {
+            background: rgba(16,185,129,0.2);
             color: var(--success);
         }
-        
         .history-quality.fair {
-            background: rgba(245, 158, 11, 0.2);
+            background: rgba(245,158,11,0.2);
             color: var(--warning);
         }
-        
         .history-quality.poor {
-            background: rgba(239, 68, 68, 0.2);
+            background: rgba(239,68,68,0.2);
             color: var(--danger);
         }
-        
         .history-details {
             flex: 1;
             color: var(--text-muted);
+            font-size: 0.7rem;
         }
-        
         .history-empty {
             text-align: center;
-            padding: 30px;
+            padding: 20px;
             color: var(--text-muted);
-            font-size: 0.85rem;
+            font-size: 0.8rem;
         }
-        
+
         /* Action Buttons */
         .action-buttons {
-            display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
         }
-        
+
         .action-btn {
-            flex: 1;
-            min-width: 150px;
-            padding: 14px 20px;
-            border-radius: 12px;
+            padding: 10px 12px;
+            border-radius: 10px;
             border: none;
             font-weight: 700;
+            font-size: 0.75rem;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
-            transition: all 0.3s ease;
-        }
-        
-        .action-btn.primary {
-            background: linear-gradient(135deg, var(--info), #1e40af);
-            color: white;
-        }
-        
-        .action-btn.success {
-            background: linear-gradient(135deg, var(--success), #059669);
-            color: white;
-        }
-        
-        .action-btn.warning {
-            background: linear-gradient(135deg, var(--warning), #d97706);
-            color: white;
-        }
-        
-        .action-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
-        }
-        
-        /* Status Badge */
-        .status-badge {
-            display: inline-flex;
-            align-items: center;
             gap: 6px;
-            padding: 6px 12px;
-            border-radius: 20px;
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
+            transition: all 0.2s ease;
+            min-height: 44px;
+            background: var(--bg-card);
+            border: 1px solid var(--border);
+            color: white;
         }
-        
-        .status-badge.online {
-            background: rgba(16, 185, 129, 0.2);
-            color: var(--success);
-        }
-        
-        .status-badge.offline {
-            background: rgba(239, 68, 68, 0.2);
-            color: var(--danger);
-        }
-        
-        .status-dot {
-            width: 8px;
-            height: 8px;
-            border-radius: 50%;
-            animation: pulse-dot 1.5s infinite;
-        }
-        
-        .status-badge.online .status-dot {
-            background: var(--success);
-        }
-        
-        .status-badge.offline .status-dot {
-            background: var(--danger);
-        }
-        
-        @keyframes pulse-dot {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
-        }
-        
+        .action-btn:hover { transform: translateY(-2px); }
+        .action-btn.primary { background: linear-gradient(135deg, var(--info), #1e40af); border: none; }
+        .action-btn.success { background: linear-gradient(135deg, var(--success), #059669); border: none; }
+        .action-btn.warning { background: linear-gradient(135deg, var(--warning), #d97706); border: none; }
+
         /* Responsive */
-        @media (max-width: 768px) {
-            .signal-container {
-                padding: 0 10px;
-            }
-            
+        @media (max-width: 600px) {
+            body { padding: 8px; }
+            .signal-container { gap: 10px; }
+
             .info-grid {
                 grid-template-columns: repeat(2, 1fr);
+                gap: 8px;
             }
-            
-            .speed-results {
-                grid-template-columns: 1fr;
-            }
-            
+            .info-card { padding: 12px 8px; }
+            .info-card-value { font-size: 1.1rem; }
+
+            .speed-results { grid-template-columns: 1fr 1fr; }
+            .speed-result-item:last-child { grid-column: span 2; }
+
             .action-buttons {
-                flex-direction: column;
+                grid-template-columns: 1fr;
+                gap: 8px;
             }
-            
-            .signal-quality-text {
-                font-size: 1.5rem;
-            }
+
+            .signal-header h1 { font-size: 0.95rem; }
+            .signal-quality-text { font-size: 1.5rem; }
+            .signal-bars-large { height: 72px; gap: 4px; }
+            .signal-bar-large { width: 16px; }
+
+            .speed-test-btn { font-size: 0.7rem; padding: 6px 14px; }
+        }
+
+        @media (max-width: 400px) {
+            .info-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+            .speed-results { grid-template-columns: 1fr; }
+            .speed-result-item:last-child { grid-column: auto; }
         }
     </style>
 </head>
@@ -602,16 +586,16 @@
         <!-- Header -->
         <div class="signal-header">
             <h1>
-                📶 Signal Validator
-                <span class="status-badge online" id="statusBadge">
-                    <span class="status-dot"></span>
-                    <span id="statusText">Online</span>
-                </span>
+                <i data-lucide="signal" size="18"></i>
+                Signal Validator
             </h1>
-            <p>Validasi kualitas koneksi untuk presensi yang reliable</p>
+            <span class="status-badge online" id="statusBadge">
+                <span class="status-dot"></span>
+                <span id="statusText">Online</span>
+            </span>
         </div>
-        
-        <!-- Main Signal Display -->
+
+        <!-- Main Signal -->
         <div class="signal-main">
             <div class="signal-bars-large" id="signalBars">
                 <div class="signal-bar-large"></div>
@@ -623,158 +607,146 @@
             <div class="signal-quality-text" id="qualityText">Menganalisis...</div>
             <div class="signal-quality-subtitle" id="qualitySubtitle">Mengukur kualitas koneksi Anda</div>
         </div>
-        
+
         <!-- Info Cards -->
         <div class="info-grid">
             <div class="info-card">
-                <div class="info-card-header">
-                    📡 Tipe Koneksi
-                </div>
+                <div class="info-card-header"><i data-lucide="wifi" size="14"></i> Tipe</div>
                 <div class="info-card-value" id="connectionType">--</div>
-                <div class="info-card-label">Network Type</div>
+                <div class="info-card-label">Koneksi</div>
             </div>
-            
             <div class="info-card">
-                <div class="info-card-header">
-                    ⚡ Downlink
-                </div>
+                <div class="info-card-header"><i data-lucide="arrow-down" size="14"></i> Downlink</div>
                 <div class="info-card-value" id="downlink">--</div>
-                <div class="info-card-label">Mbps (Download)</div>
+                <div class="info-card-label">Mbps</div>
             </div>
-            
             <div class="info-card">
-                <div class="info-card-header">
-                    ⏱️ Latency
-                </div>
+                <div class="info-card-header"><i data-lucide="clock" size="14"></i> Latensi</div>
                 <div class="info-card-value" id="latency">--</div>
-                <div class="info-card-label">ms (Ping)</div>
+                <div class="info-card-label">ms</div>
             </div>
-            
             <div class="info-card">
-                <div class="info-card-header">
-                    🔄 RTT
-                </div>
+                <div class="info-card-header"><i data-lucide="repeat" size="14"></i> RTT</div>
                 <div class="info-card-value" id="rtt">--</div>
-                <div class="info-card-label">ms (Round Trip)</div>
+                <div class="info-card-label">ms</div>
             </div>
         </div>
-        
+
         <!-- Speed Test -->
         <div class="speed-test-section">
             <div class="speed-test-header">
                 <div class="speed-test-title">
-                    🚀 Speed Test
+                    <i data-lucide="gauge" size="18"></i>
+                    Speed Test
                 </div>
                 <button class="speed-test-btn" id="speedTestBtn" onclick="runSpeedTest()">
-                    ▶️ Mulai Test
+                    <i data-lucide="play" size="14"></i>
+                    Mulai
                 </button>
             </div>
-            
+
             <div class="progress-container" id="progressContainer">
-                <div class="progress-bar">
-                    <div class="progress-fill" id="progressFill"></div>
-                </div>
+                <div class="progress-bar"><div class="progress-fill" id="progressFill"></div></div>
                 <div class="progress-text" id="progressText">Memulai test...</div>
             </div>
-            
+
             <div class="speed-results">
                 <div class="speed-result-item">
                     <div class="speed-result-value" id="downloadSpeed">--</div>
-                    <div class="speed-result-label">Download (Mbps)</div>
+                    <div class="speed-result-label">Download</div>
                 </div>
                 <div class="speed-result-item">
                     <div class="speed-result-value" id="uploadSpeed">--</div>
-                    <div class="speed-result-label">Upload (Mbps)</div>
+                    <div class="speed-result-label">Upload</div>
                 </div>
                 <div class="speed-result-item">
                     <div class="speed-result-value" id="pingResult">--</div>
-                    <div class="speed-result-label">Ping (ms)</div>
+                    <div class="speed-result-label">Ping</div>
                 </div>
             </div>
         </div>
-        
+
         <!-- Recommendations -->
         <div class="recommendation-panel">
             <div class="recommendation-title">
-                💡 Rekomendasi
+                <i data-lucide="lightbulb" size="18"></i>
+                Rekomendasi
             </div>
-            <ul class="recommendation-list" id="recommendationList">
-                <li class="recommendation-item">
-                    <div class="recommendation-icon info">ℹ️</div>
-                    <span>Jalankan test untuk mendapatkan rekomendasi presensi</span>
-                </li>
-            </ul>
+            <div id="recommendationList"></div>
         </div>
-        
+
         <!-- History -->
         <div class="history-section">
             <div class="history-header">
                 <div class="history-title">
-                    📊 Riwayat Test
+                    <i data-lucide="clock" size="18"></i>
+                    Riwayat Test
                 </div>
                 <button class="history-clear-btn" onclick="clearHistory()">
-                    🗑️ Bersihkan
+                    <i data-lucide="trash-2" size="14"></i>
                 </button>
             </div>
             <div class="history-list" id="historyList">
-                <div class="history-empty">Belum ada riwayat test</div>
+                <div class="history-empty">Belum ada riwayat</div>
             </div>
         </div>
-        
-        <!-- Action Buttons -->
+
+        <!-- Actions -->
         <div class="action-buttons">
             <button class="action-btn primary" onclick="runFullTest()">
-                🔄 Test Lengkap
+                <i data-lucide="refresh-cw" size="14"></i> Test Ulang
             </button>
             <button class="action-btn success" onclick="exportReport()">
-                📄 Export Laporan
+                <i data-lucide="download" size="14"></i> Export
             </button>
             <button class="action-btn warning" onclick="sendToParent()">
-                📤 Kirim ke Dashboard
+                <i data-lucide="send" size="14"></i> Kirim
             </button>
         </div>
     </div>
 
     <script>
         // ============================================================
-        // SIGNAL VALIDATOR LOGIC
+        // SIGNAL VALIDATOR LOGIC (dengan lucide)
         // ============================================================
-        
-        const API_URL = 'https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec';
-        
-        let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
-        let testHistory = JSON.parse(localStorage.getItem('signal_test_history') || '[]');
-        
-        // Initialize
+
+        // Inisialisasi Lucide setelah DOM
         document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            // Jalankan inisialisasi lainnya
             updateNetworkInfo();
             renderHistory();
-            
-            // Listen for connection changes
-            if (connection) {
-                connection.addEventListener('change', updateNetworkInfo);
+            if (navigator.connection) {
+                navigator.connection.addEventListener('change', updateNetworkInfo);
             }
-            
-            // Listen for online/offline events
             window.addEventListener('online', () => {
                 updateStatusBadge(true);
                 updateNetworkInfo();
             });
-            
             window.addEventListener('offline', () => {
                 updateStatusBadge(false);
                 updateNetworkInfo();
             });
-            
-            // Auto-run test on load
-            setTimeout(runFullTest, 1000);
+            setTimeout(runFullTest, 1200);
         });
-        
-        // Update status badge
+
+        // === Variabel & konstanta ===
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec';
+        let connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+        let testHistory = JSON.parse(localStorage.getItem('signal_test_history') || '[]');
+
+        // === Fungsi utilitas ===
+        function sanitizeHTML(s) {
+            if (!s) return '';
+            const d = document.createElement('div');
+            d.textContent = s;
+            return d.innerHTML;
+        }
+
+        // === Update status badge ===
         function updateStatusBadge(isOnline) {
             const badge = document.getElementById('statusBadge');
             const text = document.getElementById('statusText');
-            
             if (isOnline) {
                 badge.className = 'status-badge online';
                 text.textContent = 'Online';
@@ -783,12 +755,11 @@
                 text.textContent = 'Offline';
             }
         }
-        
-        // Update network information
+
+        // === Update network info ===
         async function updateNetworkInfo() {
             const isOnline = navigator.onLine;
             updateStatusBadge(isOnline);
-            
             if (!isOnline) {
                 updateQualityDisplay('offline', 0);
                 document.getElementById('connectionType').textContent = 'Offline';
@@ -797,395 +768,238 @@
                 document.getElementById('rtt').textContent = '--';
                 return;
             }
-            
-            // Get connection info from Network Information API
-            let type = 'Unknown';
-            let downlink = 0;
-            let rtt = 0;
-            
+            let type = 'Unknown', downlink = 0, rtt = 0;
             if (connection) {
                 type = connection.effectiveType || 'unknown';
                 downlink = connection.downlink || 0;
                 rtt = connection.rtt || 0;
             }
-            
-            // Measure actual latency
             const latency = await measureLatency();
-            
-            // Update UI
             document.getElementById('connectionType').textContent = type.toUpperCase();
             document.getElementById('downlink').textContent = downlink.toFixed(1);
             document.getElementById('latency').textContent = latency;
             document.getElementById('rtt').textContent = rtt;
-            
-            // Calculate quality
+
             const quality = calculateQuality({ type, downlink, rtt, latency, online: true });
             const bars = calculateBars(quality);
-            
             updateQualityDisplay(quality, bars);
             updateRecommendations(quality, { type, downlink, latency });
         }
-        
-        // Measure latency (ping test)
+
+        // === Measure Latency ===
         async function measureLatency() {
             const samples = [];
-            const testCount = 5;
-            
-            for (let i = 0; i < testCount; i++) {
+            for (let i = 0; i < 5; i++) {
                 try {
                     const start = performance.now();
-                    await fetch(API_URL + '?action=ping&t=' + Date.now(), {
-                        method: 'HEAD',
-                        cache: 'no-cache',
-                        mode: 'no-cors'
-                    });
-                    const end = performance.now();
-                    samples.push(end - start);
-                } catch (error) {
-                    samples.push(9999);
-                }
+                    await fetch(API_URL + '?action=ping&t=' + Date.now(), { method: 'HEAD', cache: 'no-cache', mode: 'no-cors' });
+                    samples.push(performance.now() - start);
+                } catch { samples.push(9999); }
             }
-            
-            // Return average, exclude outliers
-            samples.sort((a, b) => a - b);
-            const trimmed = samples.slice(1, -1); // Remove min and max
-            const avg = trimmed.reduce((a, b) => a + b, 0) / trimmed.length;
-            
-            return Math.round(avg);
+            samples.sort((a,b) => a - b);
+            const trimmed = samples.slice(1, -1);
+            return Math.round(trimmed.reduce((a,b) => a + b, 0) / trimmed.length);
         }
-        
-        // Calculate quality score
+
+        // === Calculate quality ===
         function calculateQuality(info) {
             if (!info.online) return 'offline';
-            
             let score = 0;
-            
-            // Latency score (0-3)
             if (info.latency < 100) score += 3;
             else if (info.latency < 300) score += 2;
             else if (info.latency < 1000) score += 1;
-            
-            // Downlink score (0-3)
             if (info.downlink > 10) score += 3;
             else if (info.downlink > 5) score += 2;
             else if (info.downlink > 1) score += 1;
-            
-            // Connection type score (0-3)
             if (info.type === '4g' || info.type === 'wifi') score += 3;
             else if (info.type === '3g') score += 2;
             else if (info.type === '2g') score += 1;
-            
-            // RTT score (0-3)
             if (info.rtt < 100) score += 3;
             else if (info.rtt < 300) score += 2;
             else if (info.rtt < 1000) score += 1;
-            
-            // Determine quality
             if (score >= 10) return 'excellent';
             if (score >= 7) return 'good';
             if (score >= 4) return 'fair';
             return 'poor';
         }
-        
-        // Calculate bars (1-5)
-        function calculateBars(quality) {
-            const map = {
-                'excellent': 5,
-                'good': 4,
-                'fair': 3,
-                'poor': 2,
-                'offline': 0
-            };
-            return map[quality] || 1;
+
+        function calculateBars(q) {
+            const map = { excellent:5, good:4, fair:3, poor:2, offline:0 };
+            return map[q] || 1;
         }
-        
-        // Update quality display
+
+        // === Update quality display ===
         function updateQualityDisplay(quality, bars) {
             const barsContainer = document.getElementById('signalBars');
             const barElements = barsContainer.querySelectorAll('.signal-bar-large');
-            const qualityText = document.getElementById('qualityText');
-            const qualitySubtitle = document.getElementById('qualitySubtitle');
-            
-            // Reset bars
             barElements.forEach(bar => {
                 bar.className = 'signal-bar-large';
+                bar.classList.remove('active', 'bar-excellent', 'bar-good', 'bar-fair', 'bar-poor', 'bar-offline');
             });
-            
-            // Activate bars based on quality
             const colorClass = `bar-${quality}`;
             for (let i = 0; i < bars; i++) {
                 barElements[i].classList.add('active', colorClass);
             }
-            
-            // Update text
-            const qualityLabels = {
-                'excellent': { text: 'Sangat Baik', subtitle: 'Koneksi optimal untuk presensi', color: 'quality-excellent' },
-                'good': { text: 'Baik', subtitle: 'Koneksi stabil untuk presensi', color: 'quality-good' },
-                'fair': { text: 'Cukup', subtitle: 'Koneksi mungkin lambat, gunakan dengan hati-hati', color: 'quality-fair' },
-                'poor': { text: 'Buruk', subtitle: 'Koneksi lemah, presensi mungkin gagal', color: 'quality-poor' },
-                'offline': { text: 'Offline', subtitle: 'Tidak ada koneksi internet', color: 'quality-offline' }
+            const labels = {
+                excellent: { text: 'Sangat Baik', subtitle: 'Koneksi optimal', color: 'quality-excellent' },
+                good: { text: 'Baik', subtitle: 'Koneksi stabil', color: 'quality-good' },
+                fair: { text: 'Cukup', subtitle: 'Koneksi mungkin lambat', color: 'quality-fair' },
+                poor: { text: 'Buruk', subtitle: 'Koneksi lemah', color: 'quality-poor' },
+                offline: { text: 'Offline', subtitle: 'Tidak ada koneksi', color: 'quality-offline' }
             };
-            
-            const label = qualityLabels[quality];
-            qualityText.textContent = label.text;
-            qualityText.className = `signal-quality-text ${label.color}`;
-            qualitySubtitle.textContent = label.subtitle;
+            const label = labels[quality];
+            const el = document.getElementById('qualityText');
+            el.textContent = label.text;
+            el.className = `signal-quality-text ${label.color}`;
+            document.getElementById('qualitySubtitle').textContent = label.subtitle;
         }
-        
-        // Update recommendations
+
+        // === Update recommendations ===
         function updateRecommendations(quality, info) {
             const list = document.getElementById('recommendationList');
-            const recommendations = [];
-            
+            const recs = [];
             if (quality === 'excellent' || quality === 'good') {
-                recommendations.push({
-                    icon: '✅',
-                    type: 'success',
-                    text: 'Koneksi baik! Anda dapat melakukan presensi dengan lancar.'
-                });
-                recommendations.push({
-                    icon: '📸',
-                    type: 'info',
-                    text: 'Upload foto dan GPS akan berjalan optimal.'
-                });
+                recs.push({ icon: '✅', type: 'success', text: 'Koneksi baik! Presensi lancar.' });
+                recs.push({ icon: '📸', type: 'info', text: 'Upload foto & GPS optimal.' });
             } else if (quality === 'fair') {
-                recommendations.push({
-                    icon: '⚠️',
-                    type: 'warning',
-                    text: 'Koneksi cukup lambat. Presensi mungkin memerlukan waktu lebih lama.'
-                });
-                recommendations.push({
-                    icon: '🔄',
-                    type: 'info',
-                    text: 'Sistem akan otomatis retry jika terjadi kegagalan.'
-                });
-                recommendations.push({
-                    icon: '📶',
-                    type: 'info',
-                    text: 'Pertimbangkan untuk pindah ke area dengan sinyal lebih baik.'
-                });
+                recs.push({ icon: '⚠️', type: 'warning', text: 'Koneksi cukup lambat. Presensi mungkin butuh waktu lebih lama.' });
+                recs.push({ icon: '🔄', type: 'info', text: 'Sistem akan retry otomatis jika gagal.' });
+                recs.push({ icon: '📶', type: 'info', text: 'Pindah ke area dengan sinyal lebih baik.' });
             } else if (quality === 'poor') {
-                recommendations.push({
-                    icon: '❌',
-                    type: 'danger',
-                    text: 'Koneksi sangat lemah! Presensi berisiko gagal.'
-                });
-                recommendations.push({
-                    icon: '📴',
-                    type: 'warning',
-                    text: 'Data akan di-queue dan sync otomatis saat koneksi membaik.'
-                });
-                recommendations.push({
-                    icon: '📍',
-                    type: 'info',
-                    text: 'Cari lokasi dengan sinyal lebih kuat atau gunakan WiFi.'
-                });
-            } else if (quality === 'offline') {
-                recommendations.push({
-                    icon: '📴',
-                    type: 'danger',
-                    text: 'Tidak ada koneksi internet. Presensi akan di-queue.'
-                });
-                recommendations.push({
-                    icon: '⏰',
-                    type: 'warning',
-                    text: 'Data akan otomatis sync saat koneksi kembali.'
-                });
+                recs.push({ icon: '❌', type: 'danger', text: 'Koneksi sangat lemah! Presensi berisiko gagal.' });
+                recs.push({ icon: '📴', type: 'warning', text: 'Data akan di-queue dan sync otomatis.' });
+                recs.push({ icon: '📍', type: 'info', text: 'Cari lokasi dengan sinyal lebih kuat atau gunakan WiFi.' });
+            } else {
+                recs.push({ icon: '📴', type: 'danger', text: 'Tidak ada koneksi. Presensi akan di-queue.' });
+                recs.push({ icon: '⏰', type: 'warning', text: 'Data akan sync saat koneksi kembali.' });
             }
-            
-            // Add specific recommendations based on info
             if (info.latency > 500 && info.latency < 9999) {
-                recommendations.push({
-                    icon: '⏱️',
-                    type: 'warning',
-                    text: `Latency tinggi (${info.latency}ms). Server merespon lambat.`
-                });
+                recs.push({ icon: '⏱️', type: 'warning', text: `Latensi tinggi (${info.latency}ms). Server lambat.` });
             }
-            
             if (info.downlink < 1 && info.downlink > 0) {
-                recommendations.push({
-                    icon: '🐌',
-                    type: 'warning',
-                    text: `Kecepatan download sangat rendah (${info.downlink.toFixed(1)} Mbps).`
-                });
+                recs.push({ icon: '🐌', type: 'warning', text: `Download sangat rendah (${info.downlink.toFixed(1)} Mbps).` });
             }
-            
-            // Render recommendations
-            list.innerHTML = recommendations.map(rec => `
-                <li class="recommendation-item">
-                    <div class="recommendation-icon ${rec.type}">${rec.icon}</div>
-                    <span>${rec.text}</span>
-                </li>
+            list.innerHTML = recs.map(r => `
+                <div class="recommendation-item">
+                    <div class="recommendation-icon ${r.type}">${r.icon}</div>
+                    <span>${r.text}</span>
+                </div>
             `).join('');
         }
-        
-        // Run speed test
+
+        // === Speed Test ===
         async function runSpeedTest() {
             const btn = document.getElementById('speedTestBtn');
             const progressContainer = document.getElementById('progressContainer');
             const progressFill = document.getElementById('progressFill');
             const progressText = document.getElementById('progressText');
-            
+
             btn.disabled = true;
-            btn.innerHTML = '⏳ Testing...';
+            btn.innerHTML = '<i data-lucide="loader" size="14" class="spin"></i> Testing...';
+            lucide.createIcons();
             progressContainer.classList.add('active');
-            
+
             try {
-                // Test 1: Ping
                 progressText.textContent = 'Mengukur ping...';
                 progressFill.style.width = '20%';
                 const ping = await measureLatency();
                 document.getElementById('pingResult').textContent = ping;
-                
-                // Test 2: Download (simulate with file download)
+
                 progressText.textContent = 'Mengukur download...';
                 progressFill.style.width = '50%';
                 const download = await measureDownloadSpeed();
                 document.getElementById('downloadSpeed').textContent = download.toFixed(2);
-                
-                // Test 3: Upload (simulate)
+
                 progressText.textContent = 'Mengukur upload...';
                 progressFill.style.width = '80%';
                 const upload = await measureUploadSpeed();
                 document.getElementById('uploadSpeed').textContent = upload.toFixed(2);
-                
+
                 progressFill.style.width = '100%';
-                progressText.textContent = 'Test selesai!';
-                
-                // Save to history
-                addToHistory({
-                    timestamp: new Date().toISOString(),
-                    ping: ping,
-                    download: download,
-                    upload: upload,
-                    quality: calculateQuality({
-                        online: true,
-                        latency: ping,
-                        downlink: download,
-                        rtt: ping,
-                        type: connection?.effectiveType || 'unknown'
-                    })
+                progressText.textContent = 'Selesai!';
+
+                const quality = calculateQuality({
+                    online: true,
+                    latency: ping,
+                    downlink: download,
+                    rtt: ping,
+                    type: connection?.effectiveType || 'unknown'
                 });
-                
+                addToHistory({ timestamp: new Date().toISOString(), ping, download, upload, quality });
+
                 setTimeout(() => {
                     progressContainer.classList.remove('active');
                     progressFill.style.width = '0%';
                 }, 2000);
-                
-            } catch (error) {
-                progressText.textContent = 'Test gagal: ' + error.message;
+
+            } catch (e) {
+                progressText.textContent = 'Gagal: ' + e.message;
                 progressFill.style.width = '0%';
             } finally {
                 btn.disabled = false;
-                btn.innerHTML = '▶️ Mulai Test';
+                btn.innerHTML = '<i data-lucide="play" size="14"></i> Mulai';
+                lucide.createIcons();
             }
         }
-        
-        // Measure download speed
+
+        // Simulasi download/upload (sederhana)
         async function measureDownloadSpeed() {
-            const testUrl = API_URL + '?action=downloadTest&t=' + Date.now();
-            const startTime = performance.now();
-            
+            const start = performance.now();
             try {
-                const response = await fetch(testUrl, { 
-                    cache: 'no-cache',
-                    mode: 'no-cors'
-                });
-                
-                // Simulate download (karena no-cors tidak bisa read body)
-                // Gunakan estimasi berdasarkan latency
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000; // seconds
-                
-                // Estimate: assume 1MB test file
-                const fileSizeMbps = 8; // 8 Mbps baseline
-                const estimatedSpeed = Math.max(0.1, fileSizeMbps / Math.max(duration, 0.1));
-                
-                return Math.min(estimatedSpeed, 100); // Cap at 100 Mbps
-            } catch (error) {
-                return 0;
-            }
+                await fetch(API_URL + '?action=downloadTest&t=' + Date.now(), { cache: 'no-cache', mode: 'no-cors' });
+                const duration = (performance.now() - start) / 1000;
+                return Math.min(100, 8 / Math.max(duration, 0.1));
+            } catch { return 0; }
         }
-        
-        // Measure upload speed (simulate)
         async function measureUploadSpeed() {
-            // Simulasi upload dengan POST request kecil
-            const testData = JSON.stringify({ test: 'x'.repeat(10000) }); // 10KB
-            const startTime = performance.now();
-            
+            const start = performance.now();
             try {
-                await fetch(API_URL + '?action=uploadTest', {
-                    method: 'POST',
-                    body: testData,
-                    mode: 'no-cors'
-                });
-                
-                const endTime = performance.now();
-                const duration = (endTime - startTime) / 1000;
-                
-                // Estimate upload speed
-                const sizeMB = 0.01; // 10KB
-                const speedMbps = (sizeMB * 8) / duration;
-                
-                return Math.min(speedMbps, 50); // Cap at 50 Mbps
-            } catch (error) {
-                return 0;
-            }
+                await fetch(API_URL + '?action=uploadTest', { method: 'POST', body: JSON.stringify({test:'x'.repeat(10000)}), mode: 'no-cors' });
+                const duration = (performance.now() - start) / 1000;
+                return Math.min(50, (0.01 * 8) / Math.max(duration, 0.1));
+            } catch { return 0; }
         }
-        
-        // Run full test
-        async function runFullTest() {
-            await updateNetworkInfo();
-            await runSpeedTest();
+
+        function runFullTest() {
+            updateNetworkInfo();
+            runSpeedTest();
         }
-        
-        // Add to history
+
+        // === History ===
         function addToHistory(test) {
             testHistory.unshift(test);
-            if (testHistory.length > 20) testHistory.pop(); // Keep last 20
-            
+            if (testHistory.length > 20) testHistory.pop();
             localStorage.setItem('signal_test_history', JSON.stringify(testHistory));
             renderHistory();
         }
-        
-        // Render history
         function renderHistory() {
             const list = document.getElementById('historyList');
-            
             if (testHistory.length === 0) {
-                list.innerHTML = '<div class="history-empty">Belum ada riwayat test</div>';
+                list.innerHTML = '<div class="history-empty">Belum ada riwayat</div>';
                 return;
             }
-            
             list.innerHTML = testHistory.map(item => {
-                const time = new Date(item.timestamp).toLocaleTimeString('id-ID', {
-                    hour: '2-digit',
-                    minute: '2-digit'
-                });
-                
+                const time = new Date(item.timestamp).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
                 return `
                     <div class="history-item">
                         <span class="history-time">${time}</span>
                         <span class="history-quality ${item.quality}">${item.quality}</span>
                         <span class="history-details">
-                            📶 ${item.download?.toFixed(1) || '--'} Mbps | 
-                            ⏱️ ${item.ping || '--'}ms
+                            📶 ${item.download?.toFixed(1) || '--'} Mbps | ⏱️ ${item.ping || '--'}ms
                         </span>
                     </div>
                 `;
             }).join('');
         }
-        
-        // Clear history
         function clearHistory() {
-            if (confirm('Hapus semua riwayat test?')) {
+            if (confirm('Hapus semua riwayat?')) {
                 testHistory = [];
                 localStorage.removeItem('signal_test_history');
                 renderHistory();
             }
         }
-        
-        // Export report
+
+        // === Export & Send ===
         function exportReport() {
             const report = {
                 generated: new Date().toISOString(),
@@ -1198,7 +1012,6 @@
                 },
                 history: testHistory
             };
-            
             const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
@@ -1207,31 +1020,33 @@
             a.click();
             URL.revokeObjectURL(url);
         }
-        
-        // Send data to parent window
+
         function sendToParent() {
             if (window.parent !== window) {
-                const currentQuality = document.getElementById('qualityText').textContent;
-                
+                const quality = document.getElementById('qualityText').textContent;
                 window.parent.postMessage({
                     type: 'FLOATING_WINDOW_REQUEST',
                     data: {
                         action: 'sendData',
                         payload: {
                             type: 'signalReport',
-                            quality: currentQuality,
+                            quality: quality,
                             online: navigator.onLine,
                             connectionType: connection?.effectiveType || 'unknown',
                             timestamp: new Date().toISOString()
                         }
                     }
                 }, '*');
-                
-                alert('✅ Data signal berhasil dikirim ke dashboard!');
+                alert('✅ Data signal dikirim ke dashboard!');
             } else {
                 alert('⚠️ Halaman ini tidak dalam floating window');
             }
         }
+
+        // === Tambahan: spin animation untuk lucide ===
+        const styleSpin = document.createElement('style');
+        styleSpin.textContent = '.spin { animation: spin 0.8s linear infinite; } @keyframes spin { to { transform: rotate(360deg); } }';
+        document.head.appendChild(styleSpin);
     </script>
 </body>
 </html>
