@@ -555,54 +555,68 @@
         }
 
         function plotPintuMarkers() {
-            pintuMarkers.forEach(m => map.removeLayer(m));
-            pintuMarkers = [];
+    pintuMarkers.forEach(m => map.removeLayer(m));
+    pintuMarkers = [];
 
-            filteredPintuData.forEach(item => {
-                const [lat, lng] = item.koordinat;
-                let color = '#10b981';
-                if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
-                    color = '#ef4444';
-                } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
-                    color = '#f59e0b';
-                }
-
-                const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
-
-                const marker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        html: iconHtml,
-                        iconSize: [18, 18],
-                        iconAnchor: [9, 9]
-                    })
-                });
-
-                marker.bindPopup(`
-                    <b>${item.nama_saluran}</b><br>
-                    <small>${item.nama_daerah}</small>
-                    <hr>
-                    <table>
-                        <tr><td>ID</td><td>${item.id}</td></tr>
-                        <tr><td>Petugas</td><td>${item.nama_petugas}</td></tr>
-                        <tr><td>Jenis</td><td>${item.jenis_pintu}</td></tr>
-                        <tr><td>Nomenklatur</td><td>${item.nomenklatur}</td></tr>
-                        <tr><td>H1</td><td>${item.h1}m</td></tr>
-                        <tr><td>H</td><td>${item.h}m</td></tr>
-                        <tr><td>B</td><td>${item.b}m</td></tr>
-                        <tr><td>t</td><td>${item.t}m</td></tr>
-                        <tr><td>Daun Pintu</td><td>${item.kondisi_daun_pintu}</td></tr>
-                        <tr><td>Drat Stang</td><td>${item.kondisi_drat_stang}</td></tr>
-                        <tr><td>Rangka</td><td>${item.kondisi_rangka}</td></tr>
-                        <tr><td>Keterangan</td><td>${item.keterangan}</td></tr>
-                    </table>
-                    ${item.url_foto ? `<img src="${item.url_foto}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
-                    <br><small>📅 ${item.timestamp}</small>
-                `, { maxWidth: 280 });
-
-                if (currentLayer === 'pintu') map.addLayer(marker);
-                pintuMarkers.push(marker);
-            });
+    filteredPintuData.forEach(item => {
+        // ✅ Validasi koordinat
+        if (!item.koordinat || item.koordinat === '-') {
+            console.warn('⚠️ Koordinat kosong untuk item:', item.id);
+            return;
         }
+        
+        const parts = item.koordinat.split(',').map(Number);
+        if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
+            console.warn('⚠️ Koordinat tidak valid untuk item:', item.id, item.koordinat);
+            return;
+        }
+        
+        const lat = parts[0];
+        const lng = parts[1];
+        
+        let color = '#10b981';
+        if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
+            color = '#ef4444';
+        } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
+            color = '#f59e0b';
+        }
+
+        const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
+
+        const marker = L.marker([lat, lng], {
+            icon: L.divIcon({
+                html: iconHtml,
+                iconSize: [18, 18],
+                iconAnchor: [9, 9]
+            })
+        });
+
+        marker.bindPopup(`
+            <b>${item.nama_saluran}</b><br>
+            <small>${item.nama_daerah}</small>
+            <hr>
+            <table>
+                <tr><td>ID</td><td>${item.id}</td></tr>
+                <tr><td>Petugas</td><td>${item.nama_petugas}</td></tr>
+                <tr><td>Jenis</td><td>${item.jenis_pintu}</td></tr>
+                <tr><td>Nomenklatur</td><td>${item.nomenklatur}</td></tr>
+                <tr><td>H1</td><td>${item.h1}m</td></tr>
+                <tr><td>H</td><td>${item.h}m</td></tr>
+                <tr><td>B</td><td>${item.b}m</td></tr>
+                <tr><td>t</td><td>${item.t}m</td></tr>
+                <tr><td>Daun Pintu</td><td>${item.kondisi_daun_pintu}</td></tr>
+                <tr><td>Drat Stang</td><td>${item.kondisi_drat_stang}</td></tr>
+                <tr><td>Rangka</td><td>${item.kondisi_rangka}</td></tr>
+                <tr><td>Keterangan</td><td>${item.keterangan}</td></tr>
+            </table>
+            ${item.url_foto ? `<img src="${item.url_foto}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
+            <br><small>📅 ${item.timestamp}</small>
+        `, { maxWidth: 280 });
+
+        if (currentLayer === 'pintu') map.addLayer(marker);
+        pintuMarkers.push(marker);
+    });
+}
 
         function updatePintuStats() {
             const total = filteredPintuData.length;
