@@ -319,6 +319,7 @@
         // ============================================================
         async function fetchPintuAirData() {
             try {
+                console.log('🔄 Fetching data pintu air...');
                 const response = await fetch(API_URL + '?action=getPintuAirData&cb=' + Date.now(), {
                     cache: 'no-cache'
                 });
@@ -326,20 +327,19 @@
                 if (!response.ok) throw new Error('HTTP ' + response.status);
 
                 const result = await response.json();
+                console.log('📦 Raw response:', result);
 
                 if (result.status === 'success' && Array.isArray(result.data)) {
                     pintuAirData = result.data;
                     console.log('✅ Data pintu air dimuat:', pintuAirData.length, 'item');
                 } else {
-                    console.warn('⚠️ Data pintu air kosong atau error');
+                    console.warn('⚠️ Data pintu air kosong atau error:', result.message || '');
                     pintuAirData = [];
                 }
             } catch (error) {
                 console.error('❌ Gagal fetch pintu air:', error);
-                // Fallback ke data contoh (opsional) - jika ingin, tambahkan di sini
                 pintuAirData = [];
             } finally {
-                // Setelah data dimuat, populate filter dan plot marker
                 populatePintuFilters();
                 applyPintuFilter();
                 if (currentLayer === 'pintu') {
@@ -525,12 +525,11 @@
         }
 
         // ============================================================
-        // 8. PINTU AIR - FILTER & PLOT
+        // 8. PINTU AIR - FILTER & PLOT (DENGAN VALIDASI KETAT)
         // ============================================================
         function populatePintuFilters() {
             const daerahSet = new Set(pintuAirData.map(d => d.nama_daerah));
             const selectDaerah = document.getElementById('filterDaerah');
-            // Kosongkan dulu
             selectDaerah.innerHTML = '<option value="ALL">Semua Daerah</option>';
             daerahSet.forEach(daerah => {
                 const opt = document.createElement('option');
@@ -554,77 +553,134 @@
             if (currentLayer === 'pintu') updatePintuStats();
         }
 
+        /**
+         * Plot marker pintu air dengan validasi koordinat yang ketat
+         */
         function plotPintuMarkers() {
-    pintuMarkers.forEach(m => map.removeLayer(m));
-    pintuMarkers = [];
+            // Hapus marker lama
+            pintuMarkers.forEach(m => map.removeLayer(m));
+            pintuMarkers = [];
 
-    filteredPintuData.forEach(item => {
-        // ✅ Validasi koordinat
-        if (!item.koordinat || item.koordinat === '-') {
-            console.warn('⚠️ Koordinat kosong untuk item:', item.id);
-            return;
+            let validCount = 0;
+            let invalidCount = 0;
+
+            filteredPintuData.forEach(item => {
+                // =========================================================
+                // STEP 1: Validasi koordinat
+                // =========================================================
+                const coordRaw = item.koordinat || '';
+                if (!coordRaw || coordRaw === '-' || coordRaw.trim() === '') {
+                    console.warn('⚠️ Koordinat kosong untuk:', item.id || 'unknown');
+                    invalidCount++;
+                    return;
+                }
+
+                // Bersihkan spasi
+                const coordClean = coordRaw.replace(/\s/g, '');
+                const parts = coordClean.split(',');
+
+                if (parts.length !== 2) {
+                    console.warn('⚠️ Format koordinat salah (harus latitude,longitude) untuk:', item.id, '→', coordRaw);
+                    invalidCount++;
+                    return;
+                }
+
+                const lat = parseFloat(parts[0]);
+                const lng = parseFloat(parts[1]);
+
+                // Validasi angka dan batas geografis
+                if (isNaN(lat) || isNaN(lng)) {
+                    console.warn('⚠️ Koordinat bukan angka untuk:', item.id, '→', coordRaw);
+                    invalidCount++;
+                    return;
+                }
+
+                if (lat < -90 || lat > 90 || lng < -180 || lng > 180) {
+                    console.warn('⚠️ Koordinat di luar jangkauan untuk:', item.id, 'Lat:', lat, 'Lng:', lng);
+                    invalidCount++;
+                    return;
+                }
+
+                // =========================================================
+                // STEP 2: Buat marker
+                // =========================================================
+                validCount++;
+
+                // Tentukan warna berdasarkan kondisi
+                let color = '#10b981'; // Baik
+                const kondisi = (item.kondisi_daun_pintu || '').toLowerCase();
+                const drat = (item.kondisi_drat_stang || '').toLowerCase();
+                if (kondisi.includes('rusak berat') || drat === 'rusak') {
+                    color = '#ef4444';
+                } else if (kondisi.includes('rusak ringan') || drat === 'rusak ringan') {
+                    color = '#f59e0b';
+                }
+
+                // Icon HTML
+                const iconMap = {
+                    'Pintu Air': '💧',
+                    'Pintu Pembagi': '🔧',
+                    'Pintu Sorong': '⚙️'
+                };
+                const iconChar = iconMap[item.jenis_pintu] || '🔘';
+
+                const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${iconChar}</div>`;
+
+                const marker = L.marker([lat, lng], {
+                    icon: L.divIcon({
+                        html: iconHtml,
+                        iconSize: [18, 18],
+                        iconAnchor: [9, 9]
+                    })
+                });
+
+                // Popup dengan data detail
+                const popupContent = `
+                    <b>${item.nama_saluran || 'Nama Saluran'}</b><br>
+                    <small>${item.nama_daerah || 'Daerah'}</small>
+                    <hr>
+                    <table>
+                        <tr><td>ID</td><td>${item.id || '-'}</td></tr>
+                        <tr><td>Petugas</td><td>${item.nama_petugas || '-'}</td></tr>
+                        <tr><td>Jenis</td><td>${item.jenis_pintu || '-'}</td></tr>
+                        <tr><td>Nomenklatur</td><td>${item.nomenklatur || '-'}</td></tr>
+                        <tr><td>H1</td><td>${item.h1 || 0}m</td></tr>
+                        <tr><td>H</td><td>${item.h || 0}m</td></tr>
+                        <tr><td>B</td><td>${item.b || 0}m</td></tr>
+                        <tr><td>t</td><td>${item.t || 0}m</td></tr>
+                        <tr><td>Daun Pintu</td><td>${item.kondisi_daun_pintu || '-'}</td></tr>
+                        <tr><td>Drat Stang</td><td>${item.kondisi_drat_stang || '-'}</td></tr>
+                        <tr><td>Rangka</td><td>${item.kondisi_rangka || '-'}</td></tr>
+                        <tr><td>Keterangan</td><td>${item.keterangan || '-'}</td></tr>
+                    </table>
+                    ${item.url_foto ? `<img src="${item.url_foto}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
+                    <br><small>📅 ${item.timestamp || '-'}</small>
+                `;
+
+                marker.bindPopup(popupContent, { maxWidth: 280 });
+
+                if (currentLayer === 'pintu') map.addLayer(marker);
+                pintuMarkers.push(marker);
+            });
+
+            // Log hasil
+            console.log(`✅ Marker pintu air: ${validCount} valid, ${invalidCount} tidak valid`);
+
+            // Jika tidak ada marker yang valid, tampilkan pesan di statistik
+            if (validCount === 0 && filteredPintuData.length > 0) {
+                console.warn('⚠️ Semua data pintu air memiliki koordinat tidak valid! Periksa sheet MS_PINTU_AIR.');
+            }
         }
-        
-        const parts = item.koordinat.split(',').map(Number);
-        if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-            console.warn('⚠️ Koordinat tidak valid untuk item:', item.id, item.koordinat);
-            return;
-        }
-        
-        const lat = parts[0];
-        const lng = parts[1];
-        
-        let color = '#10b981';
-        if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
-            color = '#ef4444';
-        } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
-            color = '#f59e0b';
-        }
-
-        const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
-
-        const marker = L.marker([lat, lng], {
-            icon: L.divIcon({
-                html: iconHtml,
-                iconSize: [18, 18],
-                iconAnchor: [9, 9]
-            })
-        });
-
-        marker.bindPopup(`
-            <b>${item.nama_saluran}</b><br>
-            <small>${item.nama_daerah}</small>
-            <hr>
-            <table>
-                <tr><td>ID</td><td>${item.id}</td></tr>
-                <tr><td>Petugas</td><td>${item.nama_petugas}</td></tr>
-                <tr><td>Jenis</td><td>${item.jenis_pintu}</td></tr>
-                <tr><td>Nomenklatur</td><td>${item.nomenklatur}</td></tr>
-                <tr><td>H1</td><td>${item.h1}m</td></tr>
-                <tr><td>H</td><td>${item.h}m</td></tr>
-                <tr><td>B</td><td>${item.b}m</td></tr>
-                <tr><td>t</td><td>${item.t}m</td></tr>
-                <tr><td>Daun Pintu</td><td>${item.kondisi_daun_pintu}</td></tr>
-                <tr><td>Drat Stang</td><td>${item.kondisi_drat_stang}</td></tr>
-                <tr><td>Rangka</td><td>${item.kondisi_rangka}</td></tr>
-                <tr><td>Keterangan</td><td>${item.keterangan}</td></tr>
-            </table>
-            ${item.url_foto ? `<img src="${item.url_foto}" style="max-width:100%;border-radius:8px;margin-top:8px;">` : ''}
-            <br><small>📅 ${item.timestamp}</small>
-        `, { maxWidth: 280 });
-
-        if (currentLayer === 'pintu') map.addLayer(marker);
-        pintuMarkers.push(marker);
-    });
-}
 
         function updatePintuStats() {
             const total = filteredPintuData.length;
             let baik = 0, rusak = 0;
             filteredPintuData.forEach(item => {
-                if (item.kondisi_daun_pintu.includes('Rusak Berat') || item.kondisi_drat_stang === 'Rusak') {
+                const kondisi = (item.kondisi_daun_pintu || '').toLowerCase();
+                const drat = (item.kondisi_drat_stang || '').toLowerCase();
+                if (kondisi.includes('rusak berat') || drat === 'rusak') {
                     rusak++;
-                } else if (item.kondisi_daun_pintu.includes('Rusak Ringan') || item.kondisi_drat_stang === 'Rusak Ringan') {
+                } else if (kondisi.includes('rusak ringan') || drat === 'rusak ringan') {
                     rusak++;
                 } else {
                     baik++;
@@ -698,7 +754,7 @@
 
         function refreshData() {
             loadPresensiData();
-            fetchPintuAirData(); // refresh data pintu dari server
+            fetchPintuAirData();
         }
 
         function fitToAll() {
