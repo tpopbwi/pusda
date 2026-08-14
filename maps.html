@@ -10,16 +10,19 @@
     <!-- Lucide Icons -->
     <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
 
-    <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
 
     <style>
         /* ============================================================
-           MAPS - FULL RESPONSIVE + PROFESSIONAL POPUP
+           ROOT & BASE
            ============================================================ */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
         :root {
             --bg-dark: #0d1b3e;
@@ -36,11 +39,27 @@
             --shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
         }
 
-        html, body { height: 100%; margin: 0; font-family: 'Plus Jakarta Sans', sans-serif; background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%); color: var(--text); overflow: hidden; }
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: radial-gradient(circle at top right, #1e40af, #0d1b3e 85%);
+            color: var(--text);
+            overflow: hidden;
+        }
 
-        .maps-container { display: flex; flex-direction: column; height: 100vh; padding: 12px; gap: 12px; }
+        .maps-container {
+            display: flex;
+            flex-direction: column;
+            height: 100vh;
+            padding: 12px;
+            gap: 12px;
+        }
 
-        /* Header */
+        /* ============================================================
+           HEADER
+           ============================================================ */
         .maps-header {
             background: var(--bg-card);
             backdrop-filter: blur(20px);
@@ -71,7 +90,9 @@
             margin: 0;
             letter-spacing: -0.5px;
         }
-        .maps-title i { color: var(--toska); }
+        .maps-title i {
+            color: var(--toska);
+        }
 
         .maps-controls {
             display: flex;
@@ -84,7 +105,7 @@
             padding: 6px 12px;
             border-radius: 8px;
             border: 1px solid var(--border);
-            background: rgba(0,0,0,0.4);
+            background: rgba(0, 0, 0, 0.4);
             color: white;
             font-size: 0.7rem;
             font-weight: 600;
@@ -92,7 +113,9 @@
             min-height: 32px;
             max-width: 140px;
         }
-        .maps-controls select option { background: #0d1b3e; }
+        .maps-controls select option {
+            background: #0d1b3e;
+        }
 
         .maps-controls button {
             padding: 6px 12px;
@@ -109,14 +132,19 @@
             transition: all 0.2s ease;
             min-height: 32px;
         }
-        .maps-controls button:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59,130,246,0.4); }
-        .maps-controls button i { font-size: 14px; }
+        .maps-controls button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+        }
+        .maps-controls button i {
+            font-size: 14px;
+        }
 
-        /* Layer toggle */
+        /* Layer Toggle */
         .layer-toggle {
             display: flex;
             gap: 4px;
-            background: rgba(0,0,0,0.3);
+            background: rgba(0, 0, 0, 0.3);
             padding: 4px;
             border-radius: 8px;
         }
@@ -135,7 +163,7 @@
         .layer-toggle button.active {
             background: var(--info);
             color: white;
-            box-shadow: 0 2px 8px rgba(59,130,246,0.3);
+            box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
         }
 
         /* Stats */
@@ -145,29 +173,35 @@
             gap: 8px;
         }
         .maps-stat {
-            background: rgba(0,0,0,0.25);
+            background: rgba(0, 0, 0, 0.25);
             border-radius: 8px;
             padding: 8px 6px;
             text-align: center;
         }
-        .maps-stat .value { 
-            font-size: 1.1rem; 
-            font-weight: 800; 
+        .maps-stat .value {
+            font-size: 1.1rem;
+            font-weight: 800;
             font-family: 'JetBrains Mono', monospace;
             letter-spacing: 0.5px;
         }
-        .maps-stat .label { 
-            font-size: 0.55rem; 
-            color: var(--text-muted); 
-            text-transform: uppercase; 
+        .maps-stat .label {
+            font-size: 0.55rem;
+            color: var(--text-muted);
+            text-transform: uppercase;
             margin-top: 2px;
             font-weight: 700;
             letter-spacing: 0.5px;
         }
-        .maps-stat.success .value { color: var(--success); }
-        .maps-stat.danger .value { color: var(--danger); }
+        .maps-stat.success .value {
+            color: var(--success);
+        }
+        .maps-stat.danger .value {
+            color: var(--danger);
+        }
 
-        /* Map */
+        /* ============================================================
+           MAP
+           ============================================================ */
         #map {
             flex: 1;
             border-radius: var(--radius);
@@ -178,8 +212,13 @@
         }
 
         /* Hilangkan watermark Leaflet */
-        .leaflet-control-attribution { display: none !important; }
-        .leaflet-control-zoom { border: none !important; box-shadow: var(--shadow); }
+        .leaflet-control-attribution {
+            display: none !important;
+        }
+        .leaflet-control-zoom {
+            border: none !important;
+            box-shadow: var(--shadow);
+        }
 
         /* ============================================================
            PROFESSIONAL POPUP PINTU AIR
@@ -192,11 +231,9 @@
             padding: 0;
             overflow: hidden;
         }
-
         .pintu-popup .leaflet-popup-tip {
             background: #0f172a;
         }
-
         .pintu-popup .leaflet-popup-content {
             margin: 0;
             padding: 0;
@@ -208,12 +245,10 @@
             line-height: 1.5;
         }
 
-        /* Popup Inner */
         .popup-inner {
             padding: 18px 20px 16px;
         }
 
-        /* Header */
         .popup-header {
             display: flex;
             justify-content: space-between;
@@ -221,7 +256,6 @@
             gap: 10px;
             margin-bottom: 4px;
         }
-
         .popup-title {
             font-weight: 800;
             font-size: 1.1rem;
@@ -229,7 +263,6 @@
             letter-spacing: -0.3px;
             line-height: 1.2;
         }
-
         .popup-badge {
             font-size: 0.55rem;
             font-weight: 800;
@@ -241,10 +274,26 @@
             flex-shrink: 0;
             margin-top: 2px;
         }
-        .badge-baik { background: rgba(16, 185, 129, 0.2); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
-        .badge-rusak-ringan { background: rgba(245, 158, 11, 0.2); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
-        .badge-rusak-berat { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
-        .badge-rusak { background: rgba(239, 68, 68, 0.2); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
+        .badge-baik {
+            background: rgba(16, 185, 129, 0.2);
+            color: #34d399;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+        }
+        .badge-rusak-ringan {
+            background: rgba(245, 158, 11, 0.2);
+            color: #fbbf24;
+            border: 1px solid rgba(245, 158, 11, 0.3);
+        }
+        .badge-rusak-berat {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
+        .badge-rusak {
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.3);
+        }
 
         .popup-location {
             font-size: 0.7rem;
@@ -255,7 +304,9 @@
             gap: 6px;
             font-weight: 600;
         }
-        .popup-location i { color: var(--toska); }
+        .popup-location i {
+            color: var(--toska);
+        }
 
         .popup-divider {
             height: 1px;
@@ -263,14 +314,12 @@
             margin: 8px 0;
         }
 
-        /* Grid Info */
         .popup-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 2px 16px;
             margin-bottom: 4px;
         }
-
         .popup-item {
             display: flex;
             justify-content: space-between;
@@ -294,7 +343,6 @@
             color: #2dd4bf;
         }
 
-        /* Conditions */
         .popup-conditions {
             display: grid;
             grid-template-columns: 1fr 1fr 1fr;
@@ -304,7 +352,6 @@
             border-radius: 10px;
             margin: 6px 0;
         }
-
         .cond-item {
             text-align: center;
         }
@@ -324,11 +371,16 @@
             margin-top: 2px;
             display: block;
         }
-        .cond-value.good { color: #34d399; }
-        .cond-value.warning { color: #fbbf24; }
-        .cond-value.danger { color: #f87171; }
+        .cond-value.good {
+            color: #34d399;
+        }
+        .cond-value.warning {
+            color: #fbbf24;
+        }
+        .cond-value.danger {
+            color: #f87171;
+        }
 
-        /* Notes */
         .popup-notes {
             font-size: 0.7rem;
             font-weight: 600;
@@ -340,7 +392,6 @@
             margin: 4px 0 8px;
         }
 
-        /* Photo */
         .popup-photo {
             border-radius: 10px;
             overflow: hidden;
@@ -356,7 +407,6 @@
             display: block;
         }
 
-        /* Footer */
         .popup-footer {
             display: flex;
             justify-content: space-between;
@@ -367,6 +417,8 @@
             margin-top: 8px;
             padding-top: 8px;
             border-top: 1px solid rgba(255, 255, 255, 0.05);
+            flex-wrap: wrap;
+            gap: 4px;
         }
         .popup-footer .coord {
             color: #94a3b8;
@@ -392,40 +444,126 @@
             font-size: 0.65rem;
             font-weight: 600;
         }
-        .legend-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
-        .legend-item:last-child { margin-bottom: 0; }
-        .legend-color { width: 12px; height: 12px; border-radius: 50%; border: 1px solid rgba(255,255,255,0.2); }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            margin-bottom: 3px;
+        }
+        .legend-item:last-child {
+            margin-bottom: 0;
+        }
+        .legend-color {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
 
-        /* Responsive */
-        @media (max-width: 600px) {
-            .maps-container { padding: 8px; gap: 8px; }
-            .maps-header { padding: 10px 12px; }
-            .maps-title { font-size: 0.9rem; }
-            .maps-controls select { font-size: 0.6rem; padding: 4px 6px; min-height: 28px; max-width: 100px; }
-            .maps-controls button { font-size: 0.6rem; padding: 4px 8px; min-height: 28px; }
-            .maps-controls button i { font-size: 12px; }
-            .layer-toggle button { font-size: 0.5rem; padding: 3px 8px; min-height: 24px; }
-            .maps-stats { gap: 4px; }
-            .maps-stat .value { font-size: 0.95rem; }
-            .maps-stat .label { font-size: 0.5rem; }
-            .maps-legend { bottom: 12px; left: 12px; padding: 8px 10px; font-size: 0.6rem; }
+        /* ============================================================
+           PERFORMANCE & RESPONSIVE
+           ============================================================ */
+        @media (max-width: 768px) {
+            /* Nonaktifkan efek berat di HP */
+            .maps-header,
+            .maps-legend {
+                backdrop-filter: none !important;
+                -webkit-backdrop-filter: none !important;
+                background: rgba(15, 32, 77, 0.98) !important;
+            }
+
+            .maps-container {
+                padding: 8px;
+                gap: 8px;
+            }
+            .maps-header {
+                padding: 10px 12px;
+            }
+            .maps-title {
+                font-size: 0.9rem;
+            }
+            .maps-controls select {
+                font-size: 0.6rem;
+                padding: 4px 6px;
+                min-height: 28px;
+                max-width: 100px;
+            }
+            .maps-controls button {
+                font-size: 0.6rem;
+                padding: 4px 8px;
+                min-height: 28px;
+            }
+            .maps-controls button i {
+                font-size: 12px;
+            }
+            .layer-toggle button {
+                font-size: 0.5rem;
+                padding: 3px 8px;
+                min-height: 24px;
+            }
+            .maps-stats {
+                gap: 4px;
+            }
+            .maps-stat .value {
+                font-size: 0.95rem;
+            }
+            .maps-stat .label {
+                font-size: 0.5rem;
+            }
+            .maps-legend {
+                bottom: 12px;
+                left: 12px;
+                padding: 8px 10px;
+                font-size: 0.6rem;
+            }
 
             .pintu-popup .leaflet-popup-content {
                 min-width: 220px;
                 max-width: 280px;
             }
-            .popup-grid { grid-template-columns: 1fr; gap: 0; }
-            .popup-specs { grid-template-columns: 1fr 1fr; }
-            .popup-conditions { grid-template-columns: 1fr; gap: 4px; }
-            .popup-title { font-size: 0.95rem; }
-            .popup-photo { max-height: 110px; }
-            .popup-photo img { height: 110px; }
+            .popup-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+            .popup-specs {
+                grid-template-columns: 1fr 1fr;
+            }
+            .popup-conditions {
+                grid-template-columns: 1fr;
+                gap: 4px;
+            }
+            .popup-title {
+                font-size: 0.95rem;
+            }
+            .popup-photo {
+                max-height: 110px;
+            }
+            .popup-photo img {
+                height: 110px;
+            }
+
+            /* Nonaktifkan hover di HP */
+            .maps-controls button:hover {
+                transform: none !important;
+                box-shadow: none !important;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *,
+            *::before,
+            *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
     </style>
 </head>
 <body>
+
     <div class="maps-container">
-        <!-- Header -->
+        <!-- HEADER -->
         <div class="maps-header">
             <div class="maps-header-top">
                 <div class="maps-title">
@@ -455,6 +593,7 @@
                 </div>
             </div>
 
+            <!-- STATS -->
             <div class="maps-stats" id="statsContainer">
                 <div class="maps-stat">
                     <div class="value" id="stat1">0</div>
@@ -471,8 +610,10 @@
             </div>
         </div>
 
+        <!-- MAP -->
         <div id="map"></div>
 
+        <!-- LEGEND -->
         <div class="maps-legend" id="mapLegend">
             <div class="legend-item">
                 <div class="legend-color" style="background: #10b981;"></div>
@@ -490,7 +631,9 @@
     </div>
 
     <!-- Leaflet JS -->
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+    </script>
+
     <script>
         // ============================================================
         // 1. KONFIGURASI & API
@@ -501,16 +644,13 @@
             name: 'Kantor UPT PUSDA WS Bondoyudo Baru'
         };
 
+        // Ganti dengan URL deployment Apps Script Anda
         const API_URL = 'https://script.google.com/macros/s/AKfycbwg8LoyLRWaqpOpmXj6GGdwVksNWEUOKijD3vpllMSfeHVQY5XaeXcd7ygoyFFL-JIv/exec';
 
         // ============================================================
-        // 2. DATA PINTU AIR
+        // 2. DATA & VARIABEL GLOBAL
         // ============================================================
         let pintuAirData = [];
-
-        // ============================================================
-        // 3. VARIABEL GLOBAL
-        // ============================================================
         let map = null;
         let currentLayer = 'presensi';
 
@@ -519,21 +659,19 @@
         let presensiMarkers = [];
         let geofenceCircle = null;
 
-        // Pintu Air
-        let pintuMarkers = [];
+        // Pintu Air (viewport rendering)
         let filteredPintuData = [];
+        let visiblePintuMarkers = []; // Marker yang sedang aktif di viewport
 
         // ============================================================
-        // 4. FETCH DATA PINTU AIR
+        // 3. FETCH DATA PINTU AIR
         // ============================================================
         async function fetchPintuAirData() {
             try {
                 const response = await fetch(API_URL + '?action=getPintuAirData&cb=' + Date.now(), {
                     cache: 'no-cache'
                 });
-
                 if (!response.ok) throw new Error('HTTP ' + response.status);
-
                 const result = await response.json();
 
                 if (result.status === 'success' && Array.isArray(result.data)) {
@@ -549,14 +687,12 @@
             } finally {
                 populatePintuFilters();
                 applyPintuFilter();
-                if (currentLayer === 'pintu') {
-                    updatePintuStats();
-                }
+                if (currentLayer === 'pintu') updatePintuStats();
             }
         }
 
         // ============================================================
-        // 5. INIT MAP
+        // 4. INIT MAP (SATELIT + LABEL CERAH)
         // ============================================================
         function initMap() {
             map = L.map('map', {
@@ -564,13 +700,13 @@
                 zoomControl: true
             }).setView([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], 13);
 
-            // Tile layer satelit ESRI
+            // Tile layer satelit ESRI (maxZoom 18 untuk menghemat data di HP)
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-                maxZoom: 19,
+                maxZoom: 18,
                 attribution: ''
             }).addTo(map);
 
-            // Overlay label CartoDB DARK - opacity 1.0 agar cerah
+            // Overlay label CartoDB DARK - opacity 1.0 agar tajam
             L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
                 maxZoom: 19,
                 attribution: '',
@@ -587,6 +723,10 @@
                 .addTo(map)
                 .bindPopup(`<b>${OFFICE_LOCATION.name}</b>`);
 
+            // Event: Hanya render marker yang terlihat di viewport (performansi)
+            map.on('moveend', renderVisibleMarkers);
+            map.on('zoomend', renderVisibleMarkers);
+
             updateGeofence();
             loadPresensiData();
             fetchPintuAirData();
@@ -594,7 +734,7 @@
         }
 
         // ============================================================
-        // 6. LAYER SWITCH
+        // 5. LAYER SWITCH
         // ============================================================
         function switchLayer(layer) {
             currentLayer = layer;
@@ -605,27 +745,39 @@
 
             const filterDaerah = document.getElementById('filterDaerah');
             const filterJenis = document.getElementById('filterJenis');
+
             if (layer === 'pintu') {
                 filterDaerah.style.display = 'inline-block';
                 filterJenis.style.display = 'inline-block';
-                updatePintuStats();
-                pintuMarkers.forEach(m => map.addLayer(m));
+
+                // Hapus marker presensi
                 presensiMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.removeLayer(geofenceCircle);
+
+                // Tampilkan marker pintu (viewport)
+                renderVisibleMarkers();
+                updatePintuStats();
                 updateLegend('pintu');
+
             } else {
                 filterDaerah.style.display = 'none';
                 filterJenis.style.display = 'none';
+
+                // Hapus marker pintu
+                visiblePintuMarkers.forEach(m => map.removeLayer(m));
+                visiblePintuMarkers = [];
+
+                // Tampilkan marker presensi
                 presensiMarkers.forEach(m => map.addLayer(m));
-                pintuMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.addLayer(geofenceCircle);
+
                 updatePresensiStats();
                 updateLegend('presensi');
             }
         }
 
         // ============================================================
-        // 7. PRESENSI
+        // 6. PRESENSI (Circle Markers)
         // ============================================================
         function loadPresensiData() {
             const cached = localStorage.getItem('wilayah_presensi_' + new Date().toISOString().split('T')[0]);
@@ -655,11 +807,10 @@
             presensiMarkers = [];
 
             const radius = 500;
-
             presensiData.forEach(log => {
                 const gps = log.GPS || log.gps;
                 if (!gps || gps === '-' || gps === 'null') return;
-                const [lat, lng] = gps.split(',').map(Number);
+                const [lat, lng] = gps.replace(/\s/g, '').split(',').map(Number);
                 if (isNaN(lat) || isNaN(lng)) return;
 
                 const distance = calculateDistance(OFFICE_LOCATION.lat, OFFICE_LOCATION.lng, lat, lng);
@@ -720,7 +871,7 @@
         }
 
         // ============================================================
-        // 8. PINTU AIR - PROFESSIONAL POPUP
+        // 7. PINTU AIR - FILTER & VIEWPORT RENDER
         // ============================================================
         function populatePintuFilters() {
             const daerahSet = new Set(pintuAirData.map(d => d.nama_daerah));
@@ -744,52 +895,69 @@
                 return matchDaerah && matchJenis;
             });
 
-            plotPintuMarkers();
-            if (currentLayer === 'pintu') updatePintuStats();
+            // Hapus marker lama dan render ulang berdasarkan viewport
+            visiblePintuMarkers.forEach(m => map.removeLayer(m));
+            visiblePintuMarkers = [];
+
+            if (currentLayer === 'pintu') {
+                renderVisibleMarkers();
+                updatePintuStats();
+            }
         }
 
-        function plotPintuMarkers() {
-            pintuMarkers.forEach(m => map.removeLayer(m));
-            pintuMarkers = [];
+        // ============================================================
+        // 8. RENDER MARKER BERDASARKAN VIEWPORT (KUNCI PERFORMANSI)
+        // ============================================================
+        function renderVisibleMarkers() {
+            // Hanya jalan jika layer pintu aktif
+            if (currentLayer !== 'pintu') return;
+            if (!map) return;
 
+            // Hapus marker yang tidak terlihat
+            visiblePintuMarkers.forEach(m => map.removeLayer(m));
+            visiblePintuMarkers = [];
+
+            const bounds = map.getBounds();
+            const zoom = map.getZoom();
+
+            // Jika zoom terlalu jauh, jangan tampilkan marker (hemat resource)
+            if (zoom < 10) {
+                // Tampilkan pesan atau biarkan kosong
+                return;
+            }
+
+            // Loop data yang sudah difilter
             filteredPintuData.forEach(item => {
-                // Validasi koordinat
-                if (!item.koordinat || item.koordinat === '-') {
-                    console.warn('⚠️ Koordinat kosong untuk item:', item.id);
-                    return;
-                }
+                if (!item.koordinat || item.koordinat === '-') return;
 
                 const parts = item.koordinat.replace(/\s/g, '').split(',').map(Number);
-                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) {
-                    console.warn('⚠️ Koordinat tidak valid untuk item:', item.id, item.koordinat);
-                    return;
-                }
+                if (parts.length !== 2 || isNaN(parts[0]) || isNaN(parts[1])) return;
 
                 const lat = parts[0];
                 const lng = parts[1];
 
+                // Cek apakah koordinat berada dalam viewport
+                if (!bounds.contains([lat, lng])) return;
+
                 // Tentukan status & warna marker
                 let color = '#10b981';
                 let badgeClass = 'badge-baik';
-                let condClass = 'good';
-
                 const kondisi = item.kondisi_daun_pintu || '';
+
                 if (kondisi.includes('Rusak Berat')) {
                     color = '#ef4444';
                     badgeClass = 'badge-rusak-berat';
-                    condClass = 'danger';
                 } else if (kondisi.includes('Rusak Ringan')) {
                     color = '#f59e0b';
                     badgeClass = 'badge-rusak-ringan';
-                    condClass = 'warning';
                 } else if (kondisi.includes('Rusak')) {
                     color = '#ef4444';
                     badgeClass = 'badge-rusak';
-                    condClass = 'danger';
                 }
 
                 // Ikon Marker
-                const iconHtml = `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
+                const iconHtml =
+                    `<div style="background:${color};width:18px;height:18px;border-radius:50%;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:10px;color:white;font-weight:700;">${item.jenis_pintu === 'Pintu Air' ? '💧' : item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️'}</div>`;
 
                 const marker = L.marker([lat, lng], {
                     icon: L.divIcon({
@@ -799,13 +967,10 @@
                     })
                 });
 
-                // ============================================================
-                // PROFESSIONAL POPUP CONTENT (STRUKTUR BARU)
-                // ============================================================
+                // === POPUP PROFESSIONAL ===
                 const statusDisplay = kondisi || 'Tidak Diketahui';
                 const coordDisplay = `${lat.toFixed(6)}, ${lng.toFixed(6)}`;
 
-                // Fungsi untuk menentukan class kondisi
                 const getCondClass = (val) => {
                     if (!val) return 'good';
                     const v = val.toLowerCase();
@@ -816,40 +981,28 @@
 
                 const popupContent = `
                     <div class="popup-inner">
-                        <!-- Header -->
                         <div class="popup-header">
                             <div class="popup-title">${item.nama_saluran || 'Nama Saluran'}</div>
                             <span class="popup-badge ${badgeClass}">${statusDisplay}</span>
                         </div>
-
-                        <!-- Lokasi -->
                         <div class="popup-location">
                             <i data-lucide="map-pin" size="12"></i>
                             ${item.nama_daerah || '-'} · ${item.nomenklatur || '-'}
                         </div>
-
                         <div class="popup-divider"></div>
-
-                        <!-- Informasi Utama -->
                         <div class="popup-grid">
                             <div class="popup-item"><span class="label">ID</span><span class="value">${item.id || '-'}</span></div>
                             <div class="popup-item"><span class="label">Petugas</span><span class="value">${item.nama_petugas || '-'}</span></div>
                             <div class="popup-item"><span class="label">Jenis</span><span class="value">${item.jenis_pintu || '-'}</span></div>
                         </div>
-
                         <div class="popup-divider"></div>
-
-                        <!-- Spesifikasi Teknis -->
                         <div class="popup-grid popup-specs">
                             <div class="popup-item"><span class="label">H1</span><span class="value">${item.h1 || 0}m</span></div>
                             <div class="popup-item"><span class="label">H</span><span class="value">${item.h || 0}m</span></div>
                             <div class="popup-item"><span class="label">B</span><span class="value">${item.b || 0}m</span></div>
                             <div class="popup-item"><span class="label">t</span><span class="value">${item.t || 0}m</span></div>
                         </div>
-
                         <div class="popup-divider"></div>
-
-                        <!-- Kondisi -->
                         <div class="popup-conditions">
                             <div class="cond-item">
                                 <span class="cond-label">Daun Pintu</span>
@@ -864,18 +1017,12 @@
                                 <span class="cond-value ${getCondClass(item.kondisi_rangka)}">${item.kondisi_rangka || '-'}</span>
                             </div>
                         </div>
-
-                        <!-- Keterangan -->
                         ${item.keterangan ? `<div class="popup-notes">📝 ${item.keterangan}</div>` : ''}
-
-                        <!-- Foto -->
                         ${item.url_foto && item.url_foto !== '-' ? `
                             <div class="popup-photo">
                                 <img src="${item.url_foto}" alt="Foto Pintu" loading="lazy" onerror="this.parentElement.style.display='none'">
                             </div>
                         ` : ''}
-
-                        <!-- Footer -->
                         <div class="popup-footer">
                             <span class="coord"><i data-lucide="map-pin" size="10"></i> ${coordDisplay}</span>
                             <span>📅 ${item.timestamp ? new Date(item.timestamp).toLocaleDateString('id-ID', { day:'numeric', month:'short', year:'numeric' }) : '-'}</span>
@@ -889,23 +1036,28 @@
                     className: 'pintu-popup'
                 });
 
-                if (currentLayer === 'pintu') map.addLayer(marker);
-                pintuMarkers.push(marker);
+                // Tambahkan ke map dan simpan ke array visible
+                map.addLayer(marker);
+                visiblePintuMarkers.push(marker);
             });
 
-            // Refresh Lucide icons di dalam popup
+            // Refresh icon di popup (dijalankan setelah popup terbuka nanti)
             setTimeout(() => {
                 if (typeof lucide !== 'undefined') {
                     document.querySelectorAll('.popup-inner i[data-lucide]').forEach(el => {
                         lucide.createIcons({ node: el });
                     });
                 }
-            }, 200);
+            }, 100);
         }
 
+        // ============================================================
+        // 9. UPDATE STATS PINTU
+        // ============================================================
         function updatePintuStats() {
             const total = filteredPintuData.length;
-            let baik = 0, rusak = 0;
+            let baik = 0,
+                rusak = 0;
             filteredPintuData.forEach(item => {
                 const kondisi = item.kondisi_daun_pintu || '';
                 if (kondisi.includes('Rusak Berat') || kondisi.includes('Rusak Ringan') || kondisi.includes('Rusak')) {
@@ -923,7 +1075,7 @@
         }
 
         // ============================================================
-        // 9. LEGEND UPDATER
+        // 10. LEGEND & HELPERS
         // ============================================================
         function updateLegend(layer) {
             const legend = document.getElementById('mapLegend');
@@ -960,23 +1112,20 @@
             }
         }
 
-        // ============================================================
-        // 10. HELPERS
-        // ============================================================
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
             const φ1 = lat1 * Math.PI / 180;
             const φ2 = lat2 * Math.PI / 180;
             const Δφ = (lat2 - lat1) * Math.PI / 180;
             const Δλ = (lon2 - lon1) * Math.PI / 180;
-            const a = Math.sin(Δφ/2)**2 + Math.cos(φ1)*Math.cos(φ2)*Math.sin(Δλ/2)**2;
-            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+            const a = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+            return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         }
 
         function formatTime(dateStr) {
             if (!dateStr) return '--:--';
             try {
-                return new Date(dateStr).toLocaleTimeString('id-ID', { hour:'2-digit', minute:'2-digit' });
+                return new Date(dateStr).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
             } catch { return '--:--'; }
         }
 
@@ -986,7 +1135,7 @@
         }
 
         function fitToAll() {
-            const allMarkers = [...presensiMarkers, ...pintuMarkers];
+            const allMarkers = [...presensiMarkers, ...visiblePintuMarkers];
             if (allMarkers.length === 0) return;
             const group = L.featureGroup(allMarkers);
             map.fitBounds(group.getBounds().pad(0.15));
@@ -1000,5 +1149,6 @@
             initMap();
         });
     </script>
+
 </body>
 </html>
