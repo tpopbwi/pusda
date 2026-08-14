@@ -1066,8 +1066,18 @@ function updateChipCounters(stats) {
         updates.forEach(function(u) {
             var chip = document.querySelector('.q-chip[data-filter="' + u.filter + '"]');
             if (!chip) return;
+
+            // Hapus counter lama
             var oldCounter = chip.querySelector('.chip-count');
             if (oldCounter) oldCounter.remove();
+
+            // Sembunyikan chip jika count 0 dan bukan ALL
+            if (u.filter !== 'ALL' && u.count === 0) {
+                chip.style.display = 'none';
+                return;
+            }
+            chip.style.display = 'inline-flex';
+
             var counterEl = document.createElement('span');
             counterEl.className = 'chip-count';
             counterEl.textContent = u.count;
