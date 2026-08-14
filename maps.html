@@ -284,7 +284,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
     <script>
         // ============================================================
-        // 1. KONFIGURASI
+        // 1. KONFIGURASI & API
         // ============================================================
         const OFFICE_LOCATION = {
             lat: -8.4338918,
@@ -292,68 +292,12 @@
             name: 'Kantor UPT PUSDA WS Bondoyudo Baru'
         };
 
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec';
+
         // ============================================================
-        // 2. DATA PINTU AIR (CONTOH - GANTI DENGAN DATA DARI API)
+        // 2. DATA PINTU AIR (akan diisi dari fetch)
         // ============================================================
-        let pintuAirData = [
-            {
-                timestamp: '2025-01-15 08:00',
-                id: 'PA-001',
-                nama_daerah: 'Daerah Irigasi Bondoyudo',
-                nama_petugas: 'Bambang S.',
-                nama_saluran: 'Saluran Primer Kiri',
-                nomenklatur: 'P.01',
-                jenis_pintu: 'Pintu Air',
-                koordinat: [-8.4338918, 114.2217959],
-                h1: 1.2,
-                h: 0.8,
-                b: 0.6,
-                t: 0.05,
-                kondisi_daun_pintu: 'Baik',
-                kondisi_drat_stang: 'Baik',
-                kondisi_rangka: 'Baik',
-                keterangan: 'Normal operasional',
-                url_foto: ''
-            },
-            {
-                timestamp: '2025-01-15 09:30',
-                id: 'PA-002',
-                nama_daerah: 'Daerah Irigasi Bondoyudo',
-                nama_petugas: 'Siti R.',
-                nama_saluran: 'Saluran Sekunder Kanan',
-                nomenklatur: 'P.02',
-                jenis_pintu: 'Pintu Pembagi',
-                koordinat: [-8.4450, 114.2300],
-                h1: 0.9,
-                h: 0.5,
-                b: 0.4,
-                t: 0.03,
-                kondisi_daun_pintu: 'Rusak Ringan',
-                kondisi_drat_stang: 'Rusak',
-                kondisi_rangka: 'Baik',
-                keterangan: 'Drat stang patah, perlu penggantian',
-                url_foto: ''
-            },
-            {
-                timestamp: '2025-01-15 10:15',
-                id: 'PA-003',
-                nama_daerah: 'Daerah Irigasi Lumajang',
-                nama_petugas: 'Agus W.',
-                nama_saluran: 'Saluran Tersier Utara',
-                nomenklatur: 'P.03',
-                jenis_pintu: 'Pintu Sorong',
-                koordinat: [-8.4600, 114.2400],
-                h1: 1.5,
-                h: 1.0,
-                b: 0.8,
-                t: 0.06,
-                kondisi_daun_pintu: 'Rusak Berat',
-                kondisi_drat_stang: 'Rusak',
-                kondisi_rangka: 'Rusak Ringan',
-                keterangan: 'Daun pintu bengkok, perlu penggantian total',
-                url_foto: ''
-            }
-        ];
+        let pintuAirData = [];
 
         // ============================================================
         // 3. VARIABEL GLOBAL
@@ -371,7 +315,41 @@
         let filteredPintuData = [];
 
         // ============================================================
-        // 4. INIT MAP (SATELIT, TANPA WATERMARK)
+        // 4. FETCH DATA PINTU AIR DARI BACKEND
+        // ============================================================
+        async function fetchPintuAirData() {
+            try {
+                const response = await fetch(API_URL + '?action=getPintuAirData&cb=' + Date.now(), {
+                    cache: 'no-cache'
+                });
+
+                if (!response.ok) throw new Error('HTTP ' + response.status);
+
+                const result = await response.json();
+
+                if (result.status === 'success' && Array.isArray(result.data)) {
+                    pintuAirData = result.data;
+                    console.log('✅ Data pintu air dimuat:', pintuAirData.length, 'item');
+                } else {
+                    console.warn('⚠️ Data pintu air kosong atau error');
+                    pintuAirData = [];
+                }
+            } catch (error) {
+                console.error('❌ Gagal fetch pintu air:', error);
+                // Fallback ke data contoh (opsional) - jika ingin, tambahkan di sini
+                pintuAirData = [];
+            } finally {
+                // Setelah data dimuat, populate filter dan plot marker
+                populatePintuFilters();
+                applyPintuFilter();
+                if (currentLayer === 'pintu') {
+                    updatePintuStats();
+                }
+            }
+        }
+
+        // ============================================================
+        // 5. INIT MAP (SATELIT, TANPA WATERMARK)
         // ============================================================
         function initMap() {
             map = L.map('map', {
@@ -405,17 +383,18 @@
             // Geofence
             updateGeofence();
 
-            // Load data
+            // Load data presensi
             loadPresensiData();
-            populatePintuFilters();
-            applyPintuFilter();
+
+            // Load data pintu air dari backend
+            fetchPintuAirData();
 
             // Default layer: presensi
             switchLayer('presensi');
         }
 
         // ============================================================
-        // 5. LAYER SWITCH
+        // 6. LAYER SWITCH
         // ============================================================
         function switchLayer(layer) {
             currentLayer = layer;
@@ -437,7 +416,6 @@
                 pintuMarkers.forEach(m => map.addLayer(m));
                 presensiMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.removeLayer(geofenceCircle);
-                // Update legend
                 updateLegend('pintu');
             } else {
                 filterDaerah.style.display = 'none';
@@ -446,15 +424,13 @@
                 presensiMarkers.forEach(m => map.addLayer(m));
                 pintuMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.addLayer(geofenceCircle);
-                // Update statistik presensi
                 updatePresensiStats();
-                // Update legend
                 updateLegend('presensi');
             }
         }
 
         // ============================================================
-        // 6. PRESENSI - LOAD & PLOT
+        // 7. PRESENSI - LOAD & PLOT
         // ============================================================
         function loadPresensiData() {
             const cached = localStorage.getItem('wilayah_presensi_' + new Date().toISOString().split('T')[0]);
@@ -469,7 +445,6 @@
             }
         }
 
-        // Terima data dari parent
         window.addEventListener('message', (event) => {
             if (event.data.type === 'FLOATING_WINDOW_MESSAGE') {
                 const { data } = event.data;
@@ -484,7 +459,7 @@
             presensiMarkers.forEach(m => map.removeLayer(m));
             presensiMarkers = [];
 
-            const radius = parseInt(document.getElementById('geofenceRadius')?.value || 500);
+            const radius = 500; // default
 
             presensiData.forEach(log => {
                 const gps = log.GPS || log.gps;
@@ -516,7 +491,6 @@
                     <small>📍 ${distance.toFixed(0)}m dari kantor</small>
                 `);
 
-                // Tambahkan ke map hanya jika layer presensi aktif
                 if (currentLayer === 'presensi') map.addLayer(marker);
                 presensiMarkers.push(marker);
             });
@@ -538,7 +512,7 @@
         function updateGeofence() {
             if (!map) return;
             if (geofenceCircle) map.removeLayer(geofenceCircle);
-            const radius = 500; // default
+            const radius = 500;
             geofenceCircle = L.circle([OFFICE_LOCATION.lat, OFFICE_LOCATION.lng], {
                 radius: radius,
                 color: '#3b82f6',
@@ -551,11 +525,13 @@
         }
 
         // ============================================================
-        // 7. PINTU AIR - FILTER & PLOT
+        // 8. PINTU AIR - FILTER & PLOT
         // ============================================================
         function populatePintuFilters() {
             const daerahSet = new Set(pintuAirData.map(d => d.nama_daerah));
             const selectDaerah = document.getElementById('filterDaerah');
+            // Kosongkan dulu
+            selectDaerah.innerHTML = '<option value="ALL">Semua Daerah</option>';
             daerahSet.forEach(daerah => {
                 const opt = document.createElement('option');
                 opt.value = daerah;
@@ -649,7 +625,7 @@
         }
 
         // ============================================================
-        // 8. LEGEND UPDATER
+        // 9. LEGEND UPDATER
         // ============================================================
         function updateLegend(layer) {
             const legend = document.getElementById('mapLegend');
@@ -687,7 +663,7 @@
         }
 
         // ============================================================
-        // 9. HELPERS
+        // 10. HELPERS
         // ============================================================
         function calculateDistance(lat1, lon1, lat2, lon2) {
             const R = 6371e3;
@@ -708,7 +684,7 @@
 
         function refreshData() {
             loadPresensiData();
-            applyPintuFilter();
+            fetchPintuAirData(); // refresh data pintu dari server
         }
 
         function fitToAll() {
@@ -719,7 +695,7 @@
         }
 
         // ============================================================
-        // 10. INIT
+        // 11. INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
