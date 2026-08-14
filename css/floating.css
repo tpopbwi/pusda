@@ -1,5 +1,5 @@
 /* ============================================================
-   FLOATING WINDOWS - WINDOW MANAGER
+   FLOATING WINDOWS - WINDOW MANAGER (FIXED MOBILE)
    ============================================================ */
 :root {
     --floating-header-height: 48px;
@@ -68,6 +68,7 @@
     user-select: none;
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
+    flex-shrink: 0;
 }
 
 .floating-title {
@@ -120,7 +121,7 @@
     background: var(--success);
 }
 
-/* Window Body (Iframe Container) */
+/* Window Body */
 .floating-body {
     flex: 1;
     position: relative;
@@ -210,20 +211,54 @@
     text-align: center;
 }
 
-/* Responsive */
+/* ============================================================
+   RESPONSIVE MOBILE - FIX POSITION NOT OVERLAP BOTTOM NAV
+   ============================================================ */
 @media (max-width: 768px) {
+    /* Floating window di mobile: posisi tetap, tidak tertutup bottom nav */
     .floating-window {
-        min-width: 90vw;
-        min-height: 70vh;
-        top: 5vh !important;
-        left: 5vw !important;
+        min-width: 0;
+        min-height: 0;
+        top: 12px !important;
+        left: 12px !important;
+        right: 12px !important;
+        bottom: 80px !important; /* ruang untuk bottom nav */
+        width: auto !important;
+        height: auto !important;
+        max-width: calc(100vw - 24px);
+        max-height: calc(100vh - 100px);
+        border-radius: var(--floating-border-radius);
     }
-    
+
+    .floating-window.maximized {
+        top: 0 !important;
+        left: 0 !important;
+        right: 0 !important;
+        bottom: 0 !important;
+        width: 100vw !important;
+        height: 100vh !important;
+        border-radius: 0;
+        max-width: 100vw;
+        max-height: 100vh;
+    }
+
+    .floating-window.minimized {
+        height: var(--floating-header-height) !important;
+        bottom: auto !important;
+        top: 12px !important;
+        right: 12px !important;
+        left: auto !important;
+        width: auto !important;
+        min-width: 200px;
+    }
+
+    /* Floating toolbar di atas bottom nav */
     .floating-toolbar {
         bottom: 90px;
         right: 16px;
+        gap: 10px;
     }
-    
+
     .floating-toolbar-btn {
         width: 48px;
         height: 48px;
