@@ -285,48 +285,161 @@
         }
 
         /* ============================================================
-           CUSTOM MARKER - TANPA KOTAK PUTIH
+           CUSTOM WATERMARK
            ============================================================ */
-        .custom-marker {
+        .custom-watermark {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            z-index: 1000;
+            background: rgba(13, 27, 62, 0.75);
+            backdrop-filter: blur(4px);
+            -webkit-backdrop-filter: blur(4px);
+            padding: 4px 10px;
+            border-radius: 6px;
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            font-size: 0.55rem;
+            color: rgba(255, 255, 255, 0.5);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            pointer-events: none;
+            user-select: none;
+            font-weight: 600;
+            letter-spacing: 0.3px;
+            transition: opacity 0.3s ease;
+        }
+        .custom-watermark:hover {
+            opacity: 0.8;
+        }
+        .custom-watermark .watermark-icon {
+            width: 16px;
+            height: 16px;
             display: flex;
             align-items: center;
             justify-content: center;
-            width: 28px;
-            height: 28px;
-            border-radius: 50%;
-            border: 2px solid white;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
-            font-size: 12px;
-            line-height: 1;
-            text-align: center;
-            background: #10b981;
+            font-size: 10px;
+            background: linear-gradient(135deg, #2dd4bf, #3b82f6);
+            border-radius: 4px;
             color: white;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+        .custom-watermark .watermark-text {
+            font-size: 0.5rem;
+            opacity: 0.7;
+        }
+        .custom-watermark .watermark-text strong {
+            color: rgba(255, 255, 255, 0.9);
             font-weight: 700;
+        }
+
+        @media (max-width: 480px) {
+            .custom-watermark {
+                bottom: 6px;
+                right: 6px;
+                padding: 3px 8px;
+                font-size: 0.45rem;
+            }
+            .custom-watermark .watermark-icon {
+                width: 14px;
+                height: 14px;
+                font-size: 8px;
+            }
+            .custom-watermark .watermark-text {
+                font-size: 0.4rem;
+            }
+        }
+
+        /* ============================================================
+           CUSTOM MARKER - TANPA KOTAK PUTIH (PURE CSS)
+           ============================================================ */
+        .marker-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: 2.5px solid #ffffff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+            position: relative;
             transition: transform 0.2s ease;
         }
-        .custom-marker:hover {
+        .marker-container:hover {
             transform: scale(1.15);
         }
-        .custom-marker .marker-icon {
-            display: flex;
-            align-items: center;
-            justify-content: center;
+        .marker-container .marker-pin {
             width: 100%;
             height: 100%;
             border-radius: 50%;
-            font-size: 12px;
-            line-height: 1;
-            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
+            color: white;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+            position: relative;
+            overflow: hidden;
         }
-        /* Warna status */
-        .marker-baik {
-            background: #10b981;
+        .marker-baik .marker-pin {
+            background: linear-gradient(135deg, #34d399, #10b981);
         }
-        .marker-ringan {
-            background: #f59e0b;
+        .marker-ringan .marker-pin {
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
         }
-        .marker-rusak {
-            background: #ef4444;
+        .marker-rusak .marker-pin {
+            background: linear-gradient(135deg, #f87171, #ef4444);
+        }
+        .marker-container .pulse-ring {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            animation: pulse-ring 2s ease-out infinite;
+            pointer-events: none;
+        }
+        @keyframes pulse-ring {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+            100% {
+                transform: scale(1.5);
+                opacity: 0;
+            }
+        }
+        @media (max-width: 480px) {
+            .marker-container {
+                width: 24px;
+                height: 24px;
+                border-width: 2px;
+            }
+            .marker-container .marker-pin {
+                font-size: 10px;
+            }
+        }
+        @media (min-width: 481px) and (max-width: 768px) {
+            .marker-container {
+                width: 28px;
+                height: 28px;
+                border-width: 2px;
+            }
+            .marker-container .marker-pin {
+                font-size: 12px;
+            }
+        }
+        @media (min-width: 769px) {
+            .marker-container {
+                width: 34px;
+                height: 34px;
+                border-width: 3px;
+            }
+            .marker-container .marker-pin {
+                font-size: 15px;
+            }
         }
 
         /* ============================================================
@@ -725,15 +838,6 @@
                 font-size: 0.45rem;
                 padding: 2px 8px;
             }
-            .custom-marker {
-                width: 22px;
-                height: 22px;
-                font-size: 10px;
-                border-width: 1.5px;
-            }
-            .custom-marker .marker-icon {
-                font-size: 10px;
-            }
         }
 
         @media (min-width: 481px) and (max-width: 768px) {
@@ -750,14 +854,6 @@
             .filter-row select {
                 min-width: 70px;
                 font-size: 0.55rem;
-            }
-            .custom-marker {
-                width: 26px;
-                height: 26px;
-                font-size: 11px;
-            }
-            .custom-marker .marker-icon {
-                font-size: 11px;
             }
         }
 
@@ -788,14 +884,6 @@
             .maps-stat:hover {
                 background: rgba(255, 255, 255, 0.05);
             }
-            .custom-marker {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
-            }
-            .custom-marker .marker-icon {
-                font-size: 14px;
-            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -805,6 +893,9 @@
                 animation-duration: 0.01ms !important;
                 animation-iteration-count: 1 !important;
                 transition-duration: 0.01ms !important;
+            }
+            .marker-container .pulse-ring {
+                animation: none !important;
             }
         }
 
@@ -825,14 +916,11 @@
             .maps-stat:hover {
                 background: rgba(0, 0, 0, 0.25) !important;
             }
-            .custom-marker:hover {
+            .marker-container:hover {
                 transform: none !important;
             }
         }
 
-        /* ============================================================
-           RESPONSIVE STATS - 4 kolom di mobile
-           ============================================================ */
         .maps-stats {
             grid-template-columns: repeat(4, 1fr);
         }
@@ -895,7 +983,7 @@
                 </select>
             </div>
 
-            <!-- STATS - Clickable 4 kolom -->
+            <!-- STATS -->
             <div class="maps-stats" id="statsContainer">
                 <div class="maps-stat" onclick="filterByStatus('ALL')" id="statTotal">
                     <div class="value" id="stat1">0</div>
@@ -919,7 +1007,13 @@
         <!-- MAP -->
         <div id="map"></div>
 
-        <!-- LEGEND - Interactive -->
+        <!-- CUSTOM WATERMARK -->
+        <div class="custom-watermark">
+            <span class="watermark-icon">UPT</span>
+            <span class="watermark-text">© <strong>PUSDA</strong> · v1.0</span>
+        </div>
+
+        <!-- LEGEND -->
         <div class="maps-legend" id="mapLegend">
             <div class="legend-item" onclick="filterByStatus('BAIK')">
                 <div class="legend-color" style="background: #10b981;"></div>
@@ -959,7 +1053,8 @@
         let pintuAirData = [];
         let map = null;
         let currentLayer = 'presensi';
-        let activeFilter = 'ALL'; // ALL, BAIK, RUSAK_RINGAN, RUSAK
+        let activeFilter = 'ALL';
+        let selectedDaerah = 'ALL'; // Track selected daerah
 
         let presensiData = [];
         let presensiMarkers = [];
@@ -1022,14 +1117,32 @@
 
             L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
                 maxZoom: 18,
-                attribution: ''
+                attribution: '',
+                opacity: 1
             }).addTo(map);
 
-            L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
-                maxZoom: 19,
-                attribution: '',
-                opacity: 0.9
-            }).addTo(map);
+            const labelLayer = L.tileLayer(
+                'https://{s}.basemaps.cartocdn.com/dark_only_labels/{z}/{x}/{y}{r}.png', {
+                    maxZoom: 19,
+                    attribution: '',
+                    opacity: 0.95,
+                    className: 'bright-labels'
+                }
+            ).addTo(map);
+
+            const style = document.createElement('style');
+            style.textContent = `
+                .leaflet-tile-pane .leaflet-tile {
+                    filter: brightness(1.2) contrast(1.1) saturate(0.8);
+                }
+                .leaflet-tile-pane .leaflet-tile[src*="cartocdn"] {
+                    filter: brightness(1.4) contrast(1.2) saturate(0.7);
+                }
+                .leaflet-tile-pane .leaflet-tile {
+                    image-rendering: auto;
+                }
+            `;
+            document.head.appendChild(style);
 
             const officeIcon = L.divIcon({
                 html: '<div style="background:#3b82f6;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;border:2px solid white;box-shadow:0 2px 8px rgba(0,0,0,0.4);">🏢</div>',
@@ -1060,6 +1173,7 @@
         function switchLayer(layer) {
             currentLayer = layer;
             activeFilter = 'ALL';
+            selectedDaerah = 'ALL';
 
             document.querySelectorAll('.layer-toggle button').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.layer === layer);
@@ -1075,6 +1189,8 @@
             if (layer === 'pintu') {
                 filterDaerah.classList.remove('hidden');
                 filterJenis.classList.remove('hidden');
+                // Reset select ke ALL
+                filterDaerah.value = 'ALL';
 
                 presensiMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.removeLayer(geofenceCircle);
@@ -1175,8 +1291,8 @@
             document.getElementById('label2').textContent = 'Dalam';
             document.getElementById('label3').textContent = 'Luar';
 
-            // Reset ke 3 kolom untuk presensi
             document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(3, 1fr)';
+            document.getElementById('statRingan').style.display = 'none';
         }
 
         function updateGeofence() {
@@ -1273,60 +1389,108 @@
         function applyPintuFilter() {
             const daerah = document.getElementById('filterDaerah').value;
             const jenis = document.getElementById('filterJenis').value;
+            selectedDaerah = daerah;
 
-            filteredPintuData = pintuAirData.filter(item => {
+            // Data yang sudah difilter berdasarkan daerah dan jenis
+            const filteredByDaerahJenis = pintuAirData.filter(item => {
                 const matchDaerah = daerah === 'ALL' || item.nama_daerah === daerah;
                 const matchJenis = jenis === 'ALL' || item.jenis_pintu === jenis;
-                const matchStatus = activeFilter === 'ALL' || getItemStatus(item) === activeFilter;
-                return matchDaerah && matchJenis && matchStatus;
+                return matchDaerah && matchJenis;
             });
 
+            // Data yang ditampilkan di map (dengan status filter)
+            filteredPintuData = filteredByDaerahJenis.filter(item => {
+                const matchStatus = activeFilter === 'ALL' || getItemStatus(item) === activeFilter;
+                return matchStatus;
+            });
+
+            // Update stats berdasarkan filteredByDaerahJenis (tanpa status filter)
+            updatePintuStatsWithData(filteredByDaerahJenis);
+
+            // Render markers
             visiblePintuMarkers.forEach(m => map.removeLayer(m));
             visiblePintuMarkers = [];
             activePopupMarker = null;
 
             if (currentLayer === 'pintu') {
                 renderVisibleMarkers();
-                updatePintuStats();
             }
         }
 
         // ============================================================
-        // 10. CREATE CUSTOM MARKER - TANPA KOTAK PUTIH
+        // 10. UPDATE STATS PINTU DENGAN DATA TERTENTU
+        // ============================================================
+        function updatePintuStatsWithData(data) {
+            const total = data.length;
+            let baik = 0,
+                ringan = 0,
+                rusak = 0;
+
+            data.forEach(item => {
+                const status = getItemStatus(item);
+                if (status === 'BAIK') baik++;
+                else if (status === 'RUSAK_RINGAN') ringan++;
+                else if (status === 'RUSAK') rusak++;
+            });
+
+            document.getElementById('stat1').textContent = total;
+            document.getElementById('stat2').textContent = baik;
+            document.getElementById('statRinganValue').textContent = ringan;
+            document.getElementById('stat3').textContent = rusak;
+            document.getElementById('label1').textContent = 'Total';
+            document.getElementById('label2').textContent = 'Baik';
+            document.getElementById('label3').textContent = 'Rusak';
+
+            document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(4, 1fr)';
+            document.getElementById('statRingan').style.display = 'block';
+        }
+
+        // ============================================================
+        // 11. UPDATE STATS PINTU (untuk all data)
+        // ============================================================
+        function updatePintuStats() {
+            // Gunakan data yang sudah difilter oleh daerah
+            const daerah = document.getElementById('filterDaerah').value;
+            const data = pintuAirData.filter(item => {
+                return daerah === 'ALL' || item.nama_daerah === daerah;
+            });
+            updatePintuStatsWithData(data);
+        }
+
+        // ============================================================
+        // 12. CREATE CUSTOM MARKER
         // ============================================================
         function createCustomMarker(status, jenisPintu) {
-            let color = '#10b981';
             let statusClass = 'marker-baik';
+            let iconText = '💧';
 
             if (status === 'RUSAK') {
-                color = '#ef4444';
                 statusClass = 'marker-rusak';
             } else if (status === 'RUSAK_RINGAN') {
-                color = '#f59e0b';
                 statusClass = 'marker-ringan';
             }
 
-            // Icon tanpa emoji, gunakan huruf/simbol sederhana
-            let iconText = '💧';
             if (jenisPintu === 'Pintu Pembagi') iconText = '🔧';
             else if (jenisPintu === 'Pintu Sorong') iconText = '⚙️';
 
             const html = `
-                <div class="custom-marker ${statusClass}">
-                    <span class="marker-icon">${iconText}</span>
+                <div class="marker-container ${statusClass}">
+                    <div class="pulse-ring"></div>
+                    <div class="marker-pin">${iconText}</div>
                 </div>
             `;
 
             return L.divIcon({
                 html: html,
-                iconSize: [28, 28],
-                iconAnchor: [14, 14],
-                className: ''
+                iconSize: [32, 32],
+                iconAnchor: [16, 16],
+                className: '',
+                popupAnchor: [0, -10]
             });
         }
 
         // ============================================================
-        // 11. RENDER MARKER VIEWPORT
+        // 13. RENDER MARKER VIEWPORT
         // ============================================================
         function renderVisibleMarkers() {
             if (currentLayer !== 'pintu') return;
@@ -1364,17 +1528,13 @@
                 if (!bounds.contains([lat, lng])) return;
 
                 const status = getItemStatus(item);
-                let color = '#10b981';
                 let badgeClass = 'badge-baik';
                 if (status === 'RUSAK') {
-                    color = '#ef4444';
                     badgeClass = 'badge-rusak-berat';
                 } else if (status === 'RUSAK_RINGAN') {
-                    color = '#f59e0b';
                     badgeClass = 'badge-rusak-ringan';
                 }
 
-                // Gunakan custom marker tanpa kotak putih
                 const icon = createCustomMarker(status, item.jenis_pintu);
 
                 const marker = L.marker([lat, lng], {
@@ -1465,35 +1625,7 @@
         }
 
         // ============================================================
-        // 12. UPDATE STATS PINTU
-        // ============================================================
-        function updatePintuStats() {
-            const total = pintuAirData.length;
-            let baik = 0,
-                ringan = 0,
-                rusak = 0;
-
-            pintuAirData.forEach(item => {
-                const status = getItemStatus(item);
-                if (status === 'BAIK') baik++;
-                else if (status === 'RUSAK_RINGAN') ringan++;
-                else if (status === 'RUSAK') rusak++;
-            });
-
-            document.getElementById('stat1').textContent = total;
-            document.getElementById('stat2').textContent = baik;
-            document.getElementById('statRinganValue').textContent = ringan;
-            document.getElementById('stat3').textContent = rusak;
-            document.getElementById('label1').textContent = 'Total';
-            document.getElementById('label2').textContent = 'Baik';
-            document.getElementById('label3').textContent = 'Rusak';
-
-            // Set 4 kolom untuk pintu
-            document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(4, 1fr)';
-        }
-
-        // ============================================================
-        // 13. LEGEND & HELPERS
+        // 14. LEGEND & HELPERS
         // ============================================================
         function updateLegend(layer) {
             const legend = document.getElementById('mapLegend');
@@ -1566,7 +1698,7 @@
         }
 
         // ============================================================
-        // 14. INIT
+        // 15. INIT
         // ============================================================
         document.addEventListener('DOMContentLoaded', () => {
             if (typeof lucide !== 'undefined') lucide.createIcons();
