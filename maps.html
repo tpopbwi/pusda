@@ -210,7 +210,7 @@
         /* Stats - Compact Grid */
         .maps-stats {
             display: grid;
-            grid-template-columns: repeat(3, 1fr);
+            grid-template-columns: repeat(4, 1fr);
             gap: 4px;
         }
         .maps-stat {
@@ -282,6 +282,51 @@
         }
         .leaflet-control-zoom a:hover {
             background: rgba(59, 130, 246, 0.6) !important;
+        }
+
+        /* ============================================================
+           CUSTOM MARKER - TANPA KOTAK PUTIH
+           ============================================================ */
+        .custom-marker {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+            font-size: 12px;
+            line-height: 1;
+            text-align: center;
+            background: #10b981;
+            color: white;
+            font-weight: 700;
+            transition: transform 0.2s ease;
+        }
+        .custom-marker:hover {
+            transform: scale(1.15);
+        }
+        .custom-marker .marker-icon {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            font-size: 12px;
+            line-height: 1;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        /* Warna status */
+        .marker-baik {
+            background: #10b981;
+        }
+        .marker-ringan {
+            background: #f59e0b;
+        }
+        .marker-rusak {
+            background: #ef4444;
         }
 
         /* ============================================================
@@ -680,6 +725,15 @@
                 font-size: 0.45rem;
                 padding: 2px 8px;
             }
+            .custom-marker {
+                width: 22px;
+                height: 22px;
+                font-size: 10px;
+                border-width: 1.5px;
+            }
+            .custom-marker .marker-icon {
+                font-size: 10px;
+            }
         }
 
         @media (min-width: 481px) and (max-width: 768px) {
@@ -696,6 +750,14 @@
             .filter-row select {
                 min-width: 70px;
                 font-size: 0.55rem;
+            }
+            .custom-marker {
+                width: 26px;
+                height: 26px;
+                font-size: 11px;
+            }
+            .custom-marker .marker-icon {
+                font-size: 11px;
             }
         }
 
@@ -726,6 +788,14 @@
             .maps-stat:hover {
                 background: rgba(255, 255, 255, 0.05);
             }
+            .custom-marker {
+                width: 32px;
+                height: 32px;
+                font-size: 14px;
+            }
+            .custom-marker .marker-icon {
+                font-size: 14px;
+            }
         }
 
         @media (prefers-reduced-motion: reduce) {
@@ -754,6 +824,28 @@
             }
             .maps-stat:hover {
                 background: rgba(0, 0, 0, 0.25) !important;
+            }
+            .custom-marker:hover {
+                transform: none !important;
+            }
+        }
+
+        /* ============================================================
+           RESPONSIVE STATS - 4 kolom di mobile
+           ============================================================ */
+        .maps-stats {
+            grid-template-columns: repeat(4, 1fr);
+        }
+        @media (max-width: 380px) {
+            .maps-stats {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 2px;
+            }
+            .maps-stat .value {
+                font-size: 0.65rem;
+            }
+            .maps-stat .label {
+                font-size: 0.35rem;
             }
         }
     </style>
@@ -803,7 +895,7 @@
                 </select>
             </div>
 
-            <!-- STATS - Clickable -->
+            <!-- STATS - Clickable 4 kolom -->
             <div class="maps-stats" id="statsContainer">
                 <div class="maps-stat" onclick="filterByStatus('ALL')" id="statTotal">
                     <div class="value" id="stat1">0</div>
@@ -819,7 +911,7 @@
                 </div>
                 <div class="maps-stat danger" onclick="filterByStatus('RUSAK')" id="statRusak">
                     <div class="value" id="stat3">0</div>
-                    <div class="label" id="label3">Perbaikan</div>
+                    <div class="label" id="label3">Rusak</div>
                 </div>
             </div>
         </div>
@@ -839,11 +931,9 @@
             </div>
             <div class="legend-item" onclick="filterByStatus('RUSAK')">
                 <div class="legend-color" style="background: #ef4444;"></div>
-                <span>Perbaikan</span>
+                <span>Rusak</span>
             </div>
-            <div class="legend-clear" id="legendClear" onclick="clearFilter()">
-                ✕ Hapus Filter
-            </div>
+            <div class="legend-clear" id="legendClear" onclick="clearFilter()">✕ Hapus Filter</div>
         </div>
     </div>
 
@@ -978,7 +1068,6 @@
             const filterDaerah = document.getElementById('filterDaerah');
             const filterJenis = document.getElementById('filterJenis');
 
-            // Reset stat highlight
             document.querySelectorAll('.maps-stat').forEach(el => el.classList.remove('active-filter'));
             document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active-filter'));
             document.getElementById('legendClear').classList.remove('show');
@@ -989,10 +1078,6 @@
 
                 presensiMarkers.forEach(m => map.removeLayer(m));
                 if (geofenceCircle) map.removeLayer(geofenceCircle);
-
-                // Update stats with 4 columns
-                document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(4, 1fr)';
-                document.getElementById('statRingan').style.display = 'block';
 
                 renderVisibleMarkers();
                 updatePintuStats();
@@ -1006,9 +1091,6 @@
 
                 presensiMarkers.forEach(m => map.addLayer(m));
                 if (geofenceCircle) map.addLayer(geofenceCircle);
-
-                document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(3, 1fr)';
-                document.getElementById('statRingan').style.display = 'none';
 
                 updatePresensiStats();
                 updateLegend('presensi');
@@ -1092,6 +1174,9 @@
             document.getElementById('label1').textContent = 'Total';
             document.getElementById('label2').textContent = 'Dalam';
             document.getElementById('label3').textContent = 'Luar';
+
+            // Reset ke 3 kolom untuk presensi
+            document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(3, 1fr)';
         }
 
         function updateGeofence() {
@@ -1110,20 +1195,18 @@
         }
 
         // ============================================================
-        // 8. FILTER BY STATUS (DARI LEGEND ATAU STATS)
+        // 8. FILTER BY STATUS
         // ============================================================
         function filterByStatus(status) {
             if (currentLayer !== 'pintu') return;
 
             if (activeFilter === status) {
-                // Jika filter sama, matikan filter
                 clearFilter();
                 return;
             }
 
             activeFilter = status;
 
-            // Update highlight pada stats
             document.querySelectorAll('.maps-stat').forEach(el => el.classList.remove('active-filter'));
             document.querySelectorAll('.legend-item').forEach(el => el.classList.remove('active-filter'));
 
@@ -1131,21 +1214,28 @@
                 document.getElementById('statTotal').classList.add('active-filter');
             } else if (status === 'BAIK') {
                 document.getElementById('statBaik').classList.add('active-filter');
-                document.querySelector('.legend-item .legend-color[style*="#10b981"]')?.closest('.legend-item')?.classList
-                .add('active-filter');
+                document.querySelectorAll('.legend-item').forEach(el => {
+                    if (el.querySelector('.legend-color[style*="#10b981"]')) {
+                        el.classList.add('active-filter');
+                    }
+                });
             } else if (status === 'RUSAK_RINGAN') {
                 document.getElementById('statRingan').classList.add('active-filter');
-                document.querySelector('.legend-item .legend-color[style*="#f59e0b"]')?.closest('.legend-item')?.classList
-                .add('active-filter');
+                document.querySelectorAll('.legend-item').forEach(el => {
+                    if (el.querySelector('.legend-color[style*="#f59e0b"]')) {
+                        el.classList.add('active-filter');
+                    }
+                });
             } else if (status === 'RUSAK') {
                 document.getElementById('statRusak').classList.add('active-filter');
-                document.querySelector('.legend-item .legend-color[style*="#ef4444"]')?.closest('.legend-item')?.classList
-                .add('active-filter');
+                document.querySelectorAll('.legend-item').forEach(el => {
+                    if (el.querySelector('.legend-color[style*="#ef4444"]')) {
+                        el.classList.add('active-filter');
+                    }
+                });
             }
 
             document.getElementById('legendClear').classList.add('show');
-
-            // Terapkan filter
             applyPintuFilter();
         }
 
@@ -1172,24 +1262,22 @@
             });
         }
 
+        function getItemStatus(item) {
+            const kondisi = item.kondisi_daun_pintu || '';
+            if (kondisi.includes('Rusak Berat')) return 'RUSAK';
+            if (kondisi.includes('Rusak Ringan')) return 'RUSAK_RINGAN';
+            if (kondisi.includes('Rusak')) return 'RUSAK';
+            return 'BAIK';
+        }
+
         function applyPintuFilter() {
             const daerah = document.getElementById('filterDaerah').value;
             const jenis = document.getElementById('filterJenis').value;
 
-            // Fungsi untuk menentukan status kondisi
-            const getStatus = (kondisi) => {
-                if (!kondisi) return 'BAIK';
-                const k = kondisi.toLowerCase();
-                if (k.includes('rusak berat')) return 'RUSAK';
-                if (k.includes('rusak ringan')) return 'RUSAK_RINGAN';
-                if (k.includes('rusak')) return 'RUSAK';
-                return 'BAIK';
-            };
-
             filteredPintuData = pintuAirData.filter(item => {
                 const matchDaerah = daerah === 'ALL' || item.nama_daerah === daerah;
                 const matchJenis = jenis === 'ALL' || item.jenis_pintu === jenis;
-                const matchStatus = activeFilter === 'ALL' || getStatus(item.kondisi_daun_pintu) === activeFilter;
+                const matchStatus = activeFilter === 'ALL' || getItemStatus(item) === activeFilter;
                 return matchDaerah && matchJenis && matchStatus;
             });
 
@@ -1204,14 +1292,37 @@
         }
 
         // ============================================================
-        // 10. GET STATUS UNTUK STATS
+        // 10. CREATE CUSTOM MARKER - TANPA KOTAK PUTIH
         // ============================================================
-        function getItemStatus(item) {
-            const kondisi = item.kondisi_daun_pintu || '';
-            if (kondisi.includes('Rusak Berat')) return 'RUSAK';
-            if (kondisi.includes('Rusak Ringan')) return 'RUSAK_RINGAN';
-            if (kondisi.includes('Rusak')) return 'RUSAK';
-            return 'BAIK';
+        function createCustomMarker(status, jenisPintu) {
+            let color = '#10b981';
+            let statusClass = 'marker-baik';
+
+            if (status === 'RUSAK') {
+                color = '#ef4444';
+                statusClass = 'marker-rusak';
+            } else if (status === 'RUSAK_RINGAN') {
+                color = '#f59e0b';
+                statusClass = 'marker-ringan';
+            }
+
+            // Icon tanpa emoji, gunakan huruf/simbol sederhana
+            let iconText = '💧';
+            if (jenisPintu === 'Pintu Pembagi') iconText = '🔧';
+            else if (jenisPintu === 'Pintu Sorong') iconText = '⚙️';
+
+            const html = `
+                <div class="custom-marker ${statusClass}">
+                    <span class="marker-icon">${iconText}</span>
+                </div>
+            `;
+
+            return L.divIcon({
+                html: html,
+                iconSize: [28, 28],
+                iconAnchor: [14, 14],
+                className: ''
+            });
         }
 
         // ============================================================
@@ -1263,18 +1374,11 @@
                     badgeClass = 'badge-rusak-ringan';
                 }
 
-                const iconEmoji = item.jenis_pintu === 'Pintu Air' ? '💧' :
-                    item.jenis_pintu === 'Pintu Pembagi' ? '🔧' : '⚙️';
-
-                const iconHtml =
-                    `<div style="background:${color};width:16px;height:16px;border-radius:50%;border:2px solid white;box-shadow:0 2px 6px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;font-size:8px;color:white;font-weight:700;">${iconEmoji}</div>`;
+                // Gunakan custom marker tanpa kotak putih
+                const icon = createCustomMarker(status, item.jenis_pintu);
 
                 const marker = L.marker([lat, lng], {
-                    icon: L.divIcon({
-                        html: iconHtml,
-                        iconSize: [16, 16],
-                        iconAnchor: [8, 8]
-                    })
+                    icon: icon
                 });
 
                 const statusDisplay = item.kondisi_daun_pintu || 'Tidak Diketahui';
@@ -1383,6 +1487,9 @@
             document.getElementById('label1').textContent = 'Total';
             document.getElementById('label2').textContent = 'Baik';
             document.getElementById('label3').textContent = 'Rusak';
+
+            // Set 4 kolom untuk pintu
+            document.querySelector('.maps-stats').style.gridTemplateColumns = 'repeat(4, 1fr)';
         }
 
         // ============================================================
@@ -1418,12 +1525,11 @@
                     </div>
                     <div class="legend-item" onclick="filterByStatus('RUSAK')">
                         <div class="legend-color" style="background: #ef4444;"></div>
-                        <span>Perbaikan</span>
+                        <span>Rusak</span>
                     </div>
                     <div class="legend-clear" id="legendClear" onclick="clearFilter()">✕ Hapus Filter</div>
                 `;
             }
-            // Reset active state
             if (activeFilter !== 'ALL') {
                 document.getElementById('legendClear').classList.add('show');
             }
