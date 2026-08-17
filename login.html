@@ -1,0 +1,171 @@
+// ============================================================
+// UTILS.GS - v2.2 (Helper Functions)
+// ============================================================
+
+// ============================================================
+// FOLDER HELPER
+// ============================================================
+function getFolder(folderName) {
+  try {
+    const folders = DriveApp.getFoldersByName(folderName);
+    if (folders.hasNext()) return folders.next();
+    return DriveApp.createFolder(folderName);
+  } catch (e) {
+    console.error("getFolder error:", e);
+    throw new Error("Folder tidak ditemukan: " + folderName);
+  }
+}
+
+// ============================================================
+// UPLOAD IMAGE (SAFE)
+// ============================================================
+function uploadImageSafe(folder, base64, name) {
+  try {
+    const safeName = name && name !== 'undefined' ? name : 'Pegawai_' + Date.now();
+    let base64Data = String(base64 || "");
+    
+    if (base64Data.includes(",")) {
+      base64Data = base64Data.split(",")[1];
+    }
+    
+    base64Data = base64Data.replace(/\s/g, '');
+    
+    if (base64Data.length > 10000000) {
+      console.error("Base64 terlalu besar untuk " + safeName + ". Dilewati.");
+      return "-"; 
+    }
+    
+    if (base64Data.length === 0) return "-";
+
+    const blob = Utilities.newBlob(Utilities.base64Decode(base64Data), "image/jpeg", safeName + ".jpg");
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    
+    return "https://lh3.googleusercontent.com/d/" + file.getId();
+  } catch(e) {
+    console.error("Upload Gagal untuk " + name + ". Error: " + e.toString());
+    return "-"; 
+  }
+}
+
+// ============================================================
+// UPLOAD IMAGE WITH TRANSPARENCY (PNG/WEBP/GIF)
+// ============================================================
+function uploadImageSafeWithTransparency(folder, base64Data, fileName) {
+  if (!base64Data || base64Data === '-' || base64Data.length < 100) return "-";
+  
+  var retries = CONFIG.UPLOAD_RETRY_COUNT || 3;
+  var lastError = null;
+  
+  while (retries > 0) {
+    try {
+      var mimeType = 'image/jpeg';
+      var extension = 'jpg';
+      
+      if (base64Data.startsWith('data:image/png')) {
+        mimeType = 'image/png';
+        extension = 'png';
+      } else if (base64Data.startsWith('data:image/webp')) {
+        mimeType = 'image/webp';
+        extension = 'webp';
+      } else if (base64Data.startsWith('data:image/gif')) {
+        mimeType = 'image/gif';
+        extension = 'gif';
+      }
+      
+      var base64String = base64Data.split(',')[1] || base64Data;
+      var decoded = Utilities.base64Decode(base64String);
+      var blob = Utilities.newBlob(decoded, mimeType, fileName + '.' + extension);
+      
+      var file = folder.createFile(blob);
+      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+      var fileId = file.getId();
+      var publicUrl = "https://lh3.googleusercontent.com/d/" + fileId;
+      
+      return publicUrl;
+    } catch (e) {
+      lastError = e;
+      retries--;
+      if (retries > 0) {
+        Utilities.sleep(CONFIG.UPLOAD_RETRY_DELAY || 1000);
+      }
+    }
+  }
+  
+  console.error("❌ Upload failed:", lastError);
+  return "-";
+}
+
+// ============================================================
+// SAVE QR TO DRIVE
+// ============================================================
+function saveQRToDrive(apiUrl, filename) {
+  try {
+    if (!apiUrl || apiUrl === "-" || apiUrl.includes("googleusercontent")) return apiUrl;
+    
+    const response = UrlFetchApp.fetch(apiUrl, { muteHttpExceptions: true });
+    if (response.getResponseCode() !== 200) {
+      console.warn("Gagal fetch QR dari URL (Status: " + response.getResponseCode() + "): " + apiUrl);
+      return apiUrl; 
+    }
+    
+    const blob = response.getBlob().setName("QR_" + filename + ".jpg");
+    const folder = DriveApp.getFolderById(CONFIG.FOLDERS.QR_FOLDER_ID);
+    const file = folder.createFile(blob);
+    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+    return "https://lh3.googleusercontent.com/d/" + file.getId();
+  } catch(e) { 
+    console.error("Save QR Failed:", e);
+    return apiUrl; 
+  }
+}
+
+// ============================================================
+// FIND HEADER INDEX
+// ============================================================
+function findHeaderIndex(headers, possibleNames) {
+  for (let i = 0; i < headers.length; i++) {
+    const h = String(headers[i]).toLowerCase().trim();
+    if (possibleNames.some(name => h === name.toLowerCase())) {
+      return i;
+    }
+  }
+  return -1;
+}
+
+// ============================================================
+// EXTRACT FILE ID FROM URL
+// ============================================================
+function extractFileId(url) {
+  if (!url || url === '-') return null;
+  
+  const patterns = [
+    /\/d\/([^\/\?=]+)/,
+    /[?&]id=([^&]+)/,
+    /\/file\/d\/([^\/]+)/,
+    /drive\.google\.com\/uc\?id=([^&]+)/
+  ];
+  
+  for (const pattern of patterns) {
+    const match = url.match(pattern);
+    if (match && match[1]) return match[1];
+  }
+  return null;
+}
+
+// ============================================================
+// DELETE FILE FROM DRIVE
+// ============================================================
+function deleteFileFromDrive(url) {
+  if (!url || url === '-') return;
+  try {
+    var fileId = extractFileId(url);
+    if (fileId) {
+      var file = DriveApp.getFileById(fileId);
+      file.setTrashed(true);
+      console.info("🗑️ File deleted:", file.getName());
+    }
+  } catch (e) {
+    console.warn("⚠️ Gagal hapus file:", e.message);
+  }
+}
