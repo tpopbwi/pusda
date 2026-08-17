@@ -237,7 +237,6 @@ body {
     margin-right: 10px;
 }
 
-/* OTP Section */
 .otp-section {
     display: none;
     margin-top: 15px;
@@ -325,7 +324,6 @@ body {
     background: rgba(255, 255, 255, 0.1);
 }
 
-/* Shake Animation */
 @keyframes shake {
     0%, 100% { transform: translateX(0); }
     20% { transform: translateX(-15px); }
@@ -343,7 +341,6 @@ body {
     to { opacity: 1; transform: translateY(0); }
 }
 
-/* Responsive */
 @media (max-width: 480px) {
     .login-container {
         padding: 30px 20px;
