@@ -1,171 +1,734 @@
-// ============================================================
-// UTILS.GS - v2.2 (Helper Functions)
-// ============================================================
-
-// ============================================================
-// FOLDER HELPER
-// ============================================================
-function getFolder(folderName) {
-  try {
-    const folders = DriveApp.getFoldersByName(folderName);
-    if (folders.hasNext()) return folders.next();
-    return DriveApp.createFolder(folderName);
-  } catch (e) {
-    console.error("getFolder error:", e);
-    throw new Error("Folder tidak ditemukan: " + folderName);
-  }
-}
-
-// ============================================================
-// UPLOAD IMAGE (SAFE)
-// ============================================================
-function uploadImageSafe(folder, base64, name) {
-  try {
-    const safeName = name && name !== 'undefined' ? name : 'Pegawai_' + Date.now();
-    let base64Data = String(base64 || "");
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Login - E-Presensi PUSDA</title>
     
-    if (base64Data.includes(",")) {
-      base64Data = base64Data.split(",")[1];
-    }
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     
-    base64Data = base64Data.replace(/\s/g, '');
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background: #0d1b3e;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .login-container {
+            background: rgba(15, 32, 77, 0.95);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 30px;
+            padding: 40px 35px;
+            max-width: 420px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+        }
+        
+        .login-logo {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .login-logo img {
+            height: 70px;
+            border-radius: 12px;
+            margin-bottom: 12px;
+        }
+        
+        .login-logo h1 {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 800;
+        }
+        
+        .login-logo h1 span.pu { color: #3b82f6; }
+        .login-logo h1 span.sda { color: #2dd4bf; }
+        
+        .login-logo p {
+            color: rgba(255, 255, 255, 0.4);
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 4px;
+        }
+        
+        .login-methods {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        
+        .method-badge {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            color: rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .method-badge:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+        
+        .method-badge.active {
+            background: rgba(45, 212, 191, 0.15);
+            border-color: rgba(45, 212, 191, 0.4);
+            color: #2dd4bf;
+        }
+        
+        .method-badge .icon { margin-right: 4px; }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-group label {
+            display: block;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        
+        .form-group input {
+            width: 100%;
+            padding: 16px 20px;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 14px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        .form-group input:focus {
+            border-color: #2dd4bf;
+            box-shadow: 0 0 0 3px rgba(45, 212, 191, 0.15);
+        }
+        
+        .form-group input::placeholder {
+            color: rgba(255, 255, 255, 0.3);
+        }
+        
+        .input-hint {
+            font-size: 0.7rem;
+            color: rgba(255, 255, 255, 0.25);
+            margin-top: 6px;
+            text-align: center;
+            font-weight: 600;
+        }
+        
+        .input-hint .highlight { color: #2dd4bf; }
+        
+        #identifierInput.login-nik { border-color: rgba(59, 130, 246, 0.5); }
+        #identifierInput.login-phone { border-color: rgba(45, 212, 191, 0.5); }
+        #identifierInput.login-email { border-color: rgba(249, 115, 22, 0.5); }
+        
+        .form-options {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .form-options a {
+            color: rgba(45, 212, 191, 0.6);
+            font-size: 0.78rem;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        
+        .form-options a:hover {
+            color: #2dd4bf;
+        }
+        
+        .btn-login {
+            width: 100%;
+            padding: 18px;
+            border: none;
+            border-radius: 16px;
+            background: linear-gradient(135deg, #2dd4bf, #3b82f6);
+            color: #fff;
+            font-size: 1.05rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 10px;
+        }
+        
+        .btn-login:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 30px rgba(45, 212, 191, 0.3);
+        }
+        
+        .btn-login:active { transform: scale(0.97); }
+        .btn-login:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+        
+        .error-message {
+            color: #ef4444;
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-align: center;
+            margin-top: 12px;
+            min-height: 24px;
+        }
+        
+        .login-footer {
+            text-align: center;
+            margin-top: 25px;
+            color: rgba(255, 255, 255, 0.3);
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        .login-loader {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255, 255, 255, 0.3);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            vertical-align: middle;
+            margin-right: 10px;
+        }
+        
+        /* OTP Section */
+        .otp-section {
+            display: none;
+            margin-top: 15px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            border: 1px solid rgba(45, 212, 191, 0.2);
+        }
+        
+        .otp-section.show { display: block; }
+        
+        .otp-section .otp-inputs {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin: 15px 0;
+        }
+        
+        .otp-section .otp-inputs input {
+            width: 50px;
+            height: 60px;
+            text-align: center;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            transition: 0.3s;
+        }
+        
+        .otp-section .otp-inputs input:focus {
+            border-color: #2dd4bf;
+        }
+        
+        .otp-section .otp-timer {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 0.8rem;
+            font-weight: 600;
+        }
+        
+        .otp-section .otp-timer .time {
+            color: #2dd4bf;
+            font-weight: 800;
+        }
+        
+        .btn-otp {
+            width: 100%;
+            padding: 14px;
+            border: none;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #f97316, #ea580c);
+            color: #fff;
+            font-weight: 700;
+            font-size: 0.95rem;
+            cursor: pointer;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+        
+        .btn-otp:hover {
+            transform: translateY(-2px);
+        }
+        
+        .btn-otp:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+        
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-15px); }
+            40% { transform: translateX(15px); }
+            60% { transform: translateX(-10px); }
+            80% { transform: translateX(10px); }
+        }
+        
+        @media (max-width: 480px) {
+            .login-container {
+                padding: 30px 20px;
+                border-radius: 20px;
+            }
+            .login-logo h1 { font-size: 1.2rem; }
+            .otp-section .otp-inputs input {
+                width: 40px;
+                height: 50px;
+                font-size: 1.2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="login-container">
+        <div class="login-logo">
+            <img src="assets/logo.png" alt="Logo PUSDA" onerror="this.src='https://raw.githubusercontent.com/tpopbwi/presensi-pusda/main/assets/logo.png'">
+            <h1><span class="pu">PU</span><span class="sda">SDA</span></h1>
+            <p>WS Bondoyudo Baru</p>
+        </div>
+        
+        <!-- Login Methods -->
+        <div class="login-methods" id="methodBadges">
+            <span class="method-badge active" data-method="nik">
+                <span class="icon">🪪</span> NIK/NIP
+            </span>
+            <span class="method-badge" data-method="phone">
+                <span class="icon">📱</span> No HP
+            </span>
+            <span class="method-badge" data-method="email">
+                <span class="icon">✉️</span> Email
+            </span>
+        </div>
+        
+        <!-- Login Form -->
+        <form id="loginForm" onsubmit="handleLogin(event)">
+            <div class="form-group">
+                <label id="inputLabel">NIK / NIP</label>
+                <input 
+                    type="text" 
+                    id="identifierInput" 
+                    placeholder="Masukkan NIK/NIP" 
+                    required 
+                    autofocus
+                    class="login-nik"
+                >
+                <div class="input-hint" id="inputHint">
+                    💡 Masukkan <span class="highlight">NIK/NIP</span> Anda
+                </div>
+            </div>
+            
+            <div class="form-group">
+                <label>Password / PIN</label>
+                <input type="password" id="passInput" placeholder="Masukkan Password" required>
+            </div>
+            
+            <div class="form-options">
+                <a href="#" onclick="showOTPSection(event)">Lupa Password?</a>
+            </div>
+            
+            <button type="submit" class="btn-login" id="loginBtn">
+                Masuk
+            </button>
+            
+            <div class="error-message" id="errorMsg"></div>
+        </form>
+        
+        <!-- OTP Section -->
+        <div class="otp-section" id="otpSection">
+            <p style="color: rgba(255,255,255,0.6); text-align:center; font-size:0.85rem; margin-bottom:10px;">
+                Masukkan kode OTP yang dikirim ke <strong id="otpDestination">-</strong>
+            </p>
+            <div class="otp-inputs" id="otpInputs">
+                <input type="text" maxlength="1" class="otp-digit" data-index="0">
+                <input type="text" maxlength="1" class="otp-digit" data-index="1">
+                <input type="text" maxlength="1" class="otp-digit" data-index="2">
+                <input type="text" maxlength="1" class="otp-digit" data-index="3">
+                <input type="text" maxlength="1" class="otp-digit" data-index="4">
+                <input type="text" maxlength="1" class="otp-digit" data-index="5">
+            </div>
+            <div class="otp-timer">
+                Kode berlaku <span class="time" id="otpTimer">5:00</span> menit
+            </div>
+            <button class="btn-otp" id="verifyOtpBtn" onclick="verifyOTP()">
+                Verifikasi & Reset Password
+            </button>
+            <button class="btn-otp" style="background:rgba(255,255,255,0.05); margin-top:8px;" onclick="resendOTP()">
+                Kirim Ulang OTP
+            </button>
+        </div>
+        
+        <div class="login-footer">
+            © 2026 UPT PUSDA WS Bondoyudo Baru
+        </div>
+    </div>
     
-    if (base64Data.length > 10000000) {
-      console.error("Base64 terlalu besar untuk " + safeName + ". Dilewati.");
-      return "-"; 
-    }
-    
-    if (base64Data.length === 0) return "-";
-
-    const blob = Utilities.newBlob(Utilities.base64Decode(base64Data), "image/jpeg", safeName + ".jpg");
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    
-    return "https://lh3.googleusercontent.com/d/" + file.getId();
-  } catch(e) {
-    console.error("Upload Gagal untuk " + name + ". Error: " + e.toString());
-    return "-"; 
-  }
-}
-
-// ============================================================
-// UPLOAD IMAGE WITH TRANSPARENCY (PNG/WEBP/GIF)
-// ============================================================
-function uploadImageSafeWithTransparency(folder, base64Data, fileName) {
-  if (!base64Data || base64Data === '-' || base64Data.length < 100) return "-";
-  
-  var retries = CONFIG.UPLOAD_RETRY_COUNT || 3;
-  var lastError = null;
-  
-  while (retries > 0) {
-    try {
-      var mimeType = 'image/jpeg';
-      var extension = 'jpg';
-      
-      if (base64Data.startsWith('data:image/png')) {
-        mimeType = 'image/png';
-        extension = 'png';
-      } else if (base64Data.startsWith('data:image/webp')) {
-        mimeType = 'image/webp';
-        extension = 'webp';
-      } else if (base64Data.startsWith('data:image/gif')) {
-        mimeType = 'image/gif';
-        extension = 'gif';
-      }
-      
-      var base64String = base64Data.split(',')[1] || base64Data;
-      var decoded = Utilities.base64Decode(base64String);
-      var blob = Utilities.newBlob(decoded, mimeType, fileName + '.' + extension);
-      
-      var file = folder.createFile(blob);
-      file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-      var fileId = file.getId();
-      var publicUrl = "https://lh3.googleusercontent.com/d/" + fileId;
-      
-      return publicUrl;
-    } catch (e) {
-      lastError = e;
-      retries--;
-      if (retries > 0) {
-        Utilities.sleep(CONFIG.UPLOAD_RETRY_DELAY || 1000);
-      }
-    }
-  }
-  
-  console.error("❌ Upload failed:", lastError);
-  return "-";
-}
-
-// ============================================================
-// SAVE QR TO DRIVE
-// ============================================================
-function saveQRToDrive(apiUrl, filename) {
-  try {
-    if (!apiUrl || apiUrl === "-" || apiUrl.includes("googleusercontent")) return apiUrl;
-    
-    const response = UrlFetchApp.fetch(apiUrl, { muteHttpExceptions: true });
-    if (response.getResponseCode() !== 200) {
-      console.warn("Gagal fetch QR dari URL (Status: " + response.getResponseCode() + "): " + apiUrl);
-      return apiUrl; 
-    }
-    
-    const blob = response.getBlob().setName("QR_" + filename + ".jpg");
-    const folder = DriveApp.getFolderById(CONFIG.FOLDERS.QR_FOLDER_ID);
-    const file = folder.createFile(blob);
-    file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
-    return "https://lh3.googleusercontent.com/d/" + file.getId();
-  } catch(e) { 
-    console.error("Save QR Failed:", e);
-    return apiUrl; 
-  }
-}
-
-// ============================================================
-// FIND HEADER INDEX
-// ============================================================
-function findHeaderIndex(headers, possibleNames) {
-  for (let i = 0; i < headers.length; i++) {
-    const h = String(headers[i]).toLowerCase().trim();
-    if (possibleNames.some(name => h === name.toLowerCase())) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-// ============================================================
-// EXTRACT FILE ID FROM URL
-// ============================================================
-function extractFileId(url) {
-  if (!url || url === '-') return null;
-  
-  const patterns = [
-    /\/d\/([^\/\?=]+)/,
-    /[?&]id=([^&]+)/,
-    /\/file\/d\/([^\/]+)/,
-    /drive\.google\.com\/uc\?id=([^&]+)/
-  ];
-  
-  for (const pattern of patterns) {
-    const match = url.match(pattern);
-    if (match && match[1]) return match[1];
-  }
-  return null;
-}
-
-// ============================================================
-// DELETE FILE FROM DRIVE
-// ============================================================
-function deleteFileFromDrive(url) {
-  if (!url || url === '-') return;
-  try {
-    var fileId = extractFileId(url);
-    if (fileId) {
-      var file = DriveApp.getFileById(fileId);
-      file.setTrashed(true);
-      console.info("🗑️ File deleted:", file.getName());
-    }
-  } catch (e) {
-    console.warn("⚠️ Gagal hapus file:", e.message);
-  }
-}
+    <script>
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxfANwhLfJnT1uDqC_4xIFpCvMDLbM0rZcrFPXqLuFc-u0juCrsTgb7v9yGMUedlWiF/exec';
+        let currentMethod = 'nik';
+        let otpTimerInterval = null;
+        let otpExpirySeconds = 300;
+        let currentIdentifier = '';
+        
+        const methodMap = {
+            'nik': { label: 'NIK / NIP', placeholder: 'Masukkan NIK/NIP', hint: '💡 Masukkan <span class="highlight">NIK/NIP</span> Anda', cssClass: 'login-nik' },
+            'phone': { label: 'No HP', placeholder: 'Contoh: 08123456789', hint: '💡 Masukkan <span class="highlight">No HP</span> yang terdaftar', cssClass: 'login-phone' },
+            'email': { label: 'Email', placeholder: 'contoh@email.com', hint: '💡 Masukkan <span class="highlight">Email</span> yang terdaftar', cssClass: 'login-email' }
+        };
+        
+        // ============================================================
+        // METHOD SWITCHING
+        // ============================================================
+        document.querySelectorAll('.method-badge').forEach(badge => {
+            badge.addEventListener('click', function() {
+                document.querySelectorAll('.method-badge').forEach(b => b.classList.remove('active'));
+                this.classList.add('active');
+                currentMethod = this.dataset.method;
+                const config = methodMap[currentMethod];
+                document.getElementById('inputLabel').textContent = config.label;
+                document.getElementById('identifierInput').placeholder = config.placeholder;
+                document.getElementById('inputHint').innerHTML = config.hint;
+                document.getElementById('identifierInput').className = config.cssClass;
+                document.getElementById('identifierInput').focus();
+            });
+        });
+        
+        // ============================================================
+        // AUTO-DETECT INPUT
+        // ============================================================
+        document.getElementById('identifierInput').addEventListener('input', function() {
+            const value = this.value.trim();
+            
+            if (value.length > 3) {
+                if (value.includes('@') && value.includes('.')) {
+                    this.className = 'login-email';
+                    document.getElementById('inputHint').innerHTML = '✉️ Deteksi: <span class="highlight">Email</span>';
+                    updateBadgeActive('email');
+                } else if (/^(\+62|08|62)[0-9\s\-]{8,}/.test(value)) {
+                    this.className = 'login-phone';
+                    document.getElementById('inputHint').innerHTML = '📱 Deteksi: <span class="highlight">No HP</span>';
+                    updateBadgeActive('phone');
+                } else {
+                    this.className = 'login-nik';
+                    document.getElementById('inputHint').innerHTML = '🪪 Deteksi: <span class="highlight">NIK/NIP</span>';
+                    updateBadgeActive('nik');
+                }
+            }
+        });
+        
+        function updateBadgeActive(method) {
+            document.querySelectorAll('.method-badge').forEach(b => {
+                b.classList.toggle('active', b.dataset.method === method);
+            });
+        }
+        
+        // ============================================================
+        // CHECK EXISTING SESSION
+        // ============================================================
+        (function checkExistingSession() {
+            const token = localStorage.getItem('pegawai_token');
+            if (token) {
+                fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({ action: 'verifyToken', token: token })
+                })
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        window.location.href = 'presensi.html';
+                    } else {
+                        localStorage.removeItem('pegawai_token');
+                        localStorage.removeItem('pegawai_data');
+                    }
+                })
+                .catch(() => {
+                    localStorage.removeItem('pegawai_token');
+                    localStorage.removeItem('pegawai_data');
+                });
+            }
+        })();
+        
+        // ============================================================
+        // HANDLE LOGIN
+        // ============================================================
+        async function handleLogin(e) {
+            e.preventDefault();
+            
+            const identifier = document.getElementById('identifierInput').value.trim();
+            const password = document.getElementById('passInput').value.trim();
+            const btn = document.getElementById('loginBtn');
+            const errorMsg = document.getElementById('errorMsg');
+            
+            if (!identifier || !password) {
+                errorMsg.textContent = '⚠️ Username/Email/No HP dan Password wajib diisi!';
+                return;
+            }
+            
+            btn.disabled = true;
+            btn.innerHTML = '<span class="login-loader"></span> Memproses...';
+            errorMsg.textContent = '';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'loginPegawai',
+                        identifier: identifier,
+                        password: password
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    localStorage.setItem('pegawai_token', data.token);
+                    localStorage.setItem('pegawai_data', JSON.stringify(data.pegawai));
+                    localStorage.setItem('pegawai_login_method', data.pegawai.loginMethod || 'Unknown');
+                    window.location.href = 'presensi.html';
+                } else {
+                    errorMsg.textContent = '❌ ' + data.message;
+                    btn.disabled = false;
+                    btn.innerHTML = 'Masuk';
+                    document.querySelector('.login-container').style.animation = 'shake 0.5s ease';
+                    setTimeout(() => document.querySelector('.login-container').style.animation = '', 500);
+                }
+                
+            } catch (error) {
+                console.error('Login error:', error);
+                errorMsg.textContent = '❌ Gagal terhubung ke server. Periksa koneksi internet.';
+                btn.disabled = false;
+                btn.innerHTML = 'Masuk';
+            }
+        }
+        
+        // ============================================================
+        // OTP SECTION
+        // ============================================================
+        function showOTPSection(e) {
+            if (e) e.preventDefault();
+            
+            const identifier = document.getElementById('identifierInput').value.trim();
+            if (!identifier) {
+                document.getElementById('errorMsg').textContent = '⚠️ Masukkan NIK/NIP/No HP/Email terlebih dahulu!';
+                return;
+            }
+            
+            currentIdentifier = identifier;
+            document.getElementById('otpDestination').textContent = identifier;
+            document.getElementById('otpSection').classList.add('show');
+            document.getElementById('errorMsg').textContent = '';
+            
+            // Request OTP
+            requestOTP(identifier);
+        }
+        
+        async function requestOTP(identifier) {
+            const btn = document.querySelector('.btn-otp');
+            btn.disabled = true;
+            btn.textContent = '⏳ Mengirim OTP...';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'requestOTP',
+                        identifier: identifier
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('errorMsg').textContent = '';
+                    document.getElementById('errorMsg').style.color = '#10b981';
+                    document.getElementById('errorMsg').textContent = '✅ OTP dikirim ke ' + data.method + ' Anda';
+                    
+                    // Debug: Tampilkan OTP di console untuk testing
+                    if (data.debug && data.debug.otp) {
+                        console.log('📱 OTP DEBUG:', data.debug.otp);
+                        document.getElementById('errorMsg').textContent += ' (DEBUG: ' + data.debug.otp + ')';
+                    }
+                    
+                    otpExpirySeconds = data.expiresIn || 300;
+                    startOTPTimer(otpExpirySeconds);
+                    btn.textContent = 'Kirim Ulang OTP';
+                    btn.disabled = false;
+                    
+                    // Focus first OTP input
+                    document.querySelector('.otp-digit').focus();
+                    
+                } else {
+                    document.getElementById('errorMsg').textContent = '❌ ' + data.message;
+                    btn.textContent = 'Kirim Ulang OTP';
+                    btn.disabled = false;
+                }
+                
+            } catch (error) {
+                console.error('OTP Request error:', error);
+                document.getElementById('errorMsg').textContent = '❌ Gagal mengirim OTP';
+                btn.textContent = 'Kirim Ulang OTP';
+                btn.disabled = false;
+            }
+        }
+        
+        function resendOTP() {
+            requestOTP(currentIdentifier);
+        }
+        
+        function startOTPTimer(seconds) {
+            if (otpTimerInterval) clearInterval(otpTimerInterval);
+            
+            let remaining = seconds;
+            const timerEl = document.getElementById('otpTimer');
+            
+            otpTimerInterval = setInterval(() => {
+                remaining--;
+                const mins = Math.floor(remaining / 60);
+                const secs = remaining % 60;
+                timerEl.textContent = `${mins}:${String(secs).padStart(2, '0')}`;
+                
+                if (remaining <= 0) {
+                    clearInterval(otpTimerInterval);
+                    timerEl.textContent = 'Kadaluarsa';
+                    document.querySelector('.btn-otp').textContent = 'Request Ulang OTP';
+                }
+            }, 1000);
+        }
+        
+        // ============================================================
+        // OTP INPUT - Auto Focus
+        // ============================================================
+        document.querySelectorAll('.otp-digit').forEach((input, index, inputs) => {
+            input.addEventListener('input', function() {
+                this.value = this.value.replace(/[^0-9]/g, '');
+                if (this.value && index < inputs.length - 1) {
+                    inputs[index + 1].focus();
+                }
+            });
+            
+            input.addEventListener('keydown', function(e) {
+                if (e.key === 'Backspace' && !this.value && index > 0) {
+                    inputs[index - 1].focus();
+                }
+                if (e.key === 'Enter') {
+                    verifyOTP();
+                }
+            });
+        });
+        
+        // ============================================================
+        // VERIFY OTP & RESET PASSWORD
+        // ============================================================
+        async function verifyOTP() {
+            const digits = document.querySelectorAll('.otp-digit');
+            const otp = Array.from(digits).map(d => d.value).join('');
+            
+            if (otp.length < 6) {
+                document.getElementById('errorMsg').textContent = '⚠️ Masukkan 6 digit kode OTP';
+                return;
+            }
+            
+            // Get new password from user
+            const newPassword = prompt('Masukkan password baru (minimal 4 karakter):');
+            if (!newPassword || newPassword.length < 4) {
+                document.getElementById('errorMsg').textContent = '⚠️ Password minimal 4 karakter';
+                return;
+            }
+            
+            const btn = document.getElementById('verifyOtpBtn');
+            btn.disabled = true;
+            btn.textContent = '⏳ Memverifikasi...';
+            
+            try {
+                const response = await fetch(API_URL, {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        action: 'resetPasswordWithOTP',
+                        identifier: currentIdentifier,
+                        otp: otp,
+                        newPassword: newPassword
+                    })
+                });
+                
+                const data = await response.json();
+                
+                if (data.status === 'success') {
+                    document.getElementById('errorMsg').style.color = '#10b981';
+                    document.getElementById('errorMsg').textContent = '✅ ' + data.message;
+                    btn.textContent = '✅ Berhasil!';
+                    
+                    // Close OTP section after 3 seconds
+                    setTimeout(() => {
+                        document.getElementById('otpSection').classList.remove('show');
+                        btn.textContent = 'Verifikasi & Reset Password';
+                        btn.disabled = false;
+                        document.getElementById('passInput').value = newPassword;
+                        document.getElementById('errorMsg').style.color = '#ef4444';
+                        document.getElementById('errorMsg').textContent = '✅ Password sudah direset. Silakan login dengan password baru.';
+                    }, 3000);
+                    
+                } else {
+                    document.getElementById('errorMsg').textContent = '❌ ' + data.message;
+                    btn.textContent = 'Verifikasi & Reset Password';
+                    btn.disabled = false;
+                }
+                
+            } catch (error) {
+                console.error('Verify OTP error:', error);
+                document.getElementById('errorMsg').textContent = '❌ Gagal verifikasi OTP';
+                btn.textContent = 'Verifikasi & Reset Password';
+                btn.disabled = false;
+            }
+        }
+        
+        // ============================================================
+        // ENTER KEY SUPPORT
+        // ============================================================
+        document.getElementById('passInput').addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') handleLogin(e);
+        });
+    </script>
+</body>
+</html>
